@@ -21,7 +21,7 @@ const config = {
         primary: {
           500: "#624CF5",
           50: "#52FC18",
-          100: "#230E2C",
+          100: "#181926",
           200: '#470257',
           DEFAULT: "#050614",
           foreground: "hsl(var(--primary-foreground))",

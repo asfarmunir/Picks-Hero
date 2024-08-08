@@ -10,14 +10,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
 import { TbLogout } from "react-icons/tb";
+import Link from "next/link";
 
 const Navbar = () => {
   return (
-    <div className=" w-full absolute items-center flex justify-between px-3 md:px-8 py-3 2xl:py-4 ">
-      <h1 className=" text-white inline-flex items-center gap-2 font-thin 2xl:text-lg">
-        <Image src="/icons/home.svg" alt="Logo" width={20} height={20} />
-        Home
-      </h1>
+    <div className="  bg-primary  items-center flex justify-between px-3 md:px-8 py-3 2xl:py-4 ">
       <div className="inline-flex items-center gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -101,7 +98,10 @@ const Navbar = () => {
             <DropdownMenuSeparator />
           </DropdownMenuContent>
         </DropdownMenu>
-        <button className=" border-t border-gray-600 bg-gray-900 hover:cursor-pointer rounded-md p-1.5 px-2 text-white text-4xl">
+        <Link
+          href={"/user/profile"}
+          className=" border-t border-gray-600 bg-gray-900 hover:cursor-pointer rounded-md p-1.5 px-2 text-white text-4xl"
+        >
           <Image
             src="/icons/profile.svg"
             alt="User Avatar"
@@ -109,7 +109,7 @@ const Navbar = () => {
             height={20}
             className="rounded-full hover:cursor-pointer"
           />
-        </button>
+        </Link>
         <button className=" border-t border-gray-600 bg-gray-900 hover:cursor-pointer rounded-md p-1.5 px-2 text-white text-4xl">
           <Image
             src="/icons/setting.svg"
