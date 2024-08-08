@@ -403,10 +403,9 @@ const page = () => {
                 <div className="flex w-full mt-2 gap-2 items-center justify-center">
                   <Link
                     href={"/create-account"}
-                    type="submit"
                     className="bg-[#333547] hidden md:block mb-4 w-fit border border-[#2a2b2a] rounded-xl hover:bg-slate-600 mt-4 text-white font-semibold py-3  px-8 2xl:text-lg   focus:outline-none focus:shadow-outline"
                   >
-                    Next
+                    BACK
                   </Link>
                   <Button
                     type="submit"
@@ -564,13 +563,6 @@ const page = () => {
                 </p>
 
                 <div className="flex w-full mt-2 gap-2 items-center justify-center">
-                  <Link
-                    href={"/create-account"}
-                    type="submit"
-                    className="bg-[#333547] hidden md:block mb-4 w-fit border border-[#2a2b2a] rounded-xl hover:bg-slate-600 mt-4 text-white font-semibold py-3  px-8 2xl:text-lg   focus:outline-none focus:shadow-outline"
-                  >
-                    Next
-                  </Link>
                   <Button
                     type="submit"
                     className="bg-[#333547] mb-4 inner-shadow border border-[#28B601] w-full rounded-xl hover:bg-slate-600 mt-4 text-white font-semibold py-6 px-10 2xl:text-lg   focus:outline-none focus:shadow-outline"

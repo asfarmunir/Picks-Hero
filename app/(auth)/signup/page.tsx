@@ -89,6 +89,7 @@ const page = () => {
               alt="hero"
               width={80}
               height={80}
+              priority
               className=" w-[55px] 2xl:w-[70px] "
             />
           </div>
@@ -106,6 +107,7 @@ const page = () => {
               alt="hero"
               width={80}
               height={80}
+              priority
               className=" w-[80px] 2xl:w-[110px] "
             />
           </div>
@@ -125,6 +127,7 @@ const page = () => {
               alt="hero"
               width={80}
               height={80}
+              priority
               className=" w-[55px] 2xl:w-[75px] "
             />
           </div>

@@ -101,6 +101,7 @@ const page = () => {
             src="/images/profile-hero.png"
             alt="Ads"
             width={300}
+            priority
             className=" rounded-lg object-contain object-center w-full h-full "
             height={250}
           />

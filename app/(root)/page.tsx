@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MdOutlineArrowUpward } from "react-icons/md";
 import Navbar from "@/components/shared/Navbar";
+import Link from "next/link";
 
 const page = () => {
   return (
@@ -164,7 +165,10 @@ const page = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <button className="  shadow-green-400    justify-center w-full md:w-fit inner-shadow text-sm px-3.5 py-2 rounded-xl inline-flex items-center gap-2">
+              <Link
+                href={"/create-account"}
+                className="  shadow-green-400    justify-center w-full md:w-fit inner-shadow text-sm px-3.5 py-2 rounded-xl inline-flex items-center gap-2"
+              >
                 <Image
                   src="/icons/add.png"
                   alt="Arrow Icon"
@@ -172,7 +176,7 @@ const page = () => {
                   height={18}
                 />
                 ADD ACCOUNT
-              </button>
+              </Link>
             </div>
           </div>
           <div className="flex flex-col md:flex-row items-center gap-4">
@@ -310,7 +314,10 @@ const page = () => {
           <p className=" text-gray-400 mb-4 leading-snug text-center">
             Purchase a new account and start earning <br /> money now!
           </p>
-          <button className=" inline-flex items-center py-2 px-4 rounded-lg inner-shadow">
+          <Link
+            href={"/create-account"}
+            className=" inline-flex items-center py-2 px-4 rounded-lg inner-shadow"
+          >
             <Image
               src="/icons/add.png"
               alt="Arrow Icon"
@@ -318,7 +325,7 @@ const page = () => {
               height={20}
             />
             <span className="ml-2">Add Account</span>
-          </button>
+          </Link>
         </div>
       </div>
     </>

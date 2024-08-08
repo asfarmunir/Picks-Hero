@@ -63,6 +63,7 @@ const page = () => {
           alt="login"
           width={400}
           height={400}
+          priority
           className=" w-[440px]  2xl:w-[580px] -mt-16 2xl:-mt-24 "
         />
       </div>
