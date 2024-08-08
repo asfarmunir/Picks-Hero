@@ -4,6 +4,16 @@ import { tabs } from "@/lib/constants";
 import Image from "next/image";
 import React from "react";
 import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -12,6 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import { MdOutlineArrowUpward } from "react-icons/md";
+import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
 
 const page = () => {
   const [tab, setTab] = useState<string>("profile");
@@ -41,8 +52,8 @@ const page = () => {
           <Navbar />
         </div>
       </div> */}
-      <div className=" w-full  flex  text-white mt-16 p-8 pb-24 max-h-full overflow-auto">
-        <div className=" w-full  md:w-[70%] h-full shadow-inner shadow-gray-800 flex flex-col gap-4 bg-[#181926] p-6 rounded-xl">
+      <div className=" w-full  flex  text-white mt-16 p-5 md:p-8 pb-24 max-h-full overflow-auto">
+        <div className=" w-full  md:w-[70%] h-full shadow-inner shadow-gray-800 flex flex-col gap-4 bg-[#181926] p-4 md:p-6 rounded-xl">
           <div className=" w-full items-center flex justify-between">
             <h2 className=" text-xl font-bold text-white">PROFILE</h2>
             <button className=" text-white uppercase text-sm bg-[#333547]  px-5 py-2 rounded-lg inline-flex items-center gap-3">
@@ -74,7 +85,8 @@ const page = () => {
           </div>
           {/* <ProfileSection /> */}
           {/* <AccountsSection /> */}
-          <PayoutsSection />
+          {/* <PayoutsSection /> */}
+          <CertificaeSection />
         </div>
         <div className=" hidden md:block md:w-[30%]   ">
           <Image
@@ -318,7 +330,7 @@ const AccountsSection = () => {
 
 const PayoutsSection = () => {
   return (
-    <div className=" w-full space-y-5 bg-primary-100 py-6 px-2 md:p-3  rounded-2xl 2xl:p-5">
+    <div className=" w-full space-y-5 bg-primary-100 py-6  md:p-3  rounded-2xl 2xl:p-5">
       <div className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative min-h-32 2xl:min-h-44 rounded-2xl w-full  flex flex-col gap-1 ">
         <p className=" text-[#AFB2CA] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
           Total Payout Amount
@@ -330,8 +342,205 @@ const PayoutsSection = () => {
             width={45}
             height={45}
           />
-          <p className="   md:mt-0  text-4xl font-semibold">$45,865.55</p>
+          <p className="   md:mt-0 text-3xl  2xl:text-4xl font-semibold">
+            $45,865.55
+          </p>
         </div>
+      </div>
+      <div className=" w-full border border-gray-700 rounded-xl  flex flex-col">
+        <div className="flex items-center justify-between w-full p-6 ">
+          <h3 className=" font-bold">PAYOUT HISTORY</h3>
+          <DropdownMenu>
+            <DropdownMenuTrigger className=" bg-[#272837] shadow-inner shadow-gray-700   justify-center  md:w-fit  text-xs 2xl:text-sm px-3.5 py-2 rounded-xl inline-flex items-center gap-2">
+              <Image
+                src="/icons/filter.svg"
+                alt="Arrow Icon"
+                width={13}
+                height={13}
+              />
+              FILTER
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48  bg-[#181926] text-white border-none  mt-1  p-3 rounded-lg shadow-sm">
+              <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between ">
+                <p>LAST 7 DAYS</p>
+                {/* <MdOutlineArrowUpward className="text-lg" /> */}
+              </DropdownMenuItem>
+
+              <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between ">
+                <p>LAST 14 DAYS</p>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between ">
+                <p>LAST 30 DAYS</p>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <Table>
+          {/* <TableCaption>A list of your recent invoices.</TableCaption> */}
+          <TableHeader className=" bg-[#333547] text-[#848BAC] border-none">
+            <TableRow className=" border-none">
+              <TableHead className="uppercase  font-bold text-center">
+                Date
+              </TableHead>
+              <TableHead className="uppercase font-bold text-center">
+                INVOICE NUMBER
+              </TableHead>
+              <TableHead className="uppercase font-bold text-center">
+                invoice
+              </TableHead>
+              <TableHead className="uppercase font-bold text-center">
+                STATUS
+              </TableHead>
+              <TableHead className="uppercase font-bold text-center">
+                amount
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow className=" border-none">
+              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
+                07 jul 2024 at 34:23pm
+              </TableCell>
+              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
+                123456789123456789
+              </TableCell>
+              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
+                €10.00
+              </TableCell>
+              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base flex items-center justify-center truncate">
+                <p className=" px-2 py-1 bg-green-500/20 text-green-500 border border-green-500 rounded-full">
+                  paid
+                </p>
+              </TableCell>
+              <TableCell className=" font-semibold max-w-[120px]  capitalize text-xs 2xl:text-base  justify-center ">
+                <p className="flex items-center gap-1 text-xs  text-green-400 font-semibold ">
+                  <Image
+                    src="/icons/download.png"
+                    alt="Coin Icon"
+                    width={14}
+                    height={14}
+                  />
+                  <span className=" ">DOWNLOAD</span>
+                </p>
+              </TableCell>
+            </TableRow>
+            <TableRow className=" border-none">
+              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
+                07 jul 2024 at 34:23pm
+              </TableCell>
+              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
+                123456789123456789
+              </TableCell>
+              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
+                €10.00
+              </TableCell>
+              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base flex items-center justify-center truncate">
+                <p className=" px-2 py-1 bg-red-500/20 text-red-500 border border-red-500 rounded-full">
+                  rejected
+                </p>
+              </TableCell>
+              <TableCell className=" font-semibold max-w-[120px]  capitalize text-xs 2xl:text-base  justify-center ">
+                <p className="flex items-center gap-1 text-xs  text-green-400 font-semibold ">
+                  <Image
+                    src="/icons/download.png"
+                    alt="Coin Icon"
+                    width={14}
+                    height={14}
+                  />
+                  <span className=" ">DOWNLOAD</span>
+                </p>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+        <div className="flex items-center justify-between p-5">
+          <h4 className="text-[#848BAC] font-thin text-xs 2xl:text-base ">
+            PAGE 1-5
+          </h4>
+          <div className="flex gap-2 items-center">
+            <button className="text-[#848BAC] text-2xl">
+              <TiArrowLeft />
+            </button>
+            <button className="text-[white] text-2xl">
+              <TiArrowRight />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CertificaeSection = () => {
+  return (
+    <div className=" w-full flex flex-col space-y-5  py-6  md:p-3  rounded-2xl 2xl:p-5  mb-8 ">
+      <div className=" bg-[#272837] shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center  overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 ">
+        <div className=" flex items-center gap-2">
+          <Image
+            src="/icons/funded_c.svg"
+            alt="Arrow Icon"
+            width={40}
+            height={40}
+            className=" mt-1"
+          />
+          <p className=" text-xl  2xl:text-3xl text-[#52FC18] font-semibold">
+            FUNDED
+          </p>
+        </div>
+        <p className=" uppercase tracking-wide text-[#848BAC] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
+          You have no certificates to display
+        </p>
+      </div>
+      <div className=" bg-[#272837] shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 ">
+        <div className=" flex items-center gap-2">
+          <Image
+            src="/icons/payout_c.svg"
+            alt="Arrow Icon"
+            width={40}
+            height={40}
+            className=" mt-1"
+          />
+          <p className=" text-xl  2xl:text-3xl text-[#52FC18] font-semibold">
+            PAYOUT
+          </p>
+        </div>
+        <p className=" uppercase tracking-wide text-[#848BAC] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
+          You have no certificates to display
+        </p>
+      </div>
+      <div className=" bg-[#272837] shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 ">
+        <div className=" flex items-center gap-2">
+          <Image
+            src="/icons/lifetime_c.svg"
+            alt="Arrow Icon"
+            width={40}
+            height={40}
+            className=" mt-1"
+          />
+          <p className=" text-xl  2xl:text-3xl text-[#52FC18] font-semibold">
+            LIFETIME PAYOUT
+          </p>
+        </div>
+        <p className=" uppercase tracking-wide text-[#848BAC] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
+          You have no certificates to display
+        </p>
+      </div>
+      <div className=" bg-[#272837]  shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 ">
+        <div className=" flex items-center gap-2">
+          <Image
+            src="/icons/funded_c.svg"
+            alt="Arrow Icon"
+            width={40}
+            height={40}
+            className=" mt-1"
+          />
+          <p className=" text-xl  2xl:text-3xl text-[#52FC18] font-semibold">
+            PROFILE LEVEL
+          </p>
+        </div>
+        <p className=" uppercase tracking-wide text-[#848BAC] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
+          You have no certificates to display
+        </p>
       </div>
     </div>
   );
