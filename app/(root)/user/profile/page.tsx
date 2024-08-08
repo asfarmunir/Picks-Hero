@@ -12,6 +12,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 import {
   DropdownMenu,
@@ -32,7 +40,7 @@ const page = () => {
   };
   return (
     <>
-      {/* <div
+      <div
         className=" sticky 
         top-0
         z-50
@@ -51,8 +59,8 @@ const page = () => {
           </h1>
           <Navbar />
         </div>
-      </div> */}
-      <div className=" w-full  flex  text-white mt-16 p-5 md:p-8 pb-24 max-h-full overflow-auto">
+      </div>
+      <div className=" w-full  flex  text-white mt-16 md:mt-9 p-5 md:p-8 pb-24 max-h-full overflow-auto">
         <div className=" w-full  md:w-[70%] h-full shadow-inner shadow-gray-800 flex flex-col gap-4 bg-[#181926] p-4 md:p-6 rounded-xl">
           <div className=" w-full items-center flex justify-between">
             <h2 className=" text-xl font-bold text-white">PROFILE</h2>
@@ -83,10 +91,10 @@ const page = () => {
               </button>
             ))}
           </div>
-          {/* <ProfileSection /> */}
-          {/* <AccountsSection /> */}
-          {/* <PayoutsSection /> */}
-          <CertificaeSection />
+          {tab === "profile" && <ProfileSection />}
+          {tab === "accounts" && <AccountsSection />}
+          {tab === "payouts" && <PayoutsSection />}
+          {tab === "certificates" && <CertificaeSection />}
         </div>
         <div className=" hidden md:block md:w-[30%]   ">
           <Image
@@ -133,7 +141,7 @@ const ProfileSection = () => {
           </div>
         </div>
       </div>
-      <div className=" p-4 shadow-inner gap-2 bg-[#52FC18]/10 text-[#52FC18] shadow-gray-700 rounded-xl flex flex-col  ">
+      <div className=" mb-8 p-4 shadow-inner gap-2 bg-[#52FC18]/10 text-[#52FC18] shadow-gray-700 rounded-xl flex flex-col  ">
         <h2 className="  text-xl 2xl:text-2xl font-bold">
           Upgrade your PROFILE Level
         </h2>
@@ -155,7 +163,7 @@ const ProfileSection = () => {
 
 const AccountsSection = () => {
   return (
-    <div className=" w-full space-y-5 bg-primary-100 py-6 px-2 md:p-3  rounded-2xl 2xl:p-5">
+    <div className=" w-full space-y-5 bg-primary-100 py-6 px-2 md:p-3  rounded-2xl 2xl:p-5 mb-8">
       <div className=" w-full flex flex-col gap-3 md:flex-row items-center  justify-between">
         <h2 className=" 2xl:text-xl font-bold"> OVERVIEW</h2>
         <div className="flex flex-col md:flex-row items-center gap-2 w-full md:w-fit">
@@ -330,7 +338,7 @@ const AccountsSection = () => {
 
 const PayoutsSection = () => {
   return (
-    <div className=" w-full space-y-5 bg-primary-100 py-6  md:p-3  rounded-2xl 2xl:p-5">
+    <div className=" w-full space-y-5 bg-primary-100 py-6  md:p-3  rounded-2xl 2xl:p-5 mb-8">
       <div className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative min-h-32 2xl:min-h-44 rounded-2xl w-full  flex flex-col gap-1 ">
         <p className=" text-[#AFB2CA] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
           Total Payout Amount
@@ -490,6 +498,40 @@ const CertificaeSection = () => {
         <p className=" uppercase tracking-wide text-[#848BAC] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
           You have no certificates to display
         </p>
+        <Dialog>
+          <DialogTrigger className=" flex items-center px-4 py-1.5  shadow-inner shadow-gray-600 rounded-xl gap-1 text-white font-bold 2xl:text-lg ">
+            <Image
+              src="/icons/certificate.svg"
+              alt="Arrow Icon"
+              width={20}
+              height={20}
+            />
+            VIEW 3 CERTIFICATES
+          </DialogTrigger>
+          <DialogContent className=" bg-primary-100 text-white p-8 border-none">
+            <DialogHeader>
+              <DialogTitle className=" text-xl font-bold mb-4">
+                FUNDED CERTIFICATES
+              </DialogTitle>
+              <div className="flex flex-col gap-2 w-full">
+                <div className=" p-4 bg-[#272837] rounded-xl py-8 shadow-inner shadow-gray-700 flex items-center justify-between">
+                  <h2 className=" text-lg font-bold uppercase">
+                    CERTIFICATE TITLE
+                  </h2>
+                  <div className="inline-flex items-center gap-2">
+                    <Image
+                      src="/icons/download.png"
+                      alt="Arrow Icon"
+                      width={15}
+                      height={15}
+                    />
+                    <p className="text-xs text-[#52FC18] font-bold">DOWNLOAD</p>
+                  </div>
+                </div>
+              </div>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
       </div>
       <div className=" bg-[#272837] shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 ">
         <div className=" flex items-center gap-2">
