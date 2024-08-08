@@ -63,7 +63,7 @@ const navlinks = [
         src: "/icons/refer-off.svg",
       },
     ],
-    link: "/refer",
+    link: "/refer-and-earn",
   },
 ];
 
@@ -139,13 +139,19 @@ const Sidebar = () => {
             </Link>
           ))}
         </div>
-        <div className="absolute bottom-5 flex-col flex">
+        <div className="absolute bottom-5 w-[85%] flex-col flex">
           <Link
             href={"/help"}
-            className={`inline-flex font-bold text-sm 2xl:text-lg text-[#848BAC] px-3 2xl:px-4 p-2 items-center gap-2`}
+            className={`inline-flex  w-fit font-bold uppercase text-sm  2xl:text-lg 
+                ${
+                  pathname === "/help"
+                    ? "text-white inner-left-shadow p-3 2xl:p-4 bg-[#181926] rounded-2xl"
+                    : "text-[#848BAC] p-3 2xl:p-4  rounded-lg hover:bg-[#27283197]"
+                }
+                items-center gap-2 ${isCollapsed ? "justify-center" : ""}`}
           >
             <Image
-              src={"/icons/help.svg"}
+              src={pathname === "/help" ? "/icons/help.png" : "/icons/help.svg"}
               alt="Help"
               width={16}
               className="2xl:w-[20px]"
