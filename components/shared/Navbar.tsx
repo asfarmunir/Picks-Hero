@@ -1,4 +1,3 @@
-// "use client";
 import { useState, useEffect } from "react";
 import { PiBell } from "react-icons/pi";
 
@@ -22,10 +21,10 @@ const Navbar = () => {
     <div className="  bg-primary  items-center flex justify-between px-3 md:px-8 py-3 2xl:py-4 ">
       <div className="inline-flex items-center gap-2">
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger>
             <PiBell className=" border-t border-gray-600 bg-gray-900 hover:cursor-pointer rounded-md p-1.5 px-2 text-white text-4xl" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-96 z-50 text-white bg-[#272837]  mr-36 border-none py-5 mt-1   rounded-xl  shadow-inner shadow-gray-700">
+          <DropdownMenuContent className=" md:w-[22rem]  2xl:w-96 max-h-[470px] 2xl:max-h-[540px] z-50 overflow-y-auto  text-white bg-[#272837] mr-8 md:mr-36 border-none py-5 mt-1   rounded-xl  shadow-inner shadow-gray-700">
             <div className=" w-full items-center flex justify-between border-b  border-gray-700  pb-4 mb-2">
               <h3 className=" text-lg font-bold px-3.5">Notifications</h3>
               <button className=" text-sm inline-flex gap-1 items-center font-bold text-primary-50 px-3.5">
@@ -38,7 +37,7 @@ const Navbar = () => {
                 Mark read
               </button>
             </div>
-            <div className="flex hover:bg-[#333547]/20 flex-col items-center min-h-40 justify-center my-4 py-3 px-3.5">
+            <div className="flex hover:bg-[#333547]/20 flex-col items-center min-h-32 2xl:min-h-40 justify-center my-4 py-3 px-3.5">
               <Image
                 src="/images/notification.svg"
                 alt="Client"
@@ -50,6 +49,7 @@ const Navbar = () => {
                 You’ll get updates on recent activity here.
               </p>
             </div>
+            <DropdownMenuSeparator />
 
             <div className="flex hover:bg-[#333547]/20 items-center justify-start my-4 py-3 px-3.5">
               <Image
@@ -65,35 +65,22 @@ const Navbar = () => {
                 </span>
               </div>
             </div>
-            <div className="flex hover:bg-[#333547]/20 items-center justify-start my-4 py-3 px-3.5">
-              <Image
-                src="/icons/marked.png"
-                alt="Client"
-                width={50}
-                height={50}
-              />
-              <div className="flex flex-col ml-3">
-                <p className="font-bold">THIS IS THE TITLE</p>
-                <span className=" text-sm text-slate-400/60">
-                  Yesterday at 12:31 PM
-                </span>
-              </div>
-            </div>
-            <div className="flex hover:bg-[#333547]/20 items-center justify-start my-4 py-3 px-3.5">
-              <Image
-                src="/icons/marked.png"
-                alt="Client"
-                width={50}
-                height={50}
-              />
-              <div className="flex flex-col ml-3">
-                <p className="font-bold">THIS IS THE TITLE</p>
-                <span className=" text-sm text-slate-400/60">
-                  Yesterday at 12:31 PM
-                </span>
-              </div>
-            </div>
+            <DropdownMenuSeparator />
 
+            <div className="flex hover:bg-[#333547]/20 items-center justify-start my-4 py-3 px-3.5">
+              <Image
+                src="/icons/marked.png"
+                alt="Client"
+                width={50}
+                height={50}
+              />
+              <div className="flex flex-col ml-3">
+                <p className="font-bold">THIS IS THE TITLE</p>
+                <span className=" text-sm text-slate-400/60">
+                  Yesterday at 12:31 PM
+                </span>
+              </div>
+            </div>
             <DropdownMenuSeparator />
           </DropdownMenuContent>
         </DropdownMenu>
