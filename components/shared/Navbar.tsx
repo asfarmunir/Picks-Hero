@@ -96,7 +96,10 @@ const Navbar = () => {
             className="rounded-full hover:cursor-pointer"
           />
         </Link>
-        <button className=" border-t border-gray-600 bg-gray-900 hover:cursor-pointer rounded-md p-1.5 px-2 text-white text-4xl">
+        <Link
+          href={"/settings"}
+          className=" border-t border-gray-600 bg-gray-900 hover:cursor-pointer rounded-md p-1.5 px-2 text-white text-4xl"
+        >
           <Image
             src="/icons/setting.svg"
             alt="User Avatar"
@@ -104,7 +107,7 @@ const Navbar = () => {
             height={20}
             className="rounded-full hover:cursor-pointer"
           />
-        </button>
+        </Link>
 
         {/* <DropdownMenu>
           <DropdownMenuTrigger asChild>
