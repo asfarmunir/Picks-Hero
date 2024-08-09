@@ -25,14 +25,9 @@ import { useState } from "react";
 import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
 
 const page = () => {
-  const [tab, setTab] = useState<string>("profile");
-
-  const changeTab = (tab: string) => {
-    setTab(tab);
-  };
   return (
     <>
-      {/* <div
+      <div
         className=" sticky 
         top-0
         z-50
@@ -46,7 +41,7 @@ const page = () => {
           </h1>
           <Navbar />
         </div>
-      </div> */}
+      </div>
       <div className=" w-full  flex  text-white mt-16 md:mt-9 p-5 md:p-8 pb-24 max-h-full overflow-auto">
         <div className=" w-full  md:w-[70%] h-full shadow-inner shadow-gray-800 flex flex-col gap-7  bg-[#181926] p-4 md:p-6 rounded-xl">
           <div className=" w-full items-center flex justify-between">
