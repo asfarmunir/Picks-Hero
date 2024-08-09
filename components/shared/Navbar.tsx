@@ -1,6 +1,6 @@
-import React from "react";
+// "use client";
+import { useState, useEffect } from "react";
 import { PiBell } from "react-icons/pi";
-import { IoSettingsOutline } from "react-icons/io5";
 
 import {
   DropdownMenu,
@@ -9,10 +9,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Image from "next/image";
-import { TbLogout } from "react-icons/tb";
 import Link from "next/link";
 
 const Navbar = () => {
+  // const [loading, setLoading] = useState(true);
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     setLoading(false);
+  //   }, 1200);
+  // }, []);
   return (
     <div className="  bg-primary  items-center flex justify-between px-3 md:px-8 py-3 2xl:py-4 ">
       <div className="inline-flex items-center gap-2">
@@ -20,81 +25,75 @@ const Navbar = () => {
           <DropdownMenuTrigger asChild>
             <PiBell className=" border-t border-gray-600 bg-gray-900 hover:cursor-pointer rounded-md p-1.5 px-2 text-white text-4xl" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-96 mr-24 mt-1 p-6 py-4 rounded-none shadow-sm">
-            <div className=" w-full items-center flex justify-between mb-2">
-              <h3 className=" text-lg font-sans">Notifications</h3>
-              <button className=" text-blue-400 font-thin text-sm">
-                Mark all as read
+          <DropdownMenuContent className="w-96 z-50 text-white bg-[#272837]  mr-36 border-none py-5 mt-1   rounded-xl  shadow-inner shadow-gray-700">
+            <div className=" w-full items-center flex justify-between border-b  border-gray-700  pb-4 mb-2">
+              <h3 className=" text-lg font-bold px-3.5">Notifications</h3>
+              <button className=" text-sm inline-flex gap-1 items-center font-bold text-primary-50 px-3.5">
+                <Image
+                  src="/icons/mark-as-read.svg"
+                  alt="Mark All"
+                  width={16}
+                  height={16}
+                />
+                Mark read
               </button>
             </div>
-            <DropdownMenuSeparator />
-            <div className="flex items-start justify-start my-4">
+            <div className="flex hover:bg-[#333547]/20 flex-col items-center min-h-40 justify-center my-4 py-3 px-3.5">
               <Image
-                src="/images/client1.svg"
+                src="/images/notification.svg"
                 alt="Client"
-                width={40}
-                height={40}
-                className="rounded-full"
+                className=" mx-auto"
+                width={50}
+                height={50}
+              />
+              <p className=" text-sm text-[#737897] font-light ">
+                You’ll get updates on recent activity here.
+              </p>
+            </div>
+
+            <div className="flex hover:bg-[#333547]/20 items-center justify-start my-4 py-3 px-3.5">
+              <Image
+                src="/icons/marked.png"
+                alt="Client"
+                width={50}
+                height={50}
               />
               <div className="flex flex-col ml-3">
-                <p className="">
-                  <strong className=" mr-1 ">Bryce Caton</strong>
-                  has completed chest workout and said “Great workout!”
-                </p>
-                <span className=" text-sm text-slate-400/60">3hrs ago</span>
+                <p className="font-bold">THIS IS THE TITLE</p>
+                <span className=" text-sm text-slate-400/60">
+                  Yesterday at 12:31 PM
+                </span>
               </div>
             </div>
-            <DropdownMenuSeparator />
-            <div className="flex items-start justify-start my-4">
+            <div className="flex hover:bg-[#333547]/20 items-center justify-start my-4 py-3 px-3.5">
               <Image
-                src="/images/client1.svg"
+                src="/icons/marked.png"
                 alt="Client"
-                width={40}
-                height={40}
-                className="rounded-full"
+                width={50}
+                height={50}
               />
               <div className="flex flex-col ml-3">
-                <p className="">
-                  <strong className=" mr-1 ">Bryce Caton</strong>
-                  has completed chest workout and said “Great workout!”
-                </p>
-                <span className=" text-sm text-slate-400/60">3hrs ago</span>
+                <p className="font-bold">THIS IS THE TITLE</p>
+                <span className=" text-sm text-slate-400/60">
+                  Yesterday at 12:31 PM
+                </span>
               </div>
             </div>
-            <DropdownMenuSeparator />
-            <div className="flex items-start justify-start my-4">
+            <div className="flex hover:bg-[#333547]/20 items-center justify-start my-4 py-3 px-3.5">
               <Image
-                src="/images/client1.svg"
+                src="/icons/marked.png"
                 alt="Client"
-                width={40}
-                height={40}
-                className="rounded-full"
+                width={50}
+                height={50}
               />
               <div className="flex flex-col ml-3">
-                <p className="">
-                  <strong className=" mr-1 ">Bryce Caton</strong>
-                  has completed chest workout and said “Great workout!”
-                </p>
-                <span className=" text-sm text-slate-400/60">3hrs ago</span>
+                <p className="font-bold">THIS IS THE TITLE</p>
+                <span className=" text-sm text-slate-400/60">
+                  Yesterday at 12:31 PM
+                </span>
               </div>
             </div>
-            <DropdownMenuSeparator />
-            <div className="flex items-start justify-start my-4">
-              <Image
-                src="/images/client1.svg"
-                alt="Client"
-                width={40}
-                height={40}
-                className="rounded-full"
-              />
-              <div className="flex flex-col ml-3">
-                <p className="">
-                  <strong className=" mr-1 ">Bryce Caton</strong>
-                  has completed chest workout and said “Great workout!”
-                </p>
-                <span className=" text-sm text-slate-400/60">3hrs ago</span>
-              </div>
-            </div>
+
             <DropdownMenuSeparator />
           </DropdownMenuContent>
         </DropdownMenu>
