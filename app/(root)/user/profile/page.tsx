@@ -100,9 +100,12 @@ const page = () => {
           <Image
             src="/images/profile-hero.png"
             alt="Ads"
-            width={300}
+            width={270}
             priority
             height={250}
+            className=" rounded-lg  
+            2xl:w-[340px] 
+              "
           />
         </div>
       </div>

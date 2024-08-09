@@ -142,7 +142,7 @@ const Sidebar = () => {
         <div className="absolute bottom-5 w-[85%] flex-col flex">
           <Link
             href={"/help"}
-            className={`inline-flex  w-fit font-bold uppercase text-sm  2xl:text-lg 
+            className={`inline-flex  font-bold uppercase text-sm  2xl:text-lg 
                 ${
                   pathname === "/help"
                     ? "text-white inner-left-shadow p-3 2xl:p-4 bg-[#181926] rounded-2xl"
