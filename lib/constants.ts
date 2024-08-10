@@ -40,3 +40,33 @@ export const settingTabs = [
   },
   
 ];
+
+export const dashboardTabs = [
+  {
+    title:'Account Stats',
+    tab:'stats',
+    icon:[
+      '/icons/trophy.png',
+      '/icons/trophy-off.png'
+    ]
+  },
+   {
+    title:'objectives',
+    tab:'objectives',
+    icon:[
+      '/icons/objective-green.png',
+      '/icons/objective-off.png'
+    ]
+  },
+  {
+    title:' bet history',
+    tab:'bet',
+    icon:[
+      '/icons/bet.png',
+      '/icons/bet-off.png'
+    ]
+  }
+  
+  
+
+];
