@@ -21,6 +21,7 @@ import Navbar from "@/components/shared/Navbar";
 import Link from "next/link";
 import { dashboardTabs } from "@/lib/constants";
 import BetHistory from "@/components/shared/BetHistory";
+import Objectives from "@/components/shared/Objectives";
 
 const page = () => {
   const [tab, setTab] = React.useState("stats");
@@ -376,7 +377,8 @@ const page = () => {
             </div>
           ))}
         </div> */}
-        <BetHistory />
+        {/* <BetHistory /> */}
+        <Objectives />
       </div>
     </>
   );
