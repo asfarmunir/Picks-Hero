@@ -40,7 +40,7 @@ const page = () => {
           <Navbar />
         </div>
       </div> */}
-      <div className=" pt-16 relative px-5 2xl:px-8 2xl:mt-4 pb-24 text-white  max-h-full overflow-auto space-y-4 ">
+      <div className=" pt-16 relative px-5 2xl:px-8 2xl:mt-4 pb-24 text-white  max-h-full overflow-auto space-y-6 ">
         <div className="w-full flex-col md:flex-row  flex items-center justify-between gap-4">
           <div className="flex flex-col  items-start justify-start  w-full md:w-fit  ">
             <h3 className="text-lg font-bold">Account Dashboard</h3>
@@ -337,25 +337,25 @@ const page = () => {
               <button
                 key={index}
                 className={`border  
-             px-4 text-xs 2xl:text-lg py-2 flex  items-center flex-grow md:flex-grow-0 rounded-full ${
-               tab === curr.title
+             px-4 text-xs 2xl:text-lg py-2 flex w-full md:w-fit justify-center  items-center flex-grow md:flex-grow-0 rounded-full ${
+               tab === curr.tab
                  ? "border-[#52FC18] bg-[#1A5B0B]"
                  : " border-gray-700 text-[#848BAC] border-2"
              } font-semibold uppercase`}
                 //   onClick={() => changeTab(curr.title)}
               >
                 <Image
-                  src={tab === curr.title ? curr.icon[0] : curr.icon[1]}
+                  src={tab === curr.tab ? curr.icon[0] : curr.icon[1]}
                   alt="Icon"
-                  width={19}
-                  height={19}
+                  width={18}
+                  height={18}
                   className="mr-2"
                 />
                 {curr.title}
               </button>
             ))}
           </div>
-          <button className="flex justify-center uppercase items-center gap-2 px-4 py-2 text-sm w-full md:w-fit 2xl:text-base font-bold bg-[#333547] inner-shadow rounded-lg">
+          <button className="hidden md:flex justify-center uppercase items-center gap-2 px-4 py-2 text-sm w-full md:w-fit 2xl:text-base font-bold bg-[#333547] inner-shadow rounded-lg">
             <Image
               src="/icons/pick.png"
               alt="Arrow Icon"
@@ -364,6 +364,16 @@ const page = () => {
             />
             PLACE PICK
           </button>
+        </div>
+        <div className=" w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 ">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <div className=" bg-[#181926] shadow-inner shadow-gray-700 font-bold rounded-lg text-white p-5 flex flex-col gap-2">
+              <p className="text-[#848BAC] text-xs 2xl:text-sm font-bold">
+                Number of picks
+              </p>
+              <h2 className="text-2xl 2xl:text-3xl ">${index + 1}00</h2>
+            </div>
+          ))}
         </div>
       </div>
     </>
