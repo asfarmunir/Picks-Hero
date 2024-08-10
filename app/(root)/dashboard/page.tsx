@@ -395,7 +395,10 @@ const Stats = () => {
   return (
     <div className=" w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 ">
       {Array.from({ length: 8 }).map((_, index) => (
-        <div className=" bg-[#181926] shadow-inner shadow-gray-700 font-bold rounded-lg text-white p-5 flex flex-col gap-2">
+        <div
+          key={index}
+          className=" bg-[#181926] shadow-inner shadow-gray-700 font-bold rounded-lg text-white p-5 flex flex-col gap-2"
+        >
           <p className="text-[#848BAC] text-xs 2xl:text-sm font-bold">
             Number of picks
           </p>
