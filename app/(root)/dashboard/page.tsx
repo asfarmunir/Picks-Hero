@@ -20,6 +20,7 @@ import { MdOutlineArrowUpward } from "react-icons/md";
 import Navbar from "@/components/shared/Navbar";
 import Link from "next/link";
 import { dashboardTabs } from "@/lib/constants";
+import BetHistory from "@/components/shared/BetHistory";
 
 const page = () => {
   const [tab, setTab] = React.useState("stats");
@@ -43,7 +44,7 @@ const page = () => {
       <div className=" pt-16 relative px-5 2xl:px-8 2xl:mt-4 pb-24 text-white  max-h-full overflow-auto space-y-6 ">
         <div className="w-full flex-col md:flex-row  flex items-center justify-between gap-4">
           <div className="flex flex-col  items-start justify-start  w-full md:w-fit  ">
-            <h3 className="text-lg font-bold">Account Dashboard</h3>
+            <h3 className="text-lg 2xl:text-xl font-bold">Account Dashboard</h3>
             <p className=" text-sm text-[#848BAC]">
               Track performance and review your data.
             </p>
@@ -365,7 +366,7 @@ const page = () => {
             PLACE PICK
           </button>
         </div>
-        <div className=" w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 ">
+        {/* <div className=" w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 ">
           {Array.from({ length: 8 }).map((_, index) => (
             <div className=" bg-[#181926] shadow-inner shadow-gray-700 font-bold rounded-lg text-white p-5 flex flex-col gap-2">
               <p className="text-[#848BAC] text-xs 2xl:text-sm font-bold">
@@ -374,7 +375,8 @@ const page = () => {
               <h2 className="text-2xl 2xl:text-3xl ">${index + 1}00</h2>
             </div>
           ))}
-        </div>
+        </div> */}
+        <BetHistory />
       </div>
     </>
   );
