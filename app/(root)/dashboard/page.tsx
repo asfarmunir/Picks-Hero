@@ -25,6 +25,11 @@ import Objectives from "@/components/shared/Objectives";
 
 const page = () => {
   const [tab, setTab] = React.useState("stats");
+
+  const changeTab = (tab: string) => {
+    setTab(tab);
+  };
+
   return (
     <>
       {/* <div
@@ -344,7 +349,7 @@ const page = () => {
                  ? "border-[#52FC18] bg-[#1A5B0B]"
                  : " border-gray-700 text-[#848BAC] border-2"
              } font-semibold uppercase`}
-                //   onClick={() => changeTab(curr.title)}
+                onClick={() => changeTab(curr.tab)}
               >
                 <Image
                   src={tab === curr.tab ? curr.icon[0] : curr.icon[1]}
@@ -367,21 +372,36 @@ const page = () => {
             PLACE PICK
           </button>
         </div>
-        {/* <div className=" w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 ">
-          {Array.from({ length: 8 }).map((_, index) => (
-            <div className=" bg-[#181926] shadow-inner shadow-gray-700 font-bold rounded-lg text-white p-5 flex flex-col gap-2">
-              <p className="text-[#848BAC] text-xs 2xl:text-sm font-bold">
-                Number of picks
-              </p>
-              <h2 className="text-2xl 2xl:text-3xl ">${index + 1}00</h2>
-            </div>
-          ))}
-        </div> */}
+
+        {/* <stats /> */}
         {/* <BetHistory /> */}
-        <Objectives />
+        {/* <Objectives /> */}
+
+        {
+          {
+            stats: <Stats />,
+            history: <BetHistory />,
+            objectives: <Objectives />,
+          }[tab]
+        }
       </div>
     </>
   );
 };
 
 export default page;
+
+const Stats = () => {
+  return (
+    <div className=" w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 ">
+      {Array.from({ length: 8 }).map((_, index) => (
+        <div className=" bg-[#181926] shadow-inner shadow-gray-700 font-bold rounded-lg text-white p-5 flex flex-col gap-2">
+          <p className="text-[#848BAC] text-xs 2xl:text-sm font-bold">
+            Number of picks
+          </p>
+          <h2 className="text-2xl 2xl:text-3xl ">${index + 1}00</h2>
+        </div>
+      ))}
+    </div>
+  );
+};

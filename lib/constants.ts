@@ -60,7 +60,7 @@ export const dashboardTabs = [
   },
   {
     title:' bet history',
-    tab:'bet',
+    tab:'history',
     icon:[
       '/icons/bet.png',
       '/icons/bet-off.png'
