@@ -33,13 +33,13 @@ const navlinks = [
     title: "pick",
     icons: [
       {
-        src: "/icons/pick.svg",
+        src: "/icons/pick-green.svg",
       },
       {
         src: "/icons/pick-off.svg",
       },
     ],
-    link: "/pick",
+    link: "/picks",
   },
   {
     title: "community",
