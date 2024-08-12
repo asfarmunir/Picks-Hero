@@ -22,6 +22,7 @@ import Link from "next/link";
 import { dashboardTabs } from "@/lib/constants";
 import BetHistory from "@/components/shared/BetHistory";
 import Objectives from "@/components/shared/Objectives";
+import UserAccount from "@/components/shared/UserAccount";
 
 const page = () => {
   const [tab, setTab] = React.useState("stats");
@@ -32,7 +33,7 @@ const page = () => {
 
   return (
     <>
-      {/* <div
+      <div
         className=" sticky 
         top-0
         z-50
@@ -40,14 +41,15 @@ const page = () => {
         "
       >
         <div className=" w-[99%] bg-primary justify-between flex items-center absolute">
-          <h1 className=" ml-4  text-white inline-flex items-center gap-2 font-thin 2xl:text-lg">
-            <Image src="/icons/home.svg" alt="Logo" width={20} height={20} />
-            Home
-          </h1>
+          {/* <h1 className=" ml-4  text-white inline-flex items-center gap-2 font-thin 2xl:text-lg">
+            <Image src="/icons/help.png" alt="Logo" width={20} height={20} />
+            HELP
+          </h1> */}
+          <UserAccount />
           <Navbar />
         </div>
-      </div> */}
-      <div className=" pt-16 relative px-5 2xl:px-8 2xl:mt-4 pb-24 text-white  max-h-full overflow-auto space-y-6 ">
+      </div>
+      <div className=" pt-20 relative px-5 2xl:px-8 2xl:mt-4 pb-24 text-white  max-h-full overflow-auto space-y-6 ">
         <div className="w-full flex-col md:flex-row  flex items-center justify-between gap-4">
           <div className="flex flex-col  items-start justify-start  w-full md:w-fit  ">
             <h3 className="text-lg 2xl:text-xl font-bold">Account Dashboard</h3>

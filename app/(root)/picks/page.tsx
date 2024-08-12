@@ -23,11 +23,14 @@ import { MdOutlineArrowUpward } from "react-icons/md";
 import { Input } from "@/components/ui/input";
 import { LuSearch } from "react-icons/lu";
 import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
+import Navbar from "@/components/shared/Navbar";
+import UserAccount from "@/components/shared/UserAccount";
 
 const page = () => {
   const [tab, setTab] = React.useState("football");
   const [selectedBet, setSelectedBet] = React.useState<number | null>(null);
   const [betType, setBetType] = React.useState("single");
+  const [odds, setOdds] = React.useState("american");
 
   const changeTab = (tab: string) => {
     setTab(tab);
@@ -39,6 +42,22 @@ const page = () => {
 
   return (
     <>
+      <div
+        className=" sticky 
+        top-0
+        z-50
+        w-full
+        "
+      >
+        <div className=" w-[99%] bg-primary justify-between flex items-center absolute">
+          {/* <h1 className=" ml-4  text-white inline-flex items-center gap-2 font-thin 2xl:text-lg">
+            <Image src="/icons/help.png" alt="Logo" width={20} height={20} />
+            HELP
+          </h1> */}
+          <UserAccount />
+          <Navbar />
+        </div>
+      </div>
       <div className=" pt-16 relative px-5 2xl:px-8 2xl:mt-4 pb-24 text-white  max-h-full overflow-auto space-y-6 ">
         <div className="flex mt-4 items-center pb-3 max-w-full overflow-auto justify-evenly md:justify-start  gap-2 mb-3">
           {picksTabs.map((curr, index) => (
@@ -82,7 +101,7 @@ const page = () => {
               />
               Baltimore Ravens
             </button>
-            <p className=" p-1.5 text-sm px-2 rounded-full font-bold -mx-4 z-30 text-primary-50 bg-green-700/30 border-green-700/40 border-2">
+            <p className=" p-1.5 text-sm px-2 rounded-full font-bold -mx-4 -my-4 z-30 text-primary-50 bg-green-700/30 border-green-700/40 border-2">
               vs
             </p>
             <button className="flex justify-center items-center gap-2 p-3.5 text-sm w-full md:w-fit 2xl:text-base  bg-[#272837] shadow-inner shadow-gray-600 rounded-lg">
@@ -101,8 +120,8 @@ const page = () => {
         </div>
         <div className=" w-full flex gap-5 flex-col-reverse md:flex-row  rounded-2xl  mb-8">
           <div className=" w-full transition-all border border-gray-700 rounded-xl bg-primary-100  flex flex-col">
-            <div className="flex w-full items-center justify-between">
-              <div className="flex items-center gap-3 w-full p-2 md:p-6 md:pr-32 ">
+            <div className="flex flex-col md:flex-row  mb-4 w-full items-center justify-between">
+              <div className="flex  items-center gap-3 w-full p-2 md:p-6 md:pr-32 ">
                 <DropdownMenu>
                   <DropdownMenuTrigger className=" bg-[#393C53]    justify-center text-nowrap w-fit  text-xs md:text-sm px-3 md:px-4 py-3 font-bold rounded-lg inline-flex items-center gap-2">
                     TOP EARNERS
@@ -142,7 +161,7 @@ const page = () => {
                 </div>
               </div>
               <DropdownMenu>
-                <DropdownMenuTrigger className=" bg-[#393C53]  font-bold   justify-center w-full text-sm 2xl:text-base md:w-fit  p-3.5 mr-3  rounded-xl inline-flex items-center gap-2">
+                <DropdownMenuTrigger className="  bg-[#393C53]  font-bold   justify-center w-[95%] text-sm 2xl:text-base md:w-fit  p-3.5 md:mr-3  rounded-xl inline-flex items-center gap-2">
                   <Image
                     src="/icons/odds.png"
                     alt="Arrow Icon"
@@ -155,14 +174,14 @@ const page = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-48  bg-[#181926] text-white border-none  mt-1  p-3 rounded-lg text-xs 2xl:text-base">
                   <DropdownMenuItem className="flex items-center justify-between ">
-                    <p> ITEMS</p>
+                    <p> Decimal</p>
                   </DropdownMenuItem>
 
                   <DropdownMenuItem className="flex items-center justify-between ">
-                    <p>FUNDED</p>
+                    <p>American</p>
                   </DropdownMenuItem>
                   <DropdownMenuItem className="flex items-center justify-between ">
-                    <p> ITEMS</p>
+                    <p> Fractional</p>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>{" "}
@@ -266,9 +285,9 @@ const page = () => {
           </div>
           {selectedBet && (
             <div
-              className={`w-[65%]  border border-gray-700 p-4 rounded-xl bg-primary-100  flex flex-col`}
+              className={` w-full md:w-[65%]  border border-gray-700 p-4 rounded-xl bg-primary-100  flex flex-col`}
             >
-              <div className="flex items-center justify-between mb-5  w-full">
+              <div className="flex items-start gap-4 mb-8 md:items-center justify-between md:mb-5  flex-col md:flex-row w-full">
                 <h2 className="font-bold text-lg uppercase">betting slip</h2>
                 <div className="flex items-center border-gray-[#737897] rounded-lg bg-[#737897]/20">
                   <button

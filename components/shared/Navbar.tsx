@@ -18,7 +18,7 @@ const Navbar = () => {
   //   }, 1200);
   // }, []);
   return (
-    <div className="  bg-primary  items-center flex justify-between px-3 md:px-8 py-3 2xl:py-4 ">
+    <div className="  bg-primary  items-center hidden md:flex justify-between px-3 md:px-8 py-3 2xl:py-4 ">
       <div className="inline-flex items-center gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger>
