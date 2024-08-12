@@ -12,9 +12,9 @@ import Image from "next/image";
 
 const UserAccount = () => {
   return (
-    <div className=" py-4 px-1.5 md:p-4">
+    <div className=" w-full md:w-fit py-4  md:p-4">
       <DropdownMenu>
-        <DropdownMenuTrigger className=" data-[state=open]:border-2  data-[state=open]:shadow data-[state=open]:shadow-primary-50/30 data-[state=open]:border-primary-50/50   bg-[#272837]  font-bold   justify-center text-nowrap w-fit  text-xs md:text-sm px-1.5 md:px-4 py-2  rounded-lg inline-flex items-center gap-2">
+        <DropdownMenuTrigger className=" data-[state=open]:border-2  data-[state=open]:shadow data-[state=open]:shadow-primary-50/30 data-[state=open]:border-primary-50/50   bg-[#272837]  font-bold   justify-center text-nowrap w-full md:w-fit  text-xs md:text-sm px-1.5 md:px-4 py-2  rounded-lg inline-flex items-center gap-2">
           <span className=" text-white text-xs 2xl:text-sm border-r border-gray-600 pr-1.5 md:pr-4">
             $1000
           </span>

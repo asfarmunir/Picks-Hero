@@ -25,10 +25,11 @@ import { useState } from "react";
 import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
 
 const page = () => {
+  const [toggle, setToggle] = useState(false);
   return (
     <>
       <div
-        className=" sticky 
+        className=" hidden md:block sticky 
         top-0
         z-50
         w-full
@@ -42,7 +43,7 @@ const page = () => {
           <Navbar />
         </div>
       </div>
-      <div className=" w-full  flex  text-white gap-4 mt-16 md:mt-9 p-5 md:p-8 pb-24 max-h-full overflow-auto">
+      <div className=" w-full  flex  text-white gap-4 mt-1 md:mt-9 p-5 md:p-8 pb-24 max-h-full overflow-auto">
         <div className=" w-full  md:w-[70%] h-full shadow-inner shadow-gray-800 flex flex-col gap-7  bg-[#181926] p-4 md:p-6 rounded-xl">
           <div className=" w-full items-center flex justify-between">
             <h2 className=" text-2xl 2xl:text-3xl font-bold uppercase text-white">
@@ -139,10 +140,23 @@ const page = () => {
             </Sheet>
           </div>
           <div className=" bg-primary p-1.5 w-full flex items-center rounded-lg">
-            <button className="bg-[#393C53] h-full w-full font-bold text-center rounded-lg uppercase py-2 ">
+            <button
+              onClick={() => setToggle(false)}
+              className={` ${
+                !toggle ? "bg-[#393C53] " : "bg-transparent text-[#848BAC]"
+              } h-full w-full font-bold text-center 
+            rounded-lg uppercase py-2 `}
+            >
               TOTAL AVAILABLE
             </button>
-            <button className="bg-transparent text-[#848BAC] font-bold h-full w-full text-center rounded-lg uppercase py-2 ">
+            <button
+              onClick={() => setToggle(true)}
+              className={` ${
+                toggle ? "bg-[#393C53] " : "bg-transparent text-[#848BAC]"
+              } h-full w-full font-bold text-center 
+            rounded-lg uppercase py-2 `}
+            >
+              {" "}
               TOTAL PAYOUT
             </button>
           </div>

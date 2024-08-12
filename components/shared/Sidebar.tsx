@@ -3,69 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-
-const navlinks = [
-  {
-    title: "Home",
-    icons: [
-      {
-        src: "/icons/home.svg",
-      },
-      {
-        src: "/icons/home-off.svg",
-      },
-    ],
-    link: "/",
-  },
-  {
-    title: "Dashboard",
-    icons: [
-      {
-        src: "/icons/dashboard.svg",
-      },
-      {
-        src: "/icons/dashboard-off.svg",
-      },
-    ],
-    link: "/dashboard",
-  },
-  {
-    title: "pick",
-    icons: [
-      {
-        src: "/icons/pick-green.svg",
-      },
-      {
-        src: "/icons/pick-off.svg",
-      },
-    ],
-    link: "/picks",
-  },
-  {
-    title: "community",
-    icons: [
-      {
-        src: "/icons/community.svg",
-      },
-      {
-        src: "/icons/community-off.svg",
-      },
-    ],
-    link: "/community",
-  },
-  {
-    title: "refer & earn",
-    icons: [
-      {
-        src: "/icons/refer.svg",
-      },
-      {
-        src: "/icons/refer-off.svg",
-      },
-    ],
-    link: "/refer-and-earn",
-  },
-];
+import { navlinks } from "@/lib/constants";
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -142,7 +80,8 @@ const Sidebar = () => {
         <div className="absolute bottom-5 w-[85%] flex-col flex">
           <Link
             href={"/help"}
-            className={`inline-flex  font-bold uppercase text-sm  2xl:text-lg 
+            className={`inline-flex   font-bold uppercase text-sm  2xl:text-lg 
+              ${isCollapsed ? " ml-0.5 w-fit" : "w-full"}
                 ${
                   pathname === "/help"
                     ? "text-white inner-left-shadow p-3 2xl:p-4 bg-[#181926] rounded-2xl"

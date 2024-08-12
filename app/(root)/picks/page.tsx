@@ -43,7 +43,7 @@ const page = () => {
   return (
     <>
       <div
-        className=" sticky 
+        className=" hidden md:block sticky 
         top-0
         z-50
         w-full
@@ -58,7 +58,12 @@ const page = () => {
           <Navbar />
         </div>
       </div>
-      <div className=" pt-16 relative px-5 2xl:px-8 2xl:mt-4 pb-24 text-white  max-h-full overflow-auto space-y-6 ">
+
+      <div className=" md:pt-16 relative px-2.5 md:px-5 2xl:px-8 2xl:mt-4 pb-24 text-white  max-h-full overflow-auto space-y-6 ">
+        <div className=" w-full flex md:hidden items-center justify-between">
+          <UserAccount />
+        </div>
+
         <div className="flex mt-4 items-center pb-3 max-w-full overflow-auto justify-evenly md:justify-start  gap-2 mb-3">
           {picksTabs.map((curr, index) => (
             <button

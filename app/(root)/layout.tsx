@@ -1,3 +1,4 @@
+import MobileNav from "@/components/shared/MobileNav";
 import Navbar from "@/components/shared/Navbar";
 import Sidebar from "@/components/shared/Sidebar";
 import Image from "next/image";
@@ -9,6 +10,7 @@ const layout = ({ children }: { children: React.ReactNode }) => {
       <Sidebar />
 
       <main className="flex relative flex-col  items-start overflow-hidden  max-h-screen  w-full">
+        <MobileNav />
         <section className="  h-full w-full ">{children}</section>
       </main>
     </main>

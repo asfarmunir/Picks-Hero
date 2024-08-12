@@ -34,7 +34,7 @@ const page = () => {
   return (
     <>
       <div
-        className=" sticky 
+        className=" hidden md:block sticky 
         top-0
         z-50
         w-full
@@ -48,7 +48,7 @@ const page = () => {
           <Navbar />
         </div>
       </div>
-      <div className=" w-full  flex  text-white mt-16 md:mt-9 gap-4 p-5 md:p-8 pb-24 max-h-full overflow-auto">
+      <div className=" w-full  flex  text-white mt-1 md:mt-9 gap-4 p-5 md:p-8 pb-24 max-h-full overflow-auto">
         <div className=" w-full  md:w-[70%] h-full shadow-inner shadow-gray-800 flex flex-col gap-4 bg-[#181926] p-4 md:p-6 rounded-xl">
           <div className=" w-full items-center flex justify-between">
             <h2 className=" text-2xl w-full font-bold text-white tracking-wider">

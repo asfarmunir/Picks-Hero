@@ -56,7 +56,7 @@ const page = () => {
   }
 
   return (
-    <div className=" w-full flex  items-center mt-12 justify-center gap-16 pb-4">
+    <div className=" w-full flex  items-center mt-[4rem] justify-center gap-16 pb-4">
       {progress < 2 ? (
         <div className=" bg-[#181926] w-full sm:w-fit sm:min-w-[459px] 2xl:mt-6 2xl:min-w-[500px] mt-24 md:mt-0 flex flex-col items-start rounded-lg p-7 px-[2.18rem]    2xl:p-10 ">
           <h2 className=" text-xl md:text-2xl 2xl:text-3xl font-bold text-white mb-1 2xl:mb-2">

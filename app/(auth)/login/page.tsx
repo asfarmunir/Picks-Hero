@@ -67,7 +67,7 @@ const page = () => {
           className=" w-[440px]  2xl:w-[580px] -mt-16 2xl:-mt-24 "
         />
       </div>
-      <div className=" bg-[#181926] w-full sm:w-fit sm:min-w-[459px] 2xl:mt-6 2xl:min-w-[500px] mt-24 md:mt-0 flex flex-col items-start rounded-lg p-7 px-[2.18rem]    2xl:p-10 ">
+      <div className=" bg-[#181926] shadow-inner shadow-gray-800 w-full sm:w-fit sm:min-w-[459px] 2xl:mt-6 2xl:min-w-[500px] mt-24 md:mt-0 flex flex-col items-start rounded-lg p-7 px-[2.18rem]    2xl:p-10 ">
         <h2 className=" text-xl md:text-2xl 2xl:text-3xl font-bold text-white mb-1 2xl:mb-2">
           WELCOME BACK!
         </h2>
@@ -167,9 +167,9 @@ const page = () => {
                 <Image
                   src="/images/divider.png"
                   alt="line"
-                  width={300}
-                  height={1}
-                  className="w-full my-2"
+                  width={400}
+                  height={400}
+                  className=" my-2"
                 />
                 <Link
                   href={"/signup"}

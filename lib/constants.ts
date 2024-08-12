@@ -1,3 +1,66 @@
+export const navlinks = [
+  {
+    title: "Home",
+    icons: [
+      {
+        src: "/icons/home.svg",
+      },
+      {
+        src: "/icons/home-off.svg",
+      },
+    ],
+    link: "/",
+  },
+  {
+    title: "Dashboard",
+    icons: [
+      {
+        src: "/icons/dashboard.svg",
+      },
+      {
+        src: "/icons/dashboard-off.svg",
+      },
+    ],
+    link: "/dashboard",
+  },
+  {
+    title: "pick",
+    icons: [
+      {
+        src: "/icons/pick-green.svg",
+      },
+      {
+        src: "/icons/pick-off.svg",
+      },
+    ],
+    link: "/picks",
+  },
+  {
+    title: "community",
+    icons: [
+      {
+        src: "/icons/community.svg",
+      },
+      {
+        src: "/icons/community-off.svg",
+      },
+    ],
+    link: "/community",
+  },
+  {
+    title: "refer & earn",
+    icons: [
+      {
+        src: "/icons/refer.svg",
+      },
+      {
+        src: "/icons/refer-off.svg",
+      },
+    ],
+    link: "/refer-and-earn",
+  },
+];
+
 export const tabs = [
   {
     name: "profile",

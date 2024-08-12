@@ -72,8 +72,8 @@ const page = () => {
     <div className=" w-full flex items-start justify-center gap-20 pb-12">
       <div className="hidden md:flex  flex-col items-center justify-center gap-5 ">
         <div
-          className="flex w-full items-center justify-between
-         py-4 px-8 gap-12 bg-gradient-to-l from-white/5 to-white/0"
+          className="flex w-full  items-center justify-between
+         py-4 px-8 gap-12 bg-gradient-to-l from-white/5 to-primary"
         >
           <div className="flex flex-col gap-2">
             <h2 className=" 2xl:text-xl text-white font-bold">
@@ -133,7 +133,7 @@ const page = () => {
           </div>
         </div>
       </div>
-      <div className=" bg-[#181926] mt-8 md:mt-0 flex flex-col items-start rounded-lg p-8 py-8  2xl:p-10 ">
+      <div className=" bg-[#181926] shadow-inner shadow-gray-800 mt-8 md:mt-0 flex flex-col items-start rounded-lg p-8 py-8  2xl:p-10 ">
         <h2 className=" text-2xl md:text-3xl font-bold text-white mb-2">
           CREATE YOUR ACCOUNT
         </h2>
