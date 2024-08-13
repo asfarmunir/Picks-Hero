@@ -23,7 +23,7 @@ import { dashboardTabs } from "@/lib/constants";
 import BetHistory from "@/components/shared/BetHistory";
 import Objectives from "@/components/shared/Objectives";
 import UserAccount from "@/components/shared/UserAccount";
-
+import AccountGraph from "@/components/shared/AccountGraph";
 const page = () => {
   const [tab, setTab] = React.useState("stats");
 
@@ -81,6 +81,57 @@ const page = () => {
               />
               Request Payout
             </button>
+          </div>
+        </div>
+        <div className=" w-full bg-[#181926] rounded-lg shadow-inner shadow-gray-800">
+          <div className=" w-full flex flex-col md:flex-row gap-5  items-start justify-between  p-5">
+            <div className="flex flex-col gap-1">
+              <p className=" font-bold  text-primary-200">ACCOUNT BALANCE</p>
+              <h2 className=" text-3xl 2xl:text-4xl font-bold text-white">
+                $15,000
+              </h2>
+              <div className="flex items-center my-3 gap-3 md:gap-10">
+                <div className="flex flex-col ">
+                  <p className="   text-xs 2xl:text-sm text-primary-200">
+                    PROFIT
+                  </p>
+                  <h2 className="  2xl:text-lg font-semibold text-white">
+                    $5,000
+                  </h2>
+                </div>{" "}
+                <div className="flex flex-col ">
+                  <p className="   text-xs 2xl:text-sm text-primary-200">
+                    RETURN
+                  </p>
+                  <h2 className="  2xl:text-lg text-green-600 font-semibold  inline-flex items-center ">
+                    <Image
+                      src="/icons/retrun.svg"
+                      alt="Arrow Icon"
+                      width={23}
+                      height={23}
+                    />
+                    $50%
+                  </h2>
+                </div>{" "}
+              </div>
+            </div>{" "}
+            <div className="flex w-full md:w-fit justify-center items-center bg-primary uppercase text-xs 2xl:text-sm rounded-md text-white px-2 py-0.5 ">
+              <span className="px-2 flex-grow text-center  py-0.5 font-bold text-primary-200">
+                24 h
+              </span>
+              <span className="px-2 flex-grow text-center  py-0.5 font-bold text-primary-200">
+                7d
+              </span>
+              <span className="px-2 flex-grow text-center  py-0.5 font-bold text-white rounded bg-primary-200/60">
+                1 m
+              </span>
+              <span className="px-2 flex-grow text-center  py-0.5 font-bold text-primary-200">
+                3 m
+              </span>
+            </div>
+          </div>
+          <div className="p-1 md:p4">
+            <AccountGraph />
           </div>
         </div>
         <div className="flex items-center justify-between">
