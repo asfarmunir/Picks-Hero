@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import React from "react";
 import {
@@ -20,6 +21,7 @@ import Navbar from "@/components/shared/Navbar";
 import Link from "next/link";
 
 const page = () => {
+  const [tab, setTab] = React.useState("hide");
   return (
     <>
       <div
@@ -47,7 +49,7 @@ const page = () => {
               src="/images/money.png"
               alt="Football Icon"
               width={110}
-              className=" -mt-9 mr-12 sm:mr-0 sm:mt-0"
+              className=" -mt-9 mr-12 sm:mr-0 sm:mt-0 2xl:w-[130px] 2xl:ml-1"
               height={110}
             />
           </div>
@@ -62,7 +64,7 @@ const page = () => {
                 width={15}
                 height={15}
               />
-              <span>How it works</span>{" "}
+              <span className=" font-bold uppercase">How it works</span>{" "}
             </DialogTrigger>
             <DialogContent className=" bg-primary-100 gap-1 py-12 text-white border-none md:min-w-[700px] 2xl:min-w-[900px] flex flex-col items-center">
               <h2 className=" text-3xl font-bold">HOW IT WORKS</h2>
@@ -76,7 +78,7 @@ const page = () => {
             alt="Hero Image"
             width={700}
             height={700}
-            className=" absolute bottom-0 right-0  md:-right-20 md:-bottom-28"
+            className=" absolute bottom-0 right-0  md:-right-20 md:-bottom-28 2xl:w-[840px] 2xl:-bottom-36"
           />
         </div>
         <div className="flex flex-col md:flex-row items-center gap-8">
@@ -105,16 +107,18 @@ const page = () => {
           </div>
           <div className=" p-3 pb-8 md:p-8 md:pb-8 overflow-hidden relative min-h-32 2xl:min-h-44 rounded-2xl w-full bg-primary-100 flex flex-col gap-1 ">
             <div className=" w-full flex items-center justify-between">
-              <p className=" text-[#AFB2CA] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
+              <p className=" text-[#AFB2CA] uppercase mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
                 Total Payout Amount
               </p>
-              <Image
-                src="/icons/arrow.svg"
-                alt="Arrow Icon"
-                width={30}
-                className=" border-2 border-gray-600 rounded-lg bg-[#272837] p-0.5"
-                height={30}
-              />
+              <Link href={"/user/profile"}>
+                <Image
+                  src="/icons/arrow.svg"
+                  alt="Arrow Icon"
+                  width={30}
+                  className=" border-2 border-gray-600 rounded-lg bg-[#272837] p-0.5"
+                  height={30}
+                />
+              </Link>
             </div>
             <div className=" flex items-center gap-4">
               <Image
@@ -131,15 +135,34 @@ const page = () => {
           <div className=" w-full flex flex-col gap-3 md:flex-row items-center  justify-between">
             <h2 className=" text-xl font-bold">ACCOUNTS OVERVIEW</h2>
             <div className="flex flex-col md:flex-row items-center gap-2 w-full md:w-fit">
-              <button className=" bg-[#272837]   justify-center  w-full md:w-fit text-sm px-3.5 py-2 rounded-xl inline-flex items-center gap-2">
-                <Image
-                  src="/icons/check.png"
-                  alt="Arrow Icon"
-                  width={18}
-                  height={18}
-                />
-                SHOW BREACHED
-              </button>
+              {tab !== "show" ? (
+                <button
+                  onClick={() => setTab("show")}
+                  className=" bg-[#272837]   justify-center  w-full md:w-fit text-sm px-3.5 py-2 rounded-xl inline-flex items-center gap-2"
+                >
+                  <Image
+                    src="/icons/check.png"
+                    alt="Arrow Icon"
+                    width={18}
+                    height={18}
+                  />
+                  SHOW BREACHED
+                </button>
+              ) : (
+                <button
+                  onClick={() => setTab("hide")}
+                  className=" bg-[#272837]   justify-center  w-full md:w-fit text-sm px-3.5 py-2 rounded-xl inline-flex items-center gap-2"
+                >
+                  <Image
+                    src="/icons/hide.png"
+                    alt="Arrow Icon"
+                    width={18}
+                    height={18}
+                  />
+                  HIDE INACTIVE
+                </button>
+              )}
+
               <DropdownMenu>
                 <DropdownMenuTrigger className=" bg-[#272837]    justify-center w-full md:w-fit  text-sm px-3.5 py-2 rounded-xl inline-flex items-center gap-2">
                   <Image
@@ -152,22 +175,20 @@ const page = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-48  bg-[#181926] text-white border-none  mt-1  p-3 rounded-lg shadow-sm">
                   <DropdownMenuItem className="flex items-center justify-between ">
-                    <p>SORT ITEMS</p>
-                    <MdOutlineArrowUpward className="text-lg" />
+                    <p>All</p>
                   </DropdownMenuItem>
 
                   <DropdownMenuItem className="flex items-center justify-between ">
                     <p>FUNDED</p>
                   </DropdownMenuItem>
                   <DropdownMenuItem className="flex items-center justify-between ">
-                    <p>SORT ITEMS</p>
-                    <MdOutlineArrowUpward className="text-lg rotate-180" />
+                    <p>BREACHED</p>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
               <Link
                 href={"/create-account"}
-                className="  shadow-green-400    justify-center w-full md:w-fit inner-shadow text-sm px-3.5 py-2 rounded-xl inline-flex items-center gap-2"
+                className="  shadow-green-400 font-bold   justify-center w-full md:w-fit inner-shadow text-sm px-3.5 py-2 rounded-xl inline-flex items-center gap-2"
               >
                 <Image
                   src="/icons/add.png"

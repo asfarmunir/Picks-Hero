@@ -158,7 +158,10 @@ const page = () => {
               </button>
             ))}
           </div>
-          <button className="hidden md:flex justify-center uppercase items-center gap-2 px-4 py-2 text-sm w-full md:w-fit 2xl:text-base font-bold bg-[#333547] inner-shadow rounded-lg">
+          <Link
+            href={"/picks"}
+            className="hidden md:flex justify-center uppercase items-center gap-2 px-4 py-2 text-sm w-full md:w-fit 2xl:text-base font-bold bg-[#333547] inner-shadow rounded-lg"
+          >
             <Image
               src="/icons/pick.png"
               alt="Arrow Icon"
@@ -166,7 +169,7 @@ const page = () => {
               height={18}
             />
             PLACE PICK
-          </button>
+          </Link>
         </div>
 
         {/* <stats /> */}
@@ -190,7 +193,7 @@ export default page;
 const Stats = () => {
   return (
     <div className=" w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 ">
-      {Array.from({ length: 8 }).map((_, index) => (
+      {Array.from({ length: 9 }).map((_, index) => (
         <div
           key={index}
           className=" bg-[#181926] shadow-inner shadow-gray-700 font-bold rounded-lg text-white p-5 flex flex-col gap-2"

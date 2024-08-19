@@ -40,7 +40,7 @@ const page = () => {
   };
   return (
     <>
-      <div
+      {/* <div
         className=" hidden md:block sticky 
         top-0
         z-50
@@ -59,7 +59,7 @@ const page = () => {
           </h1>
           <Navbar />
         </div>
-      </div>
+      </div> */}
       <div className=" w-full  flex gap-4  text-white mt-1 md:mt-9 p-5 md:p-8 pb-24 max-h-full overflow-auto">
         <div className=" w-full  md:w-[70%] h-full shadow-inner shadow-gray-800 flex flex-col gap-4 bg-[#181926] p-4 md:p-6 rounded-xl">
           <div className=" w-full items-center flex justify-between">
@@ -160,6 +160,92 @@ const ProfileSection = () => {
           <div className="bg-[#00B544] shadow-inner rounded-md shadow-gray-500 w-[33%] h-full"></div>
         </div>
       </div>
+      <div className=" p-4 w-[60%] mx-auto shadow-inner shadow-gray-700 rounded-xl flex items-center flex-col gap-3 py-6  bg-[#272837]">
+        <Image src="/images/plan.png" alt="User" width={50} height={50} />
+        <h3 className="font-bold text-xl 2xl:text-2xl">SILVER</h3>
+        <p className=" font-bold text-xs uppercase">
+          Win 150 Picks across all of your Accounts
+        </p>
+        <div className=" my-4 bg-[#181926] p-5 space-y-2 rounded-xl shadow-inner w-[90%]">
+          <div className="flex items-center gap-2">
+            <Image
+              src="/icons/role.png"
+              alt="Coin Icon"
+              width={26}
+              height={26}
+            />
+            <h4 className=" font-bold uppercase text-xs 2xl:text-base">
+              Exclusive discord role
+            </h4>
+          </div>
+          <div className="flex items-center gap-2">
+            <Image
+              src="/icons/entry.png"
+              alt="Coin Icon"
+              width={26}
+              height={26}
+            />
+            <h4 className=" font-bold uppercase text-xs 2xl:text-base">
+              special giveaway ENTRIES
+            </h4>
+          </div>
+          <div className="flex items-center gap-2">
+            <Image
+              src="/icons/discount.png"
+              alt="Coin Icon"
+              width={26}
+              height={26}
+            />
+            <h4 className=" font-bold uppercase text-xs 2xl:text-base">
+              secret discounts
+            </h4>
+          </div>
+          <div className="flex items-center gap-2">
+            <Image
+              src="/icons/feature.png"
+              alt="Coin Icon"
+              width={26}
+              height={26}
+            />
+            <h4 className=" font-bold uppercase text-xs 2xl:text-base">
+              FIRST ACCESS TO FEATURES
+            </h4>
+          </div>
+          <div className="flex items-center gap-2">
+            <Image
+              src="/icons/bonus.png"
+              alt="Coin Icon"
+              width={26}
+              height={26}
+            />
+            <h4 className=" font-bold uppercase text-xs 2xl:text-base">
+              PREMIUM BONUSES
+            </h4>
+          </div>
+          <div className="flex items-center gap-2">
+            <Image
+              src="/icons/invitation.png"
+              alt="Coin Icon"
+              width={26}
+              height={26}
+            />
+            <h4 className=" font-bold uppercase text-xs 2xl:text-base">
+              EVENT INVITATIONS
+            </h4>
+          </div>
+          <div className="flex items-center gap-2">
+            <Image
+              src="/icons/support.png"
+              alt="Coin Icon"
+              width={26}
+              height={26}
+            />
+            <h4 className=" font-bold uppercase text-xs 2xl:text-base">
+              PRIORITY SUPPORT
+            </h4>
+          </div>
+        </div>
+      </div>
     </>
   );
 };
@@ -191,20 +277,18 @@ const AccountsSection = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-48  bg-[#181926] text-white border-none  mt-1  p-3 rounded-lg text-xs 2xl:text-base">
               <DropdownMenuItem className="flex items-center justify-between ">
-                <p>SORT ITEMS</p>
-                <MdOutlineArrowUpward className="text-lg" />
+                <p>ALL</p>
               </DropdownMenuItem>
 
               <DropdownMenuItem className="flex items-center justify-between ">
                 <p>FUNDED</p>
               </DropdownMenuItem>
               <DropdownMenuItem className="flex items-center justify-between ">
-                <p>SORT ITEMS</p>
-                <MdOutlineArrowUpward className="text-lg rotate-180" />
+                <p>BREACHED</p>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <button className="  shadow-green-400    justify-center w-full md:w-fit inner-shadow text-sm px-3.5 py-2 rounded-xl inline-flex items-center gap-2">
+          <button className="  shadow-green-400 font-bold   justify-center w-full md:w-fit inner-shadow text-sm px-3.5 py-2 rounded-xl inline-flex items-center gap-2">
             <Image
               src="/icons/add.png"
               alt="Arrow Icon"
@@ -518,9 +602,52 @@ const CertificaeSection = () => {
               </DialogTitle>
               <div className="flex flex-col gap-2 w-full">
                 <div className=" p-4 bg-[#272837] rounded-xl py-8 shadow-inner shadow-gray-700 flex items-center justify-between">
-                  <h2 className=" text-lg font-bold uppercase">
-                    CERTIFICATE TITLE
-                  </h2>
+                  <div className="flex items-center ">
+                    <div className="w-12 h-12 rounded-xl mr-2.5 bg-gray-700"></div>
+                    <div className=" flex flex-col  gap-1">
+                      <h2 className=" text-sm md:text-base font-bold">
+                        CERTIFICATE TITLE
+                      </h2>
+                    </div>
+                  </div>
+                  <div className="inline-flex items-center gap-2">
+                    <Image
+                      src="/icons/download.png"
+                      alt="Arrow Icon"
+                      width={15}
+                      height={15}
+                    />
+                    <p className="text-xs text-[#52FC18] font-bold">DOWNLOAD</p>
+                  </div>
+                </div>
+                <div className=" p-4 bg-[#272837] rounded-xl py-8 shadow-inner shadow-gray-700 flex items-center justify-between">
+                  <div className="flex items-center ">
+                    <div className="w-12 h-12 rounded-xl mr-2.5 bg-gray-700"></div>
+                    <div className=" flex flex-col  gap-1">
+                      <h2 className=" text-sm md:text-base font-bold">
+                        CERTIFICATE TITLE
+                      </h2>
+                    </div>
+                  </div>
+                  <div className="inline-flex items-center gap-2">
+                    <Image
+                      src="/icons/download.png"
+                      alt="Arrow Icon"
+                      width={15}
+                      height={15}
+                    />
+                    <p className="text-xs text-[#52FC18] font-bold">DOWNLOAD</p>
+                  </div>
+                </div>
+                <div className=" p-4 bg-[#272837] rounded-xl py-8 shadow-inner shadow-gray-700 flex items-center justify-between">
+                  <div className="flex items-center ">
+                    <div className="w-12 h-12 rounded-xl mr-2.5 bg-gray-700"></div>
+                    <div className=" flex flex-col  gap-1">
+                      <h2 className=" text-sm md:text-base font-bold">
+                        CERTIFICATE TITLE
+                      </h2>
+                    </div>
+                  </div>
                   <div className="inline-flex items-center gap-2">
                     <Image
                       src="/icons/download.png"

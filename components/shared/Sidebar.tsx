@@ -50,7 +50,7 @@ const Sidebar = () => {
           </div>
         )}
 
-        <div className="flex flex-col gap-0.5">
+        <div className="flex flex-col gap-1">
           {navlinks.map((link, index) => (
             <Link
               key={index}
@@ -59,7 +59,7 @@ const Sidebar = () => {
                 ${
                   pathname === link.link
                     ? "text-white inner-left-shadow p-3 2xl:p-4 bg-[#181926] rounded-2xl"
-                    : "text-[#848BAC] px-3 2xl:px-4 p-2 rounded-lg hover:bg-[#27283197]"
+                    : "text-[#848BAC] p-3 2xl:p-4  rounded-lg hover:bg-[#27283197]"
                 }
                 items-center gap-2 ${isCollapsed ? "justify-center" : ""}`}
             >
@@ -85,7 +85,7 @@ const Sidebar = () => {
                 ${
                   pathname === "/help"
                     ? "text-white inner-left-shadow p-3 2xl:p-4 bg-[#181926] rounded-2xl"
-                    : "text-[#848BAC] p-3 2xl:p-4  rounded-lg hover:bg-[#27283197]"
+                    : "text-[#848BAC] p-3 2xl:p-4  rounded-2xl hover:bg-[#27283197]"
                 }
                 items-center gap-2 ${isCollapsed ? "justify-center" : ""}`}
           >

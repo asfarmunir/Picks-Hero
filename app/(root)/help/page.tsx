@@ -57,11 +57,16 @@ const page = () => {
           </div>
           <div className=" w-full flex flex-col space-y-5  py-6  md:p-3  rounded-2xl 2xl:p-5  mb-8 ">
             <div className=" bg-[#272837] shadow-inner shadow-gray-700 p-3  md:p-6 item-center  overflow-hidden relative items-center rounded-2xl w-full  flex  justify-between gap-3 ">
-              <div className=" flex flex-col  gap-1">
-                <h2 className=" text-sm md:text-xl font-bold">VIDEO TITLE</h2>
-                <p className="  text-xs md:text-sm 2xl:text-base text-[#848BAC] ">
-                  This is the short description of the video
-                </p>
+              <div className="flex items-center ">
+                <div className="w-12 h-12 rounded-xl mr-2.5 bg-gray-700"></div>
+                <div className=" flex flex-col  gap-1">
+                  <h2 className=" text-sm md:text-base font-bold">
+                    VIDEO TITLE
+                  </h2>
+                  <p className="  text-xs md:text-sm 2xl:text-base text-[#848BAC] ">
+                    This is the short description of the video
+                  </p>
+                </div>
               </div>
               <Image
                 src="/icons/play.png"
@@ -72,11 +77,16 @@ const page = () => {
               />
             </div>
             <div className=" bg-[#272837] shadow-inner shadow-gray-700 p-3  md:p-6 item-center  overflow-hidden relative items-center rounded-2xl w-full  flex  justify-between gap-3 ">
-              <div className=" flex flex-col  gap-1">
-                <h2 className=" text-sm md:text-xl font-bold">VIDEO TITLE</h2>
-                <p className="  text-xs md:text-sm 2xl:text-base text-[#848BAC] ">
-                  This is the short description of the video
-                </p>
+              <div className="flex items-center ">
+                <div className="w-12 h-12 rounded-xl mr-2.5 bg-gray-700"></div>
+                <div className=" flex flex-col  gap-1">
+                  <h2 className=" text-sm md:text-base font-bold">
+                    VIDEO TITLE
+                  </h2>
+                  <p className="  text-xs md:text-sm 2xl:text-base text-[#848BAC] ">
+                    This is the short description of the video
+                  </p>
+                </div>
               </div>
               <Image
                 src="/icons/play.png"
@@ -87,11 +97,16 @@ const page = () => {
               />
             </div>
             <div className=" bg-[#272837] shadow-inner shadow-gray-700 p-3  md:p-6 item-center  overflow-hidden relative items-center rounded-2xl w-full  flex  justify-between gap-3 ">
-              <div className=" flex flex-col  gap-1">
-                <h2 className=" text-sm md:text-xl font-bold">VIDEO TITLE</h2>
-                <p className="  text-xs md:text-sm 2xl:text-base text-[#848BAC] ">
-                  This is the short description of the video
-                </p>
+              <div className="flex items-center ">
+                <div className="w-12 h-12 rounded-xl mr-2.5 bg-gray-700"></div>
+                <div className=" flex flex-col  gap-1">
+                  <h2 className=" text-sm md:text-base font-bold">
+                    VIDEO TITLE
+                  </h2>
+                  <p className="  text-xs md:text-sm 2xl:text-base text-[#848BAC] ">
+                    This is the short description of the video
+                  </p>
+                </div>
               </div>
               <Image
                 src="/icons/play.png"

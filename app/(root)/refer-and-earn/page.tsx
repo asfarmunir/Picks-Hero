@@ -65,7 +65,7 @@ const page = () => {
             </button>{" "}
           </div>
           <div className=" bg-[#272837] p-3 md:p-7 rounded-2xl w-full  flex flex-col md:flex-row  items-center justify-between gap-3 ">
-            <h2 className=" font-bold text-lg text-[#848BAC]">
+            <h2 className=" font-bold  text-[#848BAC]">
               Your commission: <span className="text-white ml-1">15%</span>
             </h2>
             <Sheet>

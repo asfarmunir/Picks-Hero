@@ -377,10 +377,10 @@ const page = () => {
               <Image
                 src="/images/youtube.png"
                 alt="community"
-                width={70}
+                width={73}
                 priority
-                height={70}
-                className="  object-contain object-center"
+                height={73}
+                className=" mb-2 object-contain object-center"
               />
               <h3 className="font-bold text-xl">SUBSCRIBE</h3>
             </div>
@@ -388,9 +388,9 @@ const page = () => {
               <Image
                 src="/images/instagram.png"
                 alt="community"
-                width={50}
+                width={65}
                 priority
-                height={50}
+                height={65}
                 className=" object-contain object-center"
               />
               <h3 className="font-bold text-xl">FOLLOW</h3>
