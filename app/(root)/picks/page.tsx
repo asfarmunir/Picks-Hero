@@ -25,19 +25,21 @@ import { LuSearch } from "react-icons/lu";
 import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
 import Navbar from "@/components/shared/Navbar";
 import UserAccount from "@/components/shared/UserAccount";
+import Link from "next/link";
 
 const page = () => {
   const [tab, setTab] = React.useState("football");
-  const [selectedBet, setSelectedBet] = React.useState<number | null>(null);
-  const [betType, setBetType] = React.useState("single");
-  const [odds, setOdds] = React.useState("american");
+  const [selectedBet1, setSelectedBet1] = React.useState<boolean>(false);
+  const [selectedBet2, setSelectedBet2] = React.useState<boolean>(false);
+  const [selectCombination, setSelectCombination] =
+    React.useState<boolean>(false);
+
+  console.log("selectedBet1", selectedBet1);
+  console.log("selectedBet2", selectedBet2);
+  console.log("selectCombination", selectCombination);
 
   const changeTab = (tab: string) => {
     setTab(tab);
-  };
-
-  const handlePick = (id: number) => {
-    setSelectedBet(id);
   };
 
   return (
@@ -54,7 +56,22 @@ const page = () => {
             <Image src="/icons/help.png" alt="Logo" width={20} height={20} />
             HELP
           </h1> */}
-          <UserAccount />
+          <div className="flex items-center gap-2">
+            <UserAccount />
+            <Link
+              href={"/dashboard"}
+              className="flex text-white  justify-center uppercase items-center gap-2 py-2.5 px-3.5 text-sm w-full md:w-fit  font-bold bg-[#333547]  rounded-lg"
+            >
+              <Image
+                src="/icons/bet.png"
+                alt="Arrow Icon"
+                width={105}
+                height={105}
+                className="w-[15px] h-[15px]"
+              />
+              BET HISTORY
+            </Link>
+          </div>
           <Navbar />
         </div>
       </div>
@@ -212,12 +229,19 @@ const page = () => {
 
                   <TableCell className=" w-full py-5 border-b border-gray-700 ">
                     <div
-                      onClick={() => handlePick(1)}
                       className={`flex w-full cursor-pointer items-center gap-2`}
                     >
                       <div
+                        onClick={() => {
+                          setSelectedBet1(!selectedBet1);
+                          if (selectedBet1 && selectedBet2) {
+                            setSelectCombination(true);
+                          } else {
+                            setSelectCombination(false);
+                          }
+                        }}
                         className={`  ${
-                          selectedBet === 1
+                          selectedBet1
                             ? " border border-primary-50/80 shadow shadow-green-700"
                             : ""
                         }  flex w-full text-start justify-between
@@ -240,7 +264,7 @@ const page = () => {
                       <p
                         className={`flex justify-center font-bold text-nowrap items-center gap-2 p-3 text-sm   2xl:text-base 
                        bg-[#272837] shadow-inner  ${
-                         selectedBet === 1
+                         false
                            ? " border border-primary-50/80 shadow shadow-green-700"
                            : ""
                        } shadow-gray-600 rounded-lg`}
@@ -248,8 +272,16 @@ const page = () => {
                         x 3.19
                       </p>
                       <div
+                        onClick={() => {
+                          setSelectedBet2(!selectedBet2);
+                          if (selectedBet1 && selectedBet2) {
+                            setSelectCombination(true);
+                          } else {
+                            setSelectCombination(false);
+                          }
+                        }}
                         className={`  ${
-                          selectedBet === 1
+                          selectedBet2
                             ? " border border-primary-50/80 shadow shadow-green-700"
                             : ""
                         }  flex w-full text-start justify-between
@@ -288,52 +320,98 @@ const page = () => {
               </div>
             </div>
           </div>
-          {selectedBet && (
-            <div
-              className={` w-full md:w-[65%]  border border-gray-700 p-4 rounded-xl bg-primary-100  flex flex-col`}
-            >
-              <div className="flex items-start gap-4 mb-8 md:items-center justify-between md:mb-5  flex-col md:flex-row w-full">
-                <h2 className="font-bold text-lg uppercase">betting slip</h2>
-                <div className="flex items-center border-gray-[#737897] rounded-lg bg-[#737897]/20">
-                  <button
-                    onClick={() => setBetType("single")}
-                    className={` ${
-                      betType === "single" ? "text-white" : "text-primary-200"
-                    } text-xs font-bold p-2p px-3  uppercase border-r border-gray-700`}
-                  >
-                    single
-                  </button>
-                  <button
-                    onClick={() => setBetType("combination")}
-                    className={`text-xs font-bold p-2 px-3 uppercase ${
-                      betType === "combination"
-                        ? "text-white"
-                        : "text-primary-200"
-                    }`}
-                  >
-                    combination
-                  </button>
+          {/* {selectedBet && ( */}
+          <div
+            className={` w-full md:w-[65%]  border border-gray-700 p-4 rounded-xl bg-primary-100  flex flex-col`}
+          >
+            <div className="flex items-start gap-4 mb-8 md:items-center justify-between md:mb-5  flex-col md:flex-row w-full">
+              <h2 className="font-bold text-lg uppercase">betting slip</h2>
+              <div className="flex items-center border-gray-[#737897] rounded-lg bg-[#737897]/20">
+                <button
+                  className={` ${
+                    selectCombination === false
+                      ? "text-white"
+                      : "text-primary-200"
+                  } text-xs font-bold p-2p px-3  uppercase border-r border-gray-700`}
+                >
+                  single
+                </button>
+                <button
+                  className={`text-xs font-bold p-2 px-3 uppercase ${
+                    selectCombination === true
+                      ? "text-white"
+                      : "text-primary-200"
+                  }`}
+                >
+                  combination
+                </button>
+              </div>
+            </div>
+            <div className="  ">
+              <div className=" w-full mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Image
+                    src="/icons/baltimore.png"
+                    alt="Arrow Icon"
+                    width={23}
+                    height={23}
+                  />
+                  <p className="uppercase  text-sm">Baltimore Ravens</p>
+                </div>
+                <button>
+                  <Image
+                    src="/icons/discard.png"
+                    alt="Arrow Icon"
+                    width={23}
+                    height={23}
+                  />
+                </button>
+              </div>
+              <div className=" w-full mb-4  rounded-xl text-primary-50 bg-[#52FC18]/20 p-3 flex items-center justify-between">
+                <p className="text-sm font-thin capitalize">money line</p>
+                <p className="font-bold">+105</p>
+              </div>
+              <div className="w-full flex items-center gap-3">
+                <div className="bg-[#272837] rounded-xl p-3.5 flex flex-col gap-2.5 flex-grow">
+                  <p className=" text-xs font-thin text-primary-200">Pick</p>
+                  <h2 className=" font-bold">0.00$</h2>
+                </div>
+                <div className="bg-[#272837] rounded-xl p-3.5 flex flex-col gap-2.5 flex-grow">
+                  <p className=" text-xs font-thin text-primary-200">To Win</p>
+                  <h2 className=" font-bold">0.00$</h2>
                 </div>
               </div>
-              <div className="  ">
+              <div className=" w-full  mt-3 border-t border-gray-700 py-3 flex items-center justify-between">
+                <p className="text-sm  text-primary-200 font-thin     ">
+                  OVERALL ODDS
+                </p>
+                <p className="font-bold">4.3</p>
+              </div>
+              <div className=" w-full mb-4  flex items-center - justify-between">
+                <p className="text-sm  text-primary-200 font-thin     ">
+                  TO COLLECT
+                </p>
+                <p className="font-bold">0.00 USD</p>
+              </div>
+            </div>
+            {selectCombination && (
+              <div className="pt-4 border-t border-gray-700 ">
                 <div className=" w-full mb-4 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Image
-                      src="/icons/baltimore.png"
+                      src="/icons/kansas.png"
                       alt="Arrow Icon"
                       width={23}
                       height={23}
                     />
-                    <p className="uppercase  text-sm">Baltimore Ravens</p>
+                    <p className="uppercase  text-sm"> Kansas city chiefs</p>
                   </div>
-                  <button onClick={() => setSelectedBet(null)}>
-                    <Image
-                      src="/icons/discard.png"
-                      alt="Arrow Icon"
-                      width={23}
-                      height={23}
-                    />
-                  </button>
+                  <Image
+                    src="/icons/discard.png"
+                    alt="Arrow Icon"
+                    width={23}
+                    height={23}
+                  />
                 </div>
                 <div className=" w-full mb-4  rounded-xl text-primary-50 bg-[#52FC18]/20 p-3 flex items-center justify-between">
                   <p className="text-sm font-thin capitalize">money line</p>
@@ -364,68 +442,18 @@ const page = () => {
                   <p className="font-bold">0.00 USD</p>
                 </div>
               </div>
-              {betType === "combination" && (
-                <div className="pt-4 border-t border-gray-700 ">
-                  <div className=" w-full mb-4 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src="/icons/kansas.png"
-                        alt="Arrow Icon"
-                        width={23}
-                        height={23}
-                      />
-                      <p className="uppercase  text-sm"> Kansas city chiefs</p>
-                    </div>
-                    <Image
-                      src="/icons/discard.png"
-                      alt="Arrow Icon"
-                      width={23}
-                      height={23}
-                    />
-                  </div>
-                  <div className=" w-full mb-4  rounded-xl text-primary-50 bg-[#52FC18]/20 p-3 flex items-center justify-between">
-                    <p className="text-sm font-thin capitalize">money line</p>
-                    <p className="font-bold">+105</p>
-                  </div>
-                  <div className="w-full flex items-center gap-3">
-                    <div className="bg-[#272837] rounded-xl p-3.5 flex flex-col gap-2.5 flex-grow">
-                      <p className=" text-xs font-thin text-primary-200">
-                        Pick
-                      </p>
-                      <h2 className=" font-bold">0.00$</h2>
-                    </div>
-                    <div className="bg-[#272837] rounded-xl p-3.5 flex flex-col gap-2.5 flex-grow">
-                      <p className=" text-xs font-thin text-primary-200">
-                        To Win
-                      </p>
-                      <h2 className=" font-bold">0.00$</h2>
-                    </div>
-                  </div>
-                  <div className=" w-full  mt-3 border-t border-gray-700 py-3 flex items-center justify-between">
-                    <p className="text-sm  text-primary-200 font-thin     ">
-                      OVERALL ODDS
-                    </p>
-                    <p className="font-bold">4.3</p>
-                  </div>
-                  <div className=" w-full mb-4  flex items-center - justify-between">
-                    <p className="text-sm  text-primary-200 font-thin     ">
-                      TO COLLECT
-                    </p>
-                    <p className="font-bold">0.00 USD</p>
-                  </div>
-                </div>
-              )}
+            )}
 
-              <div className=" w-full  border-t border-gray-700 py-3 flex items-center justify-between">
-                <button className=" p-3.5 px-4 uppercase font-bold bg-[#393C53] text-xs rounded-lg">
-                  clear
-                </button>
-                <button className=" p-3.5 uppercase font-bold inner-shadow text-xs rounded-lg">
-                  PLACE pick
-                </button>
-              </div>
+            <div className=" w-full  border-t border-gray-700 py-3 flex items-center justify-between">
+              <button className=" p-3.5 px-4 uppercase font-bold bg-[#393C53] text-xs rounded-lg">
+                clear
+              </button>
+              <button className=" p-3.5 uppercase font-bold inner-shadow text-xs rounded-lg">
+                PLACE pick
+              </button>
             </div>
-          )}
+          </div>
+          {/* )} */}
         </div>
       </div>
     </>

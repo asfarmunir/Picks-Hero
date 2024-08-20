@@ -40,7 +40,7 @@ const page = () => {
   };
   return (
     <>
-      {/* <div
+      <div
         className=" hidden md:block sticky 
         top-0
         z-50
@@ -59,7 +59,7 @@ const page = () => {
           </h1>
           <Navbar />
         </div>
-      </div> */}
+      </div>
       <div className=" w-full  flex gap-4  text-white mt-1 md:mt-9 p-5 md:p-8 pb-24 max-h-full overflow-auto">
         <div className=" w-full  md:w-[70%] h-full shadow-inner shadow-gray-800 flex flex-col gap-4 bg-[#181926] p-4 md:p-6 rounded-xl">
           <div className=" w-full items-center flex justify-between">
