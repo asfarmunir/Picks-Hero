@@ -17,7 +17,7 @@ const MobileNav = () => {
   const pathname = usePathname();
   return (
     <div className=" w-full bg-primary  flex md:hidden items-center justify-between px-3.5 py-4">
-      <Image src="/images/logo.png" alt="Logo" width={160} height={160} />
+      <Image src="/images/logo.svg" alt="Logo" width={160} height={160} />
       <Sheet>
         <SheetTrigger className=" block  lg:hidden">
           <HiMenu className=" text-white text-3xl" />
@@ -26,7 +26,7 @@ const MobileNav = () => {
           <SheetHeader>
             <div className=" relative h-full min-h-screen flex flex-col items-start gap-7">
               <Image
-                src="/images/logo.png"
+                src="/images/logo.svg"
                 alt="logo"
                 width={200}
                 height={200}

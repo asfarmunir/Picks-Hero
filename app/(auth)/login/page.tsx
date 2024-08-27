@@ -56,7 +56,7 @@ const page = () => {
   }
 
   return (
-    <div className=" w-full flex  md:items-start justify-center gap-16 pb-4">
+    <div className=" w-full flex  md:items-center h-[90svh] overflow-hidden  justify-center gap-16 pb-4">
       <div className="hidden lg:block ">
         <Image
           src="/images/login hero.png"
@@ -64,7 +64,7 @@ const page = () => {
           width={400}
           height={400}
           priority
-          className=" w-[440px]  2xl:w-[580px] -mt-16 2xl:-mt-24 "
+          className=" w-[390px]  2xl:w-[500px] 2xl:mt-20 "
         />
       </div>
       <div className=" bg-[#181926] shadow-inner shadow-gray-800 w-full sm:w-fit sm:min-w-[459px] 2xl:mt-6 2xl:min-w-[500px] mt-24 md:mt-0 flex flex-col items-start rounded-lg p-7 px-[2.18rem]    2xl:p-10 ">

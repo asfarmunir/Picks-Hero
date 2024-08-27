@@ -238,7 +238,7 @@ const BetHistory = () => {
                           20-03-2024
                         </p>
                         <Image
-                          src="/images/logo.png"
+                          src="/images/logo.svg"
                           width={150}
                           alt="QR Code"
                           height={150}
@@ -333,7 +333,7 @@ const BetHistory = () => {
                           20-03-2024
                         </p>
                         <Image
-                          src="/images/logo.png"
+                          src="/images/logo.svg"
                           width={150}
                           alt="QR Code"
                           height={150}
@@ -409,7 +409,7 @@ const BetHistory = () => {
                           20-03-2024
                         </p>
                         <Image
-                          src="/images/logo.png"
+                          src="/images/logo.svg"
                           width={150}
                           alt="QR Code"
                           height={150}

@@ -4,6 +4,10 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import NextTopLoader from "nextjs-toploader";
 
+import localFont from "next/font/local";
+
+const degular = localFont({ src: "./font.otf" });
+
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
@@ -22,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning suppressContentEditableWarning>
-      <body className={poppins.variable}>
+      <body className={degular.className}>
         <NextTopLoader
           color="green"
           initialPosition={0.08}

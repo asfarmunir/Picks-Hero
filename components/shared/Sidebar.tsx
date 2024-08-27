@@ -23,7 +23,7 @@ const Sidebar = () => {
           min-h-screen hidden lg:flex flex-col gap-7 2xl:gap-10 p-4`}
       >
         <Image
-          src={!isCollapsed ? "/images/logo.png" : "/icons/logo.png"}
+          src={!isCollapsed ? "/images/logo.svg" : "/icons/logo.svg"}
           alt="logo"
           width={170}
           height={170}

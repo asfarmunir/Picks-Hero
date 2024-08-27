@@ -6,7 +6,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <div className=" w-full pt-5 px-8">
         <Image
           priority
-          src="/images/logo.png"
+          src="/images/logo.svg"
           alt="logo"
           width={140}
           height={140}
