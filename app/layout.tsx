@@ -6,7 +6,7 @@ import NextTopLoader from "nextjs-toploader";
 
 import localFont from "next/font/local";
 
-const degular = localFont({ src: "./font.otf" });
+const degular = localFont({ src: "./font-regular.ttf" });
 
 const poppins = Poppins({
   subsets: ["latin"],

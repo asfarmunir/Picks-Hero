@@ -52,10 +52,6 @@ const page = () => {
         "
       >
         <div className=" w-[99%] bg-primary justify-between flex items-center absolute">
-          {/* <h1 className=" ml-4  text-white inline-flex items-center gap-2 font-thin 2xl:text-lg">
-            <Image src="/icons/help.png" alt="Logo" width={20} height={20} />
-            HELP
-          </h1> */}
           <div className="flex items-center gap-2">
             <UserAccount />
             <Link
@@ -86,15 +82,15 @@ const page = () => {
             <button
               key={index}
               className={`border  
-             px-4 text-xs 2xl:text-lg py-2 flex w-full md:w-fit justify-center text-nowrap  items-center flex-grow md:flex-grow-0 rounded-full ${
+             px-4 text-xs 2xl:text-lg py-2 flex w-full md:w-fit justify-center font-bold text-nowrap  items-center flex-grow md:flex-grow-0 rounded-full ${
                tab === curr.tab
                  ? "border-[#52FC18] bg-[#1A5B0B]"
                  : " border-gray-700 text-[#848BAC] border-2"
-             } font-semibold uppercase`}
+             } uppercase`}
               onClick={() => changeTab(curr.tab)}
             >
               <Image
-                src={tab === curr.tab ? curr.icon[0] : curr.icon[1]}
+                src={tab === curr.tab ? curr.icon[1] : curr.icon[1]}
                 alt="Icon"
                 width={18}
                 height={18}
@@ -106,27 +102,29 @@ const page = () => {
         </div>
         <div className="w-full bg-[#181926] shadow-inner shadow-gray-700 rounded-xl p-5 py-7 flex-col md:flex-row  flex items-center justify-between gap-4">
           <div className="flex flex-col  items-start justify-start  w-full md:w-fit  ">
-            <h3 className="text-lg 2xl:text-xl font-bold mb-1">Featured</h3>
-            <p className="  text-xs 2xl:text-sm text-[#848BAC] max-w-md">
+            <h3 className="text-lg 2xl:text-2xl font-bold mb-1">Featured</h3>
+            <p className="  text-xs 2xl:text-base text-[#848BAC] max-w-md">
               Don't miss out on exclusive boosted odds and special in-play
               betting options available only for this feature event.
             </p>
           </div>
           <div className="flex w-full md:w-fit items-center gap-2 flex-col md:flex-row">
-            <button className="flex justify-center items-center gap-2 p-3.5 text-sm w-full md:w-fit 2xl:text-base  bg-[#272837] shadow-inner shadow-gray-600 rounded-lg">
+            <button className="flex justify-center items-center gap-2 p-4 text-sm w-full md:w-fit 2xl:text-lg  bg-[#272837] shadow-inner shadow-gray-600 rounded-lg">
               <Image
                 src="/icons/baltimore.png"
                 alt="Arrow Icon"
                 width={30}
                 height={30}
-                className="w-[20px] h-[20px]"
+                className="w-[20px] h-[20px]
+                2xl:w-[23px] 2xl:h-[23px]
+                "
               />
               Baltimore Ravens
             </button>
             <p className=" p-1.5 text-sm px-2 rounded-full font-bold -mx-4 -my-4 z-30 text-primary-50 bg-green-700/30 border-green-700/40 border-2">
               vs
             </p>
-            <button className="flex justify-center items-center gap-2 p-3.5 text-sm w-full md:w-fit 2xl:text-base  bg-[#272837] shadow-inner shadow-gray-600 rounded-lg">
+            <button className="flex justify-center items-center gap-2 p-4 text-sm w-full md:w-fit 2xl:text-lg  bg-[#272837] shadow-inner shadow-gray-600 rounded-lg">
               <Image
                 src="/icons/kansas.png"
                 alt="Arrow Icon"
@@ -135,7 +133,7 @@ const page = () => {
               />
               Kansas City Chiefs
             </button>
-            <button className="flex justify-center uppercase items-center gap-2 p-3.5 text-sm w-full md:w-fit 2xl:text-base font-bold bg-[#333547] inner-shadow rounded-lg">
+            <button className="flex justify-center uppercase items-center gap-2 p-4 text-sm w-full md:w-fit 2xl:text-base font-bold bg-[#333547] inner-shadow rounded-lg">
               BET NOW
             </button>
           </div>

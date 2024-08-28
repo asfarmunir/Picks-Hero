@@ -23,7 +23,7 @@ const Sidebar = () => {
           min-h-screen hidden lg:flex flex-col gap-7 2xl:gap-10 p-4`}
       >
         <Image
-          src={!isCollapsed ? "/images/logo.svg" : "/icons/logo.svg"}
+          src={!isCollapsed ? "/images/logo.svg" : "/icons/logo.png"}
           alt="logo"
           width={170}
           height={170}
@@ -40,10 +40,10 @@ const Sidebar = () => {
               className="2xl:w-14 2xl:h-14"
             />
             <div className="flex flex-col">
-              <p className="text-[#848BAC] font-semibold text-xs 2xl:text-base mb-1 2xl:mb-2">
+              <p className="text-[#848BAC] font-bold text-xs 2xl:text-base mb-1 ">
                 Welcome Back!
               </p>
-              <h3 className="text-lg 2xl:text-xl font-bold text-white">
+              <h3 className="text-lg 2xl:text-2xl font-bold text-white">
                 Adrew Smith
               </h3>
             </div>

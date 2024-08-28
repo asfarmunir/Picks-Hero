@@ -168,7 +168,7 @@ export const picksTabs = [{
   tab:'football',
   icon:[
     '/icons/football.svg',
-    '/icons/football-off.svg'
+    '/icons/football.svg'
   ]
 },
 {

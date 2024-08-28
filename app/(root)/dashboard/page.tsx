@@ -57,8 +57,10 @@ const page = () => {
 
         <div className="w-full flex-col md:flex-row  flex items-center justify-between gap-4">
           <div className="flex flex-col  items-start justify-start  w-full md:w-fit  ">
-            <h3 className="text-lg 2xl:text-xl font-bold">Account Dashboard</h3>
-            <p className=" text-sm text-[#848BAC]">
+            <h3 className="text-lg 2xl:text-2xl font-bold">
+              Account Dashboard
+            </h3>
+            <p className=" text-sm 2xl:text-base text-[#848BAC]">
               Track performance and review your data.
             </p>
           </div>

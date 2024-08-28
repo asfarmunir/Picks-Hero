@@ -102,7 +102,7 @@ const page = () => {
                 width={45}
                 height={45}
               />
-              <p className="   md:mt-0  text-4xl font-semibold">$45,865.55</p>
+              <p className="   md:mt-0  text-4xl font-bold">$45,865.55</p>
             </div>
           </div>
           <div className=" p-3 pb-8 md:p-8 md:pb-8 overflow-hidden relative min-h-32 2xl:min-h-44 rounded-2xl w-full bg-primary-100 flex flex-col gap-1 ">
@@ -127,7 +127,7 @@ const page = () => {
                 width={45}
                 height={45}
               />
-              <p className="   md:mt-0  text-4xl font-semibold">$45,865.55</p>
+              <p className="   md:mt-0  text-4xl font-bold">$45,865.55</p>
             </div>
           </div>
         </div>

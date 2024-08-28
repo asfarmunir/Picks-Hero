@@ -146,15 +146,16 @@ const page = () => {
             </div>
           </div>{" "}
         </div>
-        <div className=" hidden md:block md:w-[30%]   ">
+        <div className=" hidden md:block md:w-[30%]  ">
           <Image
             src="/images/profile-hero.png"
             alt="Ads"
-            width={270}
+            width={470}
             priority
-            height={250}
+            height={450}
             className=" rounded-lg  
-            2xl:w-[340px] 
+             h-full w-full
+            
               "
           />
         </div>
