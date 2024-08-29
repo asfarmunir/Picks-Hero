@@ -26,6 +26,7 @@ import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
 import Navbar from "@/components/shared/Navbar";
 import UserAccount from "@/components/shared/UserAccount";
 import Link from "next/link";
+import BetModal from "@/components/shared/BetModal";
 
 const page = () => {
   const [tab, setTab] = React.useState("football");
@@ -54,19 +55,7 @@ const page = () => {
         <div className=" w-[99%] bg-primary justify-between flex items-center absolute">
           <div className="flex items-center gap-2">
             <UserAccount />
-            <Link
-              href={"/dashboard"}
-              className="flex text-white  justify-center uppercase items-center gap-2 py-2.5 px-3.5 text-sm w-full md:w-fit  font-bold bg-[#333547]  rounded-lg"
-            >
-              <Image
-                src="/icons/bet.png"
-                alt="Arrow Icon"
-                width={105}
-                height={105}
-                className="w-[15px] h-[15px]"
-              />
-              BET HISTORY
-            </Link>
+            <BetModal />
           </div>
           <Navbar />
         </div>

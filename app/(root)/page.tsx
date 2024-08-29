@@ -209,8 +209,8 @@ const page = () => {
                 <Image
                   src="/icons/challenge.svg"
                   alt="Arrow Icon"
-                  width={100}
-                  height={100}
+                  width={120}
+                  height={140}
                 />
               </div>
               <div className=" w-full flex items-center justify-between">
@@ -239,7 +239,9 @@ const page = () => {
                   src="/icons/fund.svg"
                   alt="Arrow Icon"
                   width={100}
-                  height={100}
+                  height={90}
+                  className="
+                  "
                 />
               </div>
               <div className=" w-full flex items-center justify-between">
@@ -269,8 +271,8 @@ const page = () => {
                 <Image
                   src="/icons/challenge.svg"
                   alt="Arrow Icon"
-                  width={100}
-                  height={100}
+                  width={120}
+                  height={140}
                 />
               </div>
               <div className=" w-full flex items-center justify-between">
@@ -299,7 +301,7 @@ const page = () => {
                   src="/icons/fund.svg"
                   alt="Arrow Icon"
                   width={100}
-                  height={100}
+                  height={90}
                 />
               </div>
               <div className=" w-full flex items-center justify-between">
