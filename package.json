@@ -21,6 +21,7 @@
     "clsx": "^2.1.1",
     "i": "^0.3.7",
     "lucide-react": "^0.414.0",
+    "mongoose": "^8.6.0",
     "next": "14.2.5",
     "nextjs-toploader": "^1.6.12",
     "npm": "^10.8.2",
