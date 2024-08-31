@@ -16,7 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MdOutlineArrowUpward } from "react-icons/md";
+// import { MdOutlineArrowUpward } from "react-icons/md";
 import Navbar from "@/components/shared/Navbar";
 import Link from "next/link";
 import { dashboardTabs } from "@/lib/constants";
