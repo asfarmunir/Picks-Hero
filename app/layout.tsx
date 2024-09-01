@@ -3,8 +3,9 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import NextTopLoader from "nextjs-toploader";
-
+import AuthProvider from "./api/auth/AuthProvider";
 import localFont from "next/font/local";
+
 
 const degular = localFont({ src: "./font-regular.ttf" });
 
@@ -26,6 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning suppressContentEditableWarning>
+ <AuthProvider>
       <body className={degular.className}>
         <NextTopLoader
           color="green"
@@ -41,6 +43,7 @@ export default function RootLayout({
         {children}
         {/* <Toaster position="top-center" /> */}
       </body>
+      </AuthProvider>
     </html>
   );
 }

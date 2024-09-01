@@ -8,7 +8,8 @@ import { set, useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
-
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import {
   Form,
   FormControl,
@@ -29,6 +30,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@radix-ui/react-checkbox";
+import { UNDERSCORE_NOT_FOUND_ROUTE } from "next/dist/shared/lib/constants";
+import { createDropdownMenuScope } from "@radix-ui/react-dropdown-menu";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -49,10 +52,32 @@ const page = () => {
   });
 
   const [toggle, setToggle] = useState(false);
-
-  async function onSubmit(values: any) {
+  const [AuthError , setAuthError] = useState('')
+interface value{
+  email : string
+  password : string
+}
+const router = useRouter()
+  async function onSubmit( values:value) {
     console.log(values);
-    setToggle(!toggle);
+  
+
+    const result = await signIn('credentials', {
+      redirect: false,
+      email : values.email,
+      password : values.password
+    });
+      console.log('this is the result' , result)
+    if (result?.status !== 200 ) {
+      console.log('pushing in error')
+     setToggle(!toggle);
+
+       setAuthError('Incorrect email or password please try again!')
+    } else {
+      console.log('pushing')
+     router.push('/') 
+     setToggle(toggle);
+    }
   }
 
   return (
@@ -134,7 +159,7 @@ const page = () => {
                     className=""
                   />
                   <span className=" text-[#F74418]">
-                    Incorrrect password. Please try again.
+                   {AuthError}
                   </span>
                 </p>
               )}
@@ -187,3 +212,4 @@ const page = () => {
 };
 
 export default page;
+

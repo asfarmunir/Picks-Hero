@@ -1,36 +1,43 @@
 import NextAuth from "next-auth";
 import prisma from "@/prisma/client";
 import CredentialsProvider from "next-auth/providers/credentials";
-import * as bcryptjs from "bcryptjs";
+import { compare } from "bcryptjs";
 
 const handler = NextAuth({
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "text", placeholder: "Enter" },
+        email: { label: "Email", type: "text", placeholder: "Enter your email" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log('these are the credentials : ', credentials)
+        console.log('Received credentials:', credentials);
         if (!credentials?.email || !credentials.password) {
-          return null;
+          throw new Error('Email and password are required');
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
-        });
+        try {
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email },
+          });
 
-        if (user) {
-          const isValidPassword = await bcryptjs.compare(credentials.password, user.password);
-          console.log('this is the validPassword : ', isValidPassword)
-          if (isValidPassword) {
-            return user;
-          } else {
-            return null;
+          if (!user) {
+            throw new Error('No user found with this email');
           }
+
+          const isValidPassword = await compare(credentials.password, user.password);
+          console.log('Password validation result:', isValidPassword);
+
+          if (!isValidPassword) {
+            throw new Error('Invalid password');
+          }
+
+          return user;
+        } catch (error) {
+          console.error('Error during authorization:', error);
+          throw new Error('Authentication failed');
         }
-        return null;
       },
     }),
   ],
@@ -41,7 +48,7 @@ const handler = NextAuth({
     strategy: 'jwt',
   },
   jwt: {
-    secret: process.env.JWT_SECRET, 
+    secret: process.env.JWT_SECRET,
   },
   secret: process.env.NEXTAUTH_SECRET,
 });
