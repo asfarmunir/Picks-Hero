@@ -14,14 +14,20 @@ datasource db {
 }
 
 model User {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  firstName      String
-  lastName       String?
-  country        String?   @default("")
-  email          String   @unique
-  password       String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  firstName       String
+  lastName        String?
+  country         String?   @default("")
+  email           String   @unique
+  password        String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  @@map("users") 
+  twoFactorCode   String? 
+  twoFactorSecret String? 
+  ascii           String?
+  otpUrl          String?
+  twoFactorExpires DateTime?
+
+  @@map("users")
 }

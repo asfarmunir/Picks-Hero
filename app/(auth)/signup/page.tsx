@@ -1,18 +1,15 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
-import { useState, useRef } from "react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
-
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -20,15 +17,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { ColorRing } from "react-loader-spinner";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@radix-ui/react-checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import * as Checkbox from "@radix-ui/react-checkbox";
+import { CheckIcon } from "@radix-ui/react-icons";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+
+// Import the countries list
+import { countries } from "countries-list";
 
 const formSchema = z.object({
   firstName: z.string().min(2, {
@@ -52,6 +48,7 @@ const formSchema = z.object({
 });
 
 const page = () => {
+  const router = useRouter();
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -64,8 +61,21 @@ const page = () => {
     },
   });
 
+  const [isChecked, setIsChecked] = useState(false);
+
   async function onSubmit(values: any) {
-    console.log(values);
+    try {
+      const res = await axios.post(
+        "http://localhost:3000/api/register",
+        values
+      );
+      if (!res) {
+        throw new Error("sign up failed");
+      }
+      router.push("/api/auth/signin");
+    } catch (error) {
+      throw error;
+    }
   }
 
   return (
@@ -206,9 +216,11 @@ const page = () => {
                           <SelectValue placeholder=" select your country " />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="system">America</SelectItem>
-                          <SelectItem value="sysstem">UK</SelectItem>
-                          <SelectItem value="sysstsem">France</SelectItem>
+                          {Object.entries(countries).map(([code, { name }]) => (
+                            <SelectItem key={code} value={name}>
+                              {name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -273,11 +285,20 @@ const page = () => {
                   </FormItem>
                 )}
               />
-              <div className="flex items-center">
-                <Checkbox />
+              <div className="flex items-center mb-6">
+                <Checkbox.Root
+                  className="bg-[#333547]/60 w-6 h-6 rounded"
+                  id="terms"
+                  checked={isChecked}
+                  onCheckedChange={(checked) => setIsChecked(checked === true)}
+                >
+                  <Checkbox.Indicator className="flex items-center justify-center">
+                    <CheckIcon className="w-4 h-4 text-primary-50" />
+                  </Checkbox.Indicator>
+                </Checkbox.Root>
                 <label
                   htmlFor="terms"
-                  className="text-xs 2xl:text-sm text-gray-300 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  className="ml-2 text-xs 2xl:text-sm text-gray-300 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 >
                   By continuing, you agree to our{" "}
                   <span className="text-primary-50">Terms</span> and{" "}
@@ -288,8 +309,9 @@ const page = () => {
                 <Button
                   type="submit"
                   className="bg-[#333547] mb-4 inner-shadow border border-[#28B601] w-full rounded-xl hover:bg-slate-600 mt-4 text-white font-semibold py-6 px-10 2xl:text-lg   focus:outline-none focus:shadow-outline"
+                  disabled={!isChecked}
                 >
-                  {/* {isLoading ? (
+                   {/* {isLoading ? (
                     <ColorRing
                       visible={true}
                       height="35"
@@ -307,7 +329,6 @@ const page = () => {
                     />
                   ) : ( */}
                   <span className=" capitalize">LET'S GO</span>
-                  {/* )} */}
                 </Button>
               </div>
               <label

@@ -8,7 +8,7 @@ import { set, useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
-
+import axios from "axios";
 import {
   Form,
   FormControl,
@@ -46,13 +46,38 @@ const page = () => {
 
   const [progress, setProgress] = useState<number>(0);
   const [validation, setValidation] = useState<boolean>(false);
-  async function onSubmit(values: any) {
+  async function onSubmit(values :any) {
     console.log(values);
-    if (values.password !== values.confirmPassword) {
-      setValidation(true);
-      return;
+  
+    if (progress === 0) {
+      try {
+        const response = await axios.post('/api/auth/reset-password', {
+          email: values.email,
+        });
+  
+        if (response.status === 200) {
+          setProgress(progress + 1); 
+        }
+      } catch (error) {
+          toast.error('User not found');
+      }
+    } else if (progress === 1) {
+      try {
+        const response = await axios.patch('/api/auth/reset-password', {
+          email: values.email,
+          password: values.password,
+          confirmPassword: values.confirmPassword,
+        });
+  
+        if (response.status === 200) {
+          toast.success('Password reset successfully');
+          setProgress(progress + 1); // Move to the success screen
+        }
+      } catch (error) {
+          toast.error('Passwords do not match');
+          setValidation(true);
+      }
     }
-    setProgress(progress + 1);
   }
 
   return (
