@@ -34,8 +34,8 @@ const challenge = [
 ];
 
 const page = async() => {
-  // const session = await getServerSession(authOptions)
-  // console.log('this is the session : ', session)
+  const session = await getServerSession(authOptions)
+  console.log('this is the session : ', session)
   return (
     <section className=" w-full flex flex-col md:flex-row text-white ">
       <div className="flex flex-col  gap-4 p-4 md:p-8 w-full md:max-w-[70%]">

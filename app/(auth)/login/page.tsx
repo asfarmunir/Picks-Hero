@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { delete2Ftoken } from "@/helper/delete2Ftoken";
 import {
   Form,
   FormControl,
@@ -75,7 +76,7 @@ const router = useRouter()
        setAuthError('Incorrect email or password please try again!')
     } else {
       console.log('pushing')
-     router.push('/') 
+     router.push('/2fa-auth') 
      setToggle(toggle);
     }
   }

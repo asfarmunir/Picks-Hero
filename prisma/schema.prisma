@@ -25,6 +25,8 @@ model User {
 
   twoFactorCode   String? 
   twoFactorSecret String? 
+  ascii           String?
+  otpUrl          String?
   twoFactorExpires DateTime?
 
   @@map("users")

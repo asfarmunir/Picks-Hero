@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
              <p>Best regards,<br/>The PicksHero Team</p>`,
     };
     await transporter.sendMail(mailOptions);
+    console.log('Confirmation email sent successfully');
 
     return NextResponse.json({ message: 'User created successfully, confirmation email sent', user: newUser });
   } catch (error) {
