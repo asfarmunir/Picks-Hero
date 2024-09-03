@@ -1,15 +1,26 @@
 import { NextResponse, NextRequest } from "next/server";
-import speakeasy from 'speakeasy'
-import QRcode from 'qrcode'
+import speakeasy from "speakeasy";
+import QRcode from "qrcode";
 import prisma from "@/prisma/client";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../authOptions";
-import { getSession } from "next-auth/react";
+import { AuthOptions } from "../AuthOptions";
 
-
-export async function GET (){
-    const session = await getServerSession(authOptions);
-    console.log('this is the session : ', session)
-
-    return NextResponse.json(session)
+export async function GET(req: NextRequest) {
+  try {
+    const session = await getServerSession(AuthOptions);
+    const user = await prisma.user.findUnique({
+        where : {
+            email : session?.user?.email!
+        }
+    })
+    return NextResponse.json({qrcode : user?.otpUrl , twofactorsecret : user?.twoFactorSecret});
+  } catch (error) {
+    return NextResponse.json(
+      { message: "An error occurred", error },
+      { status: 500 }
+    );
+  }
 }
+
+
+

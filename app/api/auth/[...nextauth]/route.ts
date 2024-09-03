@@ -15,7 +15,6 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log('Received credentials:', credentials);
         if (!credentials?.email || !credentials.password) {
           throw new Error('Email and password are required');
         }
@@ -30,22 +29,20 @@ export const authOptions = {
           }
       
           const isValidPassword = await compare(credentials.password, user.password);
-          console.log('Password validation result:', isValidPassword);
       
           if (!isValidPassword) {
             throw new Error('Invalid password');
           }
 
           if (!user.twoFactorSecret || user.twoFactorSecret === null) {
-            const secret = speakeasy.generateSecret({ name: "WeAreDevs" });
+            const secret = speakeasy.generateSecret({ name: "PICKS-HERO" });
             const data = await QRCode.toDataURL(secret.otpauth_url || '');
-            console.log('this is the data : ', data);
             await prisma.user.update({
               where: { email: credentials.email },
               data: {
                 twoFactorSecret: secret.base32,
                 ascii: secret.ascii,
-                otpUrl: secret.otpauth_url,
+                otpUrl: data,
               },
             });
             user.twoFactorSecret = secret.base32;
@@ -53,7 +50,6 @@ export const authOptions = {
 
           return user;
         } catch (error) {
-          console.error('Error during authorization:', error);
           throw new Error('Authentication failed');
         }
       }
@@ -70,7 +66,6 @@ export const authOptions = {
   },
   callbacks: {
     async session({ session, token }: { session: any; token: JWT }) {
-      // Attach the user object to the session
       console.log('this is the session : ', session )
       console.log('this is the token : ', token)
       session.user = token.user;
@@ -78,7 +73,6 @@ export const authOptions = {
     },
     async jwt({ token, user }: { token: JWT; user?: any }) {
       if (user) {
-        // Add user information to the token
         token.user = user;
       }
       return token;

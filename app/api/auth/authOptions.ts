@@ -4,7 +4,7 @@ import * as bcryptjs from "bcryptjs";
 import speakeasy from 'speakeasy'
 import QRCode from 'qrcode'
 
-export const authOptions = {
+export const AuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -13,7 +13,6 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log('Received credentials:', credentials);
         if (!credentials?.email || !credentials.password) {
           throw new Error('Email and password are required');
         }
@@ -28,16 +27,14 @@ export const authOptions = {
           }
       
           const isValidPassword = await bcryptjs.compare(credentials.password, user.password);
-          console.log('Password validation result:', isValidPassword);
       
           if (!isValidPassword) {
             throw new Error('Invalid password');
           }
           
           if (!user.twoFactorSecret || user.twoFactorSecret === null) {
-            const secret = speakeasy.generateSecret({ name: "WeAreDevs" });
+            const secret = speakeasy.generateSecret({ name: "PICKS-HERO" });
             const data = await QRCode.toDataURL(secret.otpauth_url || '');
-            console.log('this is the data : ', data)
             await prisma.user.update({
               where: { email: credentials.email },
               data: { 
@@ -51,7 +48,6 @@ export const authOptions = {
           
           return user;
         } catch (error) {
-          console.error('Error during authorization:', error);
           throw new Error('Authentication failed');
         }
       }
