@@ -1,5 +1,3 @@
-// app/2fa/page.tsx
-
 "use client";
 
 import { useState } from "react";
@@ -11,11 +9,10 @@ import toast from "react-hot-toast";
 
 export default function TwoFactorAuthPage() {
   const { status, data: session } = useSession();
- const router = useRouter()
-  console.log("this is the session : ", session);
+  const router = useRouter();
   const [code, setCode] = useState("");
   const [qrUrl, setQrUrl] = useState("");
-  const [twofactorsecret , settwofactorsecret] = useState('')
+  const [twofactorsecret, settwofactorsecret] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -28,33 +25,27 @@ export default function TwoFactorAuthPage() {
       const res = await axios.get(
         "http://localhost:3000/api/auth/generate-qrcode"
       );
-      console.log("this is the response in the 2FA page : ", res);
       setQrUrl(res.data.qrcode);
-      settwofactorsecret(res.data.twofactorsecret)
+      settwofactorsecret(res.data.twofactorsecret);
     } catch (error) {
-      throw error
+      throw error;
     }
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      console.log("this is the code in the handle submit: ", code);
-      console.log("this is the 2fa secret in the handle submit: ", twofactorsecret);
-
-
       const res = await axios.post(
         "http://localhost:3000/api/auth/verify-otp",
         {
-          secret: ascii,
           token: code,
-          twoFa : twofactorsecret
+          twoFa: twofactorsecret,
         }
       );
-      if(res.data.verified === true){
-       router.push('/')
-      }else{
-        toast.error('verificatoin failed!')
+      if (res.data.verified === true) {
+        router.push("/");
+      } else {
+        toast.error("verificatoin failed!");
       }
     } catch (error) {
       throw error;
