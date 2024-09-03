@@ -32,6 +32,7 @@
     "countries-list": "^3.1.1",
     "crypto": "^1.0.1",
     "i": "^0.3.7",
+    "jose": "^5.8.0",
     "lucide-react": "^0.414.0",
     "mongodb": "^6.8.0",
     "mongoose": "^8.6.0",

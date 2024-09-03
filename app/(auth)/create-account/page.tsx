@@ -4,7 +4,7 @@ import Link from "next/link";
 import React from "react";
 import { getServerSession } from "next-auth";
 import { AuthOptions } from "next-auth";
-import { authOptions } from "@/app/api/auth/authOptions";
+import { authOptions } from "@/app/api/auth/AuthOptions";
 
 const challenge = [
   {
