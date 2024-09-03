@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import toast from "react-hot-toast";
 import {
   Form,
   FormControl,
@@ -17,14 +16,22 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { CheckIcon } from "@radix-ui/react-icons";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 // Import the countries list
 import { countries } from "countries-list";
+import { ColorRing } from "react-loader-spinner";
 
 const formSchema = z.object({
   firstName: z.string().min(2, {
@@ -43,7 +50,7 @@ const formSchema = z.object({
     message: "Password should be atleast 6 characters",
   }),
   country: z.string().min(2, {
-    message: "Please enter a your country name",
+    message: "Please enter a your country",
   }),
 });
 
@@ -57,13 +64,15 @@ const page = () => {
       firstName: "John",
       lastName: "Doe",
       confirmPassword: "password",
-      country: "USA",
+      country: "",
     },
   });
 
-  const [isChecked, setIsChecked] = useState(false);
+  const [isChecked, setIsChecked] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   async function onSubmit(values: any) {
+    setIsLoading(true);
     try {
       const res = await axios.post(
         "http://localhost:3000/api/register",
@@ -73,9 +82,14 @@ const page = () => {
         throw new Error("sign up failed");
       }
       router.push("/api/auth/signin");
-    } catch (error) {
-      throw error;
+    } catch (error: any) {
+      if (error.response.data.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast("Server error, please try again later");
+      }
     }
+    setIsLoading(false);
   }
 
   return (
@@ -147,6 +161,7 @@ const page = () => {
         <h2 className=" text-2xl md:text-3xl font-bold text-white mb-2">
           CREATE YOUR ACCOUNT
         </h2>
+
         <p className=" max-w-md  text-[#848BAC] text-sm font-light">
           Welcome! Please enter your information below to create an account and
           get started.
@@ -311,7 +326,7 @@ const page = () => {
                   className="bg-[#333547] mb-4 inner-shadow border border-[#28B601] w-full rounded-xl hover:bg-slate-600 mt-4 text-white font-semibold py-6 px-10 2xl:text-lg   focus:outline-none focus:shadow-outline"
                   disabled={!isChecked}
                 >
-                   {/* {isLoading ? (
+                  {isLoading ? (
                     <ColorRing
                       visible={true}
                       height="35"
@@ -327,8 +342,9 @@ const page = () => {
                         "#ffffff",
                       ]}
                     />
-                  ) : ( */}
-                  <span className=" capitalize">LET'S GO</span>
+                  ) : (
+                    <span className=" capitalize">LET'S GO</span>
+                  )}
                 </Button>
               </div>
               <label

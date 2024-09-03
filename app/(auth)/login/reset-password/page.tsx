@@ -43,41 +43,42 @@ const page = () => {
       confirmPassword: "password",
     },
   });
-
+  const [loading, setLoading] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [validation, setValidation] = useState<boolean>(false);
-  async function onSubmit(values :any) {
+  async function onSubmit(values: any) {
     console.log(values);
-  
+    setLoading(true);
     if (progress === 0) {
       try {
-        const response = await axios.post('/api/auth/reset-password', {
+        const response = await axios.post("/api/auth/reset-password", {
           email: values.email,
         });
-  
+
         if (response.status === 200) {
-          setProgress(progress + 1); 
+          setProgress(progress + 1);
         }
       } catch (error) {
-          toast.error('User not found');
+        toast.error("User not found");
       }
     } else if (progress === 1) {
       try {
-        const response = await axios.patch('/api/auth/reset-password', {
+        const response = await axios.patch("/api/auth/reset-password", {
           email: values.email,
           password: values.password,
           confirmPassword: values.confirmPassword,
         });
-  
+
         if (response.status === 200) {
-          toast.success('Password reset successfully');
+          toast.success("Password reset successfully");
           setProgress(progress + 1); // Move to the success screen
         }
       } catch (error) {
-          toast.error('Passwords do not match');
-          setValidation(true);
+        toast.error("Passwords do not match");
+        setValidation(true);
       }
     }
+    setLoading(false);
   }
 
   return (
@@ -128,25 +129,25 @@ const page = () => {
                       type="submit"
                       className="bg-[#333547] mb-4 inner-shadow border border-[#28B601] w-full rounded-xl hover:bg-slate-600 mt-4 text-white font-semibold py-5 px-10 2xl:text-lg   focus:outline-none focus:shadow-outline"
                     >
-                      {/* {isLoading ? (
-                    <ColorRing
-                      visible={true}
-                      height="35"
-                      width="35"
-                      ariaLabel="color-ring-loading"
-                      wrapperStyle={{}}
-                      wrapperClass="color-ring-wrapper"
-                      colors={[
-                        "#ffffff",
-                        "#ffffff",
-                        "#ffffff",
-                        "#ffffff",
-                        "#ffffff",
-                      ]}
-                    />
-                  ) : ( */}
-                      <span className=" capitalize">SUBMIT</span>
-                      {/* )} */}
+                      {loading ? (
+                        <ColorRing
+                          visible={true}
+                          height="35"
+                          width="35"
+                          ariaLabel="color-ring-loading"
+                          wrapperStyle={{}}
+                          wrapperClass="color-ring-wrapper"
+                          colors={[
+                            "#ffffff",
+                            "#ffffff",
+                            "#ffffff",
+                            "#ffffff",
+                            "#ffffff",
+                          ]}
+                        />
+                      ) : (
+                        <span className=" capitalize">SUBMIT</span>
+                      )}
                     </Button>
                   </div>
                 </form>
@@ -223,25 +224,25 @@ const page = () => {
                       type="submit"
                       className="bg-[#333547] mb-4 inner-shadow border border-[#28B601] w-full rounded-xl hover:bg-slate-600 mt-4 text-white font-semibold py-5 px-10 2xl:text-lg   focus:outline-none focus:shadow-outline"
                     >
-                      {/* {isLoading ? (
-                    <ColorRing
-                      visible={true}
-                      height="35"
-                      width="35"
-                      ariaLabel="color-ring-loading"
-                      wrapperStyle={{}}
-                      wrapperClass="color-ring-wrapper"
-                      colors={[
-                        "#ffffff",
-                        "#ffffff",
-                        "#ffffff",
-                        "#ffffff",
-                        "#ffffff",
-                      ]}
-                    />
-                  ) : ( */}
-                      <span className=" capitalize">SUBMIT</span>
-                      {/* )} */}
+                      {loading ? (
+                        <ColorRing
+                          visible={true}
+                          height="35"
+                          width="35"
+                          ariaLabel="color-ring-loading"
+                          wrapperStyle={{}}
+                          wrapperClass="color-ring-wrapper"
+                          colors={[
+                            "#ffffff",
+                            "#ffffff",
+                            "#ffffff",
+                            "#ffffff",
+                            "#ffffff",
+                          ]}
+                        />
+                      ) : (
+                        <span className=" capitalize">SUBMIT</span>
+                      )}
                     </Button>
                     <p className="text-xs 2xl:text-sm text-start w-full mt-2 text-gray-300 font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                       Didn’t get the email?{" "}

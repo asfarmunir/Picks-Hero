@@ -23,20 +23,25 @@ export const authOptions = {
           const user = await prisma.user.findUnique({
             where: { email: credentials.email },
           });
-      
           if (!user) {
             throw new Error('No user found with this email');
           }
+
       
           const isValidPassword = await compare(credentials.password, user.password);
-      
           if (!isValidPassword) {
             throw new Error('Invalid password');
           }
 
           if (!user.twoFactorSecret || user.twoFactorSecret === null) {
+          console.log('1')
+
             const secret = speakeasy.generateSecret({ name: "PICKS-HERO" });
+          console.log('2')
+
             const data = await QRCode.toDataURL(secret.otpauth_url || '');
+          console.log('3')
+
             await prisma.user.update({
               where: { email: credentials.email },
               data: {
@@ -45,12 +50,15 @@ export const authOptions = {
                 otpUrl: data,
               },
             });
+          console.log('4')
+
             user.twoFactorSecret = secret.base32;
+            console.log('5')
           }
 
           return user;
-        } catch (error) {
-          throw new Error('Authentication failed');
+        } catch (error : any){
+          throw new Error(error.message);
         }
       }
     }),

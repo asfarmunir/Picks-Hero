@@ -24,8 +24,8 @@ export async function POST(req: NextRequest) {
     });
     if (existedEmail) {
       return NextResponse.json({
-        message: "Email exists already, please enter a different Email",
-      }, { status: 400 });
+        message: "User with this email already exists",
+      }, { status: 401 });
     }
     const salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash(password, salt);

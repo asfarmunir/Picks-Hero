@@ -6,6 +6,7 @@ import axios from "axios";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { Input } from "@/components/ui/input";
 
 export default function TwoFactorAuthPage() {
   const { status, data: session } = useSession();
@@ -59,20 +60,14 @@ export default function TwoFactorAuthPage() {
   return (
     <>
       {status === "authenticated" && (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            padding: "20px",
-            maxWidth: "400px",
-            margin: "auto",
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-          }}
-        >
-          <h2>Two-Factor Authentication</h2>
-          <div style={{ marginBottom: "20px" }}>
+        <div className=" bg-[#181926] w-full mx-auto items-center shadow-inner shadow-slate-800  justify-center sm:w-fit sm:min-w-[459px] 2xl:mt-10 2xl:min-w-[500px] mt-32 md:mt-6 flex flex-col  rounded-lg p-7 px-[2.18rem]    2xl:p-10 ">
+          <h2 className=" text-xl md:text-2xl 2xl:text-3xl border-b pb-3 w-full mb-5 text-center border-slate-700 font-bold text-white  2xl:mb-2">
+            Two-Factor Authentication{" "}
+          </h2>
+          <div
+            style={{ marginBottom: "20px" }}
+            className=" border p-3 rounded-lg border-slate-800"
+          >
             <img
               src={qrUrl}
               alt="QR Code"
@@ -81,37 +76,24 @@ export default function TwoFactorAuthPage() {
           </div>
           <form
             onSubmit={handleSubmit}
+            className=" w-full"
             style={{
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
             }}
           >
-            <input
+            <Input
               type="text"
               value={code}
               onChange={handleChange}
               placeholder="Enter 6-digit code"
               maxLength={6}
-              style={{
-                padding: "10px",
-                fontSize: "18px",
-                textAlign: "center",
-                marginBottom: "20px",
-                width: "200px",
-              }}
+              className="  focus:ring-green-600/50 border border-slate-800   text-center focus:ring-1 outline-offset-1  shadow  focus:border   rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
             />
             <button
               type="submit"
-              style={{
-                padding: "10px 20px",
-                fontSize: "16px",
-                backgroundColor: "#0070f3",
-                color: "#fff",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-              }}
+              className="bg-[#333547] mb-4 inner-shadow border border-[#28B601] w-full rounded-xl hover:bg-slate-600 mt-4 text-white font-semibold p-3.5  2xl:py-6 2xl:text-lg   focus:outline-none focus:shadow-outline"
             >
               Submit
             </button>

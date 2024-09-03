@@ -8,8 +8,8 @@ import { set, useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
-import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { delete2Ftoken } from "@/helper/delete2Ftoken";
 import {
   Form,
@@ -53,32 +53,35 @@ const page = () => {
   });
 
   const [toggle, setToggle] = useState(false);
-  const [AuthError , setAuthError] = useState('')
-interface value{
-  email : string
-  password : string
-}
-const router = useRouter()
-  async function onSubmit( values:value) {
-    console.log(values);
-  
+  const [isLoading, setIsLoading] = useState(false);
+  const [AuthError, setAuthError] = useState("");
+  interface value {
+    email: string;
+    password: string;
+  }
+  const router = useRouter();
+  async function onSubmit(values: value) {
+    console.log("values", values);
 
-    const result = await signIn('credentials', {
+    setIsLoading(true);
+
+    const result = await signIn("credentials", {
       redirect: false,
-      email : values.email,
-      password : values.password
+      email: values.email,
+      password: values.password,
     });
-      console.log('this is the result' , result)
-    if (result?.status !== 200 ) {
-      console.log('pushing in error')
-     setToggle(!toggle);
+    console.log("this is the result", result);
+    if (result?.status !== 200) {
+      console.log("pushing in error");
+      setToggle(!toggle);
 
-       setAuthError('Incorrect email or password please try again!')
+      setAuthError("Incorrect credentials please try again!");
     } else {
-      console.log('pushing')
-     router.push('/2fa-auth') 
-     setToggle(toggle);
+      console.log("pushing");
+      router.push("/2fa-auth");
+      setToggle(toggle);
     }
+    setIsLoading(false);
   }
 
   return (
@@ -109,7 +112,7 @@ const router = useRouter()
                 name="email"
                 render={({ field }) => (
                   <FormItem className="mb-4 w-full">
-                    <FormLabel className="block 2xl:text-[1.05rem] text-gray-300  mb-2.5">
+                    <FormLabel className="block 2xl:text-[1.1rem] text-gray-300  mb-2.5">
                       Email
                     </FormLabel>
                     <FormControl>
@@ -128,7 +131,7 @@ const router = useRouter()
                 name="password"
                 render={({ field }) => (
                   <FormItem className="mb-4 w-full">
-                    <FormLabel className="block 2xl:text-[1.05rem] text-gray-300  mb-2.5">
+                    <FormLabel className="block 2xl:text-[1.1rem] text-gray-300  mb-2.5">
                       Password
                     </FormLabel>
                     <FormControl>
@@ -159,9 +162,7 @@ const router = useRouter()
                     height={20}
                     className=""
                   />
-                  <span className=" text-[#F74418]">
-                   {AuthError}
-                  </span>
+                  <span className=" text-[#F74418]">{AuthError}</span>
                 </p>
               )}
 
@@ -170,7 +171,7 @@ const router = useRouter()
                   type="submit"
                   className="bg-[#333547] mb-4 inner-shadow border border-[#28B601] w-full rounded-xl hover:bg-slate-600 mt-4 text-white font-semibold py-6 px-10 2xl:text-lg   focus:outline-none focus:shadow-outline"
                 >
-                  {/* {isLoading ? (
+                  {isLoading ? (
                     <ColorRing
                       visible={true}
                       height="35"
@@ -186,9 +187,9 @@ const router = useRouter()
                         "#ffffff",
                       ]}
                     />
-                  ) : ( */}
-                  <span className=" capitalize">LOG IN</span>
-                  {/* )} */}
+                  ) : (
+                    <span className=" capitalize">LOG IN</span>
+                  )}
                 </Button>
                 <Image
                   src="/images/divider.png"
@@ -213,4 +214,3 @@ const router = useRouter()
 };
 
 export default page;
-
