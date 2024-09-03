@@ -4,7 +4,6 @@ import { hash } from "bcryptjs"; // Import bcryptjs for hashing passwords
 import prisma from "@/prisma/client";
 import { connectToDatabase } from "@/helper/dbconnect";
 import { NextRequest, NextResponse } from "next/server";
-import { stat } from "fs";
 
 export async function POST(req: NextRequest) {
   try {
