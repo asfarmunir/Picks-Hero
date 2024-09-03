@@ -3,7 +3,7 @@ import speakeasy from "speakeasy";
 import QRcode from "qrcode";
 import prisma from "@/prisma/client";
 import { getServerSession } from "next-auth";
-import { AuthOptions } from "../AuthOptions";
+import { AuthOptions } from "../authOptions";
 
 export async function GET(req: NextRequest) {
   try {
