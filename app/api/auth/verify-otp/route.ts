@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import speakeasy from "speakeasy";
 import { getServerSession } from "next-auth";
-import { AuthOptions } from "../authOptions";
+import { AuthOptions } from "../AuthOptions";
 
 export async function POST(request: NextRequest) {
   try {

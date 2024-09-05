@@ -14,20 +14,30 @@ datasource db {
 }
 
 model User {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  firstName       String
-  lastName        String?
-  country         String?   @default("")
-  email           String   @unique
-  password        String
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  firstName         String
+  lastName          String?
+  country           String?   @default("")
+  email             String    @unique
+  password          String
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  twoFactorCode     String? 
+  twoFactorSecret   String? 
+  ascii             String?
+  otpUrl            String?
+  twoFactorExpires  DateTime?
 
-  twoFactorCode   String? 
-  twoFactorSecret String? 
-  ascii           String?
-  otpUrl          String?
-  twoFactorExpires DateTime?
+  resetToken        String?  
+  resetTokenExpiry  DateTime? 
+  
+  displayStatsLive  Boolean   @default(false)
+  phoneNotification Boolean   @default(false)
+  emailNotification Boolean   @default(false)
+
+  address           String?   
+  dateOfBirth       DateTime? 
 
   @@map("users")
 }

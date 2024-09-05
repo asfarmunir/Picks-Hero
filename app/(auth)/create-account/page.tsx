@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { getServerSession } from "next-auth";
-import { AuthOptions } from "@/app/api/auth/authOptions";
+import { AuthOptions } from "@/app/api/auth/AuthOptions";
 
 const challenge = [
   {

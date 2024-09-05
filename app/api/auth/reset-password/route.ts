@@ -1,75 +1,45 @@
-// pages/api/reset-password.js
 
-import { hash } from "bcryptjs"; // Import bcryptjs for hashing passwords
-import prisma from "@/prisma/client";
-import { connectToDatabase } from "@/helper/dbconnect";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/prisma/client';
+import { sendResetEmail } from '@/helper/resetEmail';
+import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
   try {
-    connectToDatabase();
     const { email } = await req.json();
+
+    // Check if the user exists in the database
     const user = await prisma.user.findUnique({
       where: { email: email },
     });
 
     if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
+      return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json(user, { status: 200 });
-  } catch (error) {
-    return NextResponse.json(
-      { message: "user not found", error: error },
-      { status: 500 }
-    );
-  } finally {
-    await prisma.$disconnect();
-  }
-}
+    // Generate a secure reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpiry = Date.now() + 3600000; // 1-hour expiration
 
-export async function PATCH(req: NextRequest) {
-  try {
-    connectToDatabase();
-    if (req.method !== "PATCH") {
-      return NextResponse.json(
-        { message: "Method Not Allowed" },
-        { status: 405 }
-      );
-    }
-
-    const { email, password, confirmPassword } = await req.json();
-
-    const user = await prisma.user.findUnique({
-      where: { email: email },
-    });
-
-    if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
-    }
-
-    if (password !== confirmPassword) {
-      return NextResponse.json(
-        { message: "Passwords do not match" },
-        { status: 400 }
-      );
-    }
-
-    const hashedPassword = await hash(password, 10);
+    // Save the token and expiry to the user record in the database
     await prisma.user.update({
       where: { email: email },
-      data: { password: hashedPassword },
+      data: {
+        resetToken,
+        resetTokenExpiry : new Date(resetTokenExpiry)
+      },
     });
 
-    return NextResponse.json(
-      { message: "Password reset successfully" },
-      { status: 200 }
-    );
+    // Generate the password reset link (fallback link)
+    const resetLink = `http://localhost:3000/login/reset-password/${user.id}?token=${resetToken}`;
+
+    // Send the email with the reset link
+    await sendResetEmail(user.email, resetLink);
+
+    return NextResponse.json({ message: 'Reset email sent successfully' }, { status: 200 });
   } catch (error) {
-    return NextResponse.json(
-      { message: "Error resetting password", error: error },
-      { status: 500 }
-    );
+    console.error('Error sending reset email:', error);
+    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
   } finally {
     await prisma.$disconnect();
   }
