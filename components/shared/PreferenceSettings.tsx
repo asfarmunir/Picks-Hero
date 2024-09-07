@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import { Switch } from "../ui/switch";
+import { useState } from "react";
+import axios from "axios";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +14,30 @@ import {
 import { FaAngleDown } from "react-icons/fa6";
 
 const PreferenceSettings = () => {
+  const [displayStatsLive, setDisplayStatsLive] = useState(false);
+  const [phoneNotification, setPhoneNotification] = useState(false);
+  const [emailNotification, setEmailNotification] = useState(false);
+
+
+  const handleToggleChange = async (field: any, checked: any) => {
+    if (checked) {
+      try {
+        const response = await axios.patch("http://localhost:3000/api/preferences", {
+          field,
+          value: true,
+        });
+
+        if (response.status !== 200) {
+          throw new Error("Failed to update preferences");
+        }
+  
+        console.log("Preferences updated successfully:", response.data);
+      } catch (error) {
+        console.error("Error updating preferences:", error);
+      }
+    }
+  };
+  
   return (
     <div className=" w-full flex text-white flex-col gap-4">
       <div className=" w-full flex justify-between py-4 pb-8 border-b border-gray-700">
@@ -22,7 +48,13 @@ const PreferenceSettings = () => {
             Display your stats online publicly.
           </p>
         </div>
-        <Switch />
+        <Switch
+          checked={displayStatsLive}
+          onChange={(checked:any):any => {
+            setDisplayStatsLive(checked);
+            handleToggleChange("displayStatsLive", checked);
+          }}
+        />
       </div>
       <div className=" w-full flex justify-between py-4 pb-8 border-b border-gray-700">
         <div className="flex flex-col gap-1">
@@ -32,7 +64,13 @@ const PreferenceSettings = () => {
             Toggle whether you want to receive phone notifications.
           </p>
         </div>
-        <Switch />
+        <Switch
+          checked={phoneNotification}
+          onChange={(checked:any):any => {
+            setPhoneNotification(checked);
+            handleToggleChange("phoneNotification", checked);
+          }}
+        />
       </div>
       <div className=" w-full flex justify-between py-4 pb-8 border-b border-gray-700">
         <div className="flex flex-col gap-1">
@@ -42,7 +80,12 @@ const PreferenceSettings = () => {
             Toggle whether you want to receive email notifications.
           </p>
         </div>
-        <Switch />
+        <Switch
+        checked={emailNotification}
+        onChange={(checked:any):any => {
+          setDisplayStatsLive(checked);
+          handleToggleChange("displayStatsLive", checked);
+        }} />
       </div>
       <div className=" w-full flex justify-between py-4  ">
         <div className="flex flex-col gap-1">

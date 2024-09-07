@@ -41,8 +41,8 @@ model User {
   dateOfBirth       DateTime? 
 
   referralCode      String?   
-  referredBy        String?   // New field to track who referred the user
-  referralBonus     Float     @default(0.0) // Track bonus amount earned from referrals
+  referredBy        String?   
+  referralBonus     Float     @default(0.0) 
 
 
   @@map("users")
