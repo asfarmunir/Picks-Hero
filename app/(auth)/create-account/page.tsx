@@ -1,9 +1,12 @@
+'use client'
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React ,{useEffect} from "react";
 import { getServerSession } from "next-auth";
 import { AuthOptions } from "@/app/api/auth/AuthOptions";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const challenge = [
   {
@@ -32,11 +35,20 @@ const challenge = [
   },
 ];
 
-const page = async () => {
-  const session = await getServerSession(AuthOptions);
-  console.log("this is the session : ", session);
+const Page = () => {
+  const router = useRouter();
+  const { status, data: session } = useSession()
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/api/auth/signin');
+    }
+
+  }, [status, router]);
+
   return (
-    <section className=" w-full flex flex-col md:flex-row text-white ">
+    <>
+    {status === 'authenticated' &&  <section className=" w-full flex flex-col md:flex-row text-white ">
       <div className="flex flex-col  gap-4 p-4 md:p-8 w-full md:max-w-[70%]">
         <h2 className=" text-xl md:text-3xl font-bold uppercase">
           Unlock Our Money To Bet With
@@ -219,8 +231,8 @@ const page = async () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>}
+    </>);
 };
 
-export default page;
+export default Page;

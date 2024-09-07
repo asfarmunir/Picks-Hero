@@ -49,7 +49,7 @@ export async function PATCH(req: NextRequest) {
         firstName,
         lastName,
         email,
-        phone,
+        phoneNumber : phone,
         address,
         dateOfBirth: parsedDateOfBirth,
         ...(password && { password: hashedPassword }),

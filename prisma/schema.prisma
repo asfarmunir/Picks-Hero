@@ -31,13 +31,19 @@ model User {
 
   resetToken        String?  
   resetTokenExpiry  DateTime? 
-  
+
+  phoneNumber       String?   
   displayStatsLive  Boolean   @default(false)
   phoneNotification Boolean   @default(false)
   emailNotification Boolean   @default(false)
 
   address           String?   
   dateOfBirth       DateTime? 
+
+  referralCode      String?   
+  referredBy        String?   // New field to track who referred the user
+  referralBonus     Float     @default(0.0) // Track bonus amount earned from referrals
+
 
   @@map("users")
 }

@@ -35,8 +35,7 @@ const layout = ({ children }: { children: React.ReactNode }) => {
           </main>
         </>
       )}
-
-      
+      {status === 'loading' && <p>isLoading...</p>}
     </main>
   );
 }

@@ -9,12 +9,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import toast from "react-hot-toast";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
+import { useSession } from "next-auth/react";
+import axios from "axios";
 import {
   Select,
   SelectContent,
@@ -22,55 +25,88 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ServerSession } from "mongodb";
 
 const formSchema = z.object({
   firstName: z.string().min(2, {
     message: "First name should be atleast 2 characters",
-  }),
+  }).optional(),
   lastName: z.string().min(2, {
     message: "Last name should be atleast 2 characters",
-  }),
+  }).optional(),
   email: z.string().email({
     message: "Please enter a valid email address",
-  }),
+  }).optional(),
 
   phone: z.string().min(10, {
     message: "Please enter a valid phone number",
-  }),
+  }).optional(),
   password: z.string().min(8, {
     message: "Password should be atleast 8 characters",
-  }),
+  }).optional(),
   confirmPassword: z.string().min(8, {
     message: "Please enter password again",
-  }),
+  }).optional(),
 
   address: z.string().min(4, {
     message: "Please enter a valid address",
-  }),
+  }).optional(),
   dateOfBirth: z.string().min(2, {
     message: "Please enter a valid date of birth",
-  }),
+  }).optional(),
 });
 
+
 const GeneralSettings = () => {
+  const { status, data: session } : any = useSession();
+console.log('this is the user in the settings' , session)
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "test@gmail.com",
-      firstName: "John",
-      lastName: "Doe",
-      phone: "1234567890",
-      address: "1234, New York",
-      dateOfBirth: "01/01/1990",
+      email: session?.user?.email || '',
+      firstName: session?.user?.firstName || '',
+      lastName: session?.user?.lastName || '',
+      phone: session?.user?.phoneNumber || '',
+      address: session?.user?.address || '',
+      dateOfBirth: session?.user?.dateOfBirth || '',
       password: "password",
-      confirmPassword: "password",
+      confirmPassword: "confirm password",
     },
   });
 
-  async function onSubmit(values: any) {
-    console.log(values);
-  }
+  async function onSubmit(values : any) {
+    try {
+      const formattedDate = new Date(values.dateOfBirth).toISOString().split('T')[0];
 
+      console.log('Submitting form values:', values);
+  
+  
+      const userData = {
+        id: session?.user?.id, 
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        phone: values.phone,
+        address: values.address,
+        dateOfBirth: formattedDate,
+        password: values.password !== "password" ? values.password : undefined,
+      };
+  
+      const response = await axios.patch(`http://localhost:3000/api/general-setting`, userData);
+  
+
+      if (response.status === 200) {
+        console.log("User updated successfully:", response.data);
+        toast.success("Profile updated successfully!");
+      } else {
+        console.error("Failed to update user", response);
+        toast.error("Failed to update profile. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      alert("An error occurred while updating your profile.");
+    }
+  }
   return (
     <div className="flex flex-col  gap-4 my-6  w-full  ">
       <Form {...form}>
@@ -193,7 +229,7 @@ const GeneralSettings = () => {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder=" enter your date of birth"
+                        placeholder="YYYY-MM-DD"
                         {...field}
                         className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
                       />

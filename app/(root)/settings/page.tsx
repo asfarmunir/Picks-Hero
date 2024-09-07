@@ -18,10 +18,11 @@ import GeneralSettings from "@/components/shared/GeneralSettings";
 import PreferenceSettings from "@/components/shared/PreferenceSettings";
 import BillingSettings from "@/components/shared/BillingSettings";
 import Verification from "@/components/shared/Verification";
+import { useSession } from "next-auth/react";
 
 const page = () => {
   const [tab, setTab] = useState<string>("general");
-
+  const { status, data: session } = useSession();
   const changeTab = (tab: string) => {
     setTab(tab);
   };
