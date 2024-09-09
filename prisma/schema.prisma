@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -41,9 +35,40 @@ model User {
   dateOfBirth       DateTime? 
 
   referralCode      String?   
-  referredBy        String?   
+  referredBy        String?    
   referralBonus     Float     @default(0.0) 
+  totalEarned       Float     @default(0.0)
+
+
+  accounts          Account[]  
 
 
   @@map("users")
+}
+
+model Account {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  accountSize   String   
+  status        String   // Challenge, Funded, Breached
+  paymentMethod String?  // Store payment method details
+  userId        String   @db.ObjectId
+  user          User?     @relation(fields: [userId], references: [id])  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("accounts")
+}
+
+model ReferralHistory {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId          String   @db.ObjectId   
+  referredUserId  String   @db.ObjectId   
+  orderValue      Float?                  
+  orderNumber     String?                
+  commission      Float?                 
+  status          String?                
+
+  createdAt       DateTime @default(now())
+  
+  @@map("referralhistory")
 }

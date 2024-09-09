@@ -54,7 +54,14 @@ const formSchema = z.object({
   }),
 });
 
-const page = () => {
+
+interface props {
+  searchParams : {
+    referrerCode?: string
+  }
+}
+const page = ({searchParams : {referrerCode}}: props)  => {
+  console.log('this is the codeeeee ; ', referrerCode)
   const router = useRouter();
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -70,27 +77,40 @@ const page = () => {
 
   const [isChecked, setIsChecked] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+let newCode = referrerCode
+async function onSubmit(values: any) {
+  setIsLoading(true);
+  try {
+    let res;
 
-  async function onSubmit(values: any) {
-    setIsLoading(true);
-    try {
-      const res = await axios.post(
+    if (referrerCode) {
+      res = await axios.post(
+        `http://localhost:3000/api/register?referral=${referrerCode}`,
+        values
+      );
+    } else {
+
+      res = await axios.post(
         "http://localhost:3000/api/register",
         values
       );
-      if (!res) {
-        throw new Error("sign up failed");
-      }
-      router.push("/api/auth/signin");
-    } catch (error: any) {
-      if (error.response.data.message) {
-        toast.error(error.response.data.message);
-      } else {
-        toast("Server error, please try again later");
-      }
     }
-    setIsLoading(false);
+
+    if (!res) {
+      throw new Error("Sign up failed");
+    }
+
+    router.push("/api/auth/signin");
+  } catch (error: any) {
+    if (error?.response?.data?.message) {
+      toast.error(error.response.data.message);
+    } else {
+      toast("Server error, please try again later");
+    }
   }
+
+  setIsLoading(false);
+}
 
   return (
     <div className=" w-full flex items-start justify-center gap-20 pb-12">
