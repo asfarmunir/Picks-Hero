@@ -2,9 +2,9 @@
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
-import React ,{useEffect} from "react";
+import React ,{useEffect, useState} from "react";
 import { getServerSession } from "next-auth";
-import { AuthOptions } from "@/app/api/auth/AuthOptions";
+// import { AuthOptions } from "@/app/api/auth/AuthOptions";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
@@ -35,7 +35,59 @@ const challenge = [
   },
 ];
 
+interface Steps {
+  title: string;
+  price: string;
+};
+
+const two_step: Steps[] = [
+  {
+    title: "1K",
+    price: "$34",
+  },
+  {
+    title: "2K",
+    price: "$72",
+  },
+  {
+    title: "5K",
+    price: "$159",
+  },
+  {
+    title: "10K",
+    price: "$309",
+  },
+  {
+    title: "20K",
+    price: "$559",
+  },
+  {
+    title: "50K",
+    price: "$1308",
+  },
+];
+
+const three_step: Steps[] = [
+  {
+    title: "2K",
+    price: "$34",
+  },
+  {
+    title: "5K",
+    price: "$72",
+  },
+  {
+    title: "10K",
+    price: "$159",
+  },
+  {
+    title: "20K",
+    price: "$309",
+  }
+];
+
 const Page = () => {
+  // session
   const router = useRouter();
   const { status, data: session } = useSession()
 
@@ -44,7 +96,33 @@ const Page = () => {
       router.push('/api/auth/signin');
     }
 
+    // clear billing address
+    localStorage.removeItem('billing');
+    localStorage.removeItem('step');
+
   }, [status, router]);
+
+
+  // account sizes
+  const [activeStep, setActiveStep] = useState<number>(2);
+  const [accountSizes, setAccountSizes] = useState<Steps[]>(two_step);
+  const [activeAccountSize, setActiveAccountSize] = useState<Steps>(two_step[0]);
+
+  const changeActiveStep = (step: number) => {
+    setActiveStep(step);
+    if (step === 2) {
+      setAccountSizes(two_step);
+      setActiveAccountSize(two_step[0]);
+    } else if (step === 3) {
+      setAccountSizes(three_step);
+      setActiveAccountSize(three_step[0]);
+    }
+  };
+
+  // form
+  const openForm = () => {
+    router.push(`/create-account/form/?type=${activeStep}&accountSize=${activeAccountSize.title}&price=${activeAccountSize.price}`);
+  };
 
   return (
     <>
@@ -86,21 +164,25 @@ const Page = () => {
           </p>
 
           <div className="flex items-center flex-col md:flex-row mt-10  gap-5 md:mt-4">
-            <div className=" text-2xl relative w-full md:w-fit flex justify-center hover:bg-[#1A5B0B] border-2 border-gray-800 cursor-pointer hover:border-2 hover:border-[#52FC18] font-bold px-8 py-2.5 rounded-full">
-              1 STEP
+            <div className={`text-2xl relative w-full md:w-fit flex justify-center hover:bg-[#1A5B0B] border-2 border-gray-800 cursor-pointer hover:border-2 hover:border-[#52FC18] font-bold px-8 py-2.5 rounded-full ${activeStep===2 ? "bg-[#1A5B0B] border-2 !border-[#52FC18]":""}`}
+              onClick={() => changeActiveStep(2)}
+            >
+              2 STEP
               <Image
                 src="/images/faster.png"
-                alt="1 step"
+                alt="2 step"
                 width={70}
                 height={70}
                 className=" absolute -top-2.5"
               />
             </div>
-            <div className=" text-2xl relative w-full md:w-fit flex items-center justify-center  hover:bg-[#1A5B0B] border-2 border-gray-800 cursor-pointer hover:border-2 hover:border-[#52FC18] font-bold px-8 py-2.5 rounded-full">
-              2 STEPS
+            <div className={`text-2xl relative w-full md:w-fit flex items-center justify-center  hover:bg-[#1A5B0B] border-2 border-gray-800 cursor-pointer hover:border-2 hover:border-[#52FC18] font-bold px-8 py-2.5 rounded-full ${activeStep===3 ? "bg-[#1A5B0B] border-2 !border-[#52FC18]":""}`}
+              onClick={() => changeActiveStep(3)}
+            >
+              3 STEP
               <Image
                 src="/images/cheaper.png"
-                alt="1 step"
+                alt="3 step"
                 width={70}
                 height={70}
                 className=" absolute -top-2.5"
@@ -111,31 +193,15 @@ const Page = () => {
         <div className=" w-full bg-[#181926]  flex flex-col gap-1 px-8 py-7 rounded-xl shadow-inner shadow-gray-800">
           <h2 className="text-lg 2xl:text-xl font-bold "> ACCOUNT SIZE</h2>
           <div className="flex items-center flex-col md:flex-row mt-10  gap-5 md:mt-4">
-            <div className=" text-2xl relative w-full md:w-fit flex justify-center hover:bg-[#1A5B0B] border-2 border-gray-800 cursor-pointer hover:border-2 hover:border-[#52FC18] font-bold px-6 py-2.5 rounded-full">
-              $1K
-            </div>
-            <div className=" text-2xl relative w-full md:w-fit flex items-center justify-center  hover:bg-[#1A5B0B] border-2 border-gray-800 cursor-pointer hover:border-2 hover:border-[#52FC18] font-bold px-6 py-2.5 rounded-full">
-              $2K
-            </div>
-            <div className=" text-2xl relative w-full md:w-fit flex items-center justify-center  hover:bg-[#1A5B0B] border-2 border-gray-800 cursor-pointer hover:border-2 hover:border-[#52FC18] font-bold px-6 py-2.5 rounded-full">
-              $5K
-            </div>
-            <div className=" text-2xl relative w-full md:w-fit flex items-center justify-center  hover:bg-[#1A5B0B] border-2 border-gray-800 cursor-pointer hover:border-2 hover:border-[#52FC18] font-bold px-6 py-2.5 rounded-full">
-              $10K
-              <Image
-                src="/images/popular.png"
-                alt="1 step"
-                width={70}
-                height={70}
-                className=" absolute -top-2.5"
-              />
-            </div>
-            <div className=" text-2xl relative w-full md:w-fit flex items-center justify-center  hover:bg-[#1A5B0B] border-2 border-gray-800 cursor-pointer hover:border-2 hover:border-[#52FC18] font-bold px-6 py-2.5 rounded-full">
-              $20K
-            </div>
-            <div className=" text-2xl relative w-full md:w-fit flex items-center justify-center  hover:bg-[#1A5B0B] border-2 border-gray-800 cursor-pointer hover:border-2 hover:border-[#52FC18] font-bold px-6 py-2.5 rounded-full">
-              $50K
-            </div>
+            {
+              accountSizes.map((item, index) => (
+                <div key={index} className={`text-2xl relative w-full md:w-fit flex items-center justify-center  hover:bg-[#1A5B0B] border-2 border-gray-800 cursor-pointer hover:border-2 hover:border-[#52FC18] font-bold px-6 py-2.5 rounded-full ${activeAccountSize.title === item.title ? "bg-[#1A5B0B] border-2 !border-[#52FC18]":""}`}
+                  onClick={() => setActiveAccountSize(item)}
+                >
+                  {item.title}
+                </div>
+              ))
+            }
           </div>
         </div>
       </div>
@@ -160,10 +226,10 @@ const Page = () => {
             <h2 className=" 2xl:text-4xl text-3xl  tracking-wide font-black ">
               <span className=" line-through text-[#848BAC]  ">$2000</span>{" "}
               {"  "}
-              $1600
+              { activeAccountSize.price }
             </h2>
             <p className=" text-lg 2xl:text-xl uppercase  font-semibold">
-              for $2000 account
+              for ${activeAccountSize.title} account
             </p>
           </div>
         </div>
@@ -193,12 +259,12 @@ const Page = () => {
             </h2>
           </div>
         </div>
-        <Link
-          href={"/create-account/form"}
+        <button
+          onClick={openForm}
           className=" mb-1 inner-shadow border text-center border-[#28B601] w-full rounded-xl hover:bg-slate-600 mt-4 text-white font-semibold py-3 px-10 2xl:text-lg   focus:outline-none focus:shadow-outline"
         >
           <span className=" capitalize">GET STARTED</span>
-        </Link>
+        </button>
         <p className="text-xs 2xl:text-sm text-gray-300 leading-snug font-medium  peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           By clicking purchase, your agree to our{" "}
           <span className="text-primary-50">Terms</span> and{" "}
@@ -233,6 +299,6 @@ const Page = () => {
       </div>
     </section>}
     </>);
-};
+  };
 
 export default Page;

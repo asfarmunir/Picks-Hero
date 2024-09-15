@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Form,
   FormControl,
@@ -23,6 +23,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "react-toastify";
+import { useSession } from "next-auth/react";
+import { useCreateAccount } from "@/app/hooks/useCreateAccount";
+import { ColorRing } from "react-loader-spinner";
 
 const formSchema = z.object({
   firstName: z.string().min(2, {
@@ -74,6 +79,13 @@ const cardSchema = z.object({
 });
 
 const page = () => {
+  // router
+  const router = useRouter();
+
+  // user details
+  const { status, data: session } = useSession();
+
+  // form
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -100,13 +112,81 @@ const page = () => {
     },
   });
 
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(
+    localStorage.getItem("step")
+      ? parseInt(localStorage.getItem("step") || "1")
+      : 1
+  );
 
+  useEffect(() => {
+    const localStep = localStorage.getItem("step");
+    if (step === 1 && localStep !== "2") return;
+    localStorage.setItem("step", step.toString());
+  }, [step]);
+
+  // billing address form submit
   async function onSubmit(values: any) {
-    console.log(values);
-    setStep(step + 1);
+    localStorage.setItem("billing", JSON.stringify(values));
+    setStep(2);
     scrollTo(0, 0);
   }
+
+  // go back
+  const goBack = () => {
+    localStorage.removeItem("billing");
+    localStorage.removeItem("step");
+    setStep(1);
+    router.push("/create-account");
+  };
+
+  // card form submit
+
+  const handleSuccess = (data: any) => {
+    localStorage.removeItem("billing");
+    localStorage.removeItem("step");
+    toast.success("Account created successfully");
+    router.push("/dashboard");
+  };
+
+  const handleError = (error: Error) => {
+    console.error(error);
+    toast.error("Failed to create account");
+  };
+
+  // Mutation
+  const { mutate: submitAccount, isPending } = useCreateAccount({
+    onSuccess: handleSuccess,
+    onError: handleError,
+  });
+
+  async function onSubmitCard(values: any) {
+    // create account
+    const billing = JSON.parse(localStorage.getItem("billing") || "{}");
+    const data = {
+      account: {
+        accountSize: accountSize,
+        accountType:
+          accountType === "2"
+            ? "TWO_STEP"
+            : accountType === "3"
+            ? "THREE_STEP"
+            : "",
+        status: "CHALLENGE",
+      },
+      billingDetails: billing,
+      card: values,
+      userId: session?.user ? session?.user.id ?? "" : "",
+    };
+
+    // submit to api
+    submitAccount(data);
+  }
+
+  // url search params
+  const searchParams = useSearchParams();
+  const accountType = searchParams.get("type");
+  const accountSize = searchParams.get("accountSize");
+  const accountPrice = searchParams.get("price");
 
   return (
     <div className=" w-full text-white flex flex-col md:flex-row md:px-16">
@@ -128,10 +208,10 @@ const page = () => {
             <h2 className=" 2xl:text-4xl text-3xl  tracking-wide font-black ">
               <span className=" line-through text-[#848BAC]  ">$2000</span>{" "}
               {"  "}
-              $1600
+              {accountPrice}
             </h2>
             <p className=" text-lg 2xl:text-xl uppercase  font-semibold">
-              for $2000 account
+              for ${accountSize} account
             </p>
           </div>
         </div>
@@ -177,6 +257,10 @@ const page = () => {
               className={` ${
                 step === 1 ? "text-white" : "text-[#848BAC]"
               } text-lg 2xl:text-xl uppercase font-bold`}
+              onClick={() => {
+                step === 2 && setStep(1);
+              }}
+              role="button"
             >
               BiILLING DETAILS
             </p>
@@ -221,6 +305,7 @@ const page = () => {
                         </FormLabel>
                         <FormControl>
                           <Input
+                            required
                             placeholder="enter your first name"
                             {...field}
                             className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
@@ -240,6 +325,7 @@ const page = () => {
                         </FormLabel>
                         <FormControl>
                           <Input
+                            required
                             placeholder=" enter your last name"
                             {...field}
                             className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
@@ -261,6 +347,7 @@ const page = () => {
                         </FormLabel>
                         <FormControl>
                           <Input
+                            required
                             placeholder="enter your email"
                             {...field}
                             className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
@@ -280,6 +367,7 @@ const page = () => {
                         </FormLabel>
                         <FormControl>
                           <Input
+                            required
                             placeholder=" enter your phone number"
                             {...field}
                             className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
@@ -300,14 +388,14 @@ const page = () => {
                           Country
                         </FormLabel>
                         <FormControl>
-                          <Select onValueChange={field.onChange}>
+                          <Select required onValueChange={field.onChange}>
                             <SelectTrigger className="  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight ">
                               <SelectValue placeholder=" select your country " />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="system">America</SelectItem>
-                              <SelectItem value="sysstem">UK</SelectItem>
-                              <SelectItem value="sysstsem">France</SelectItem>
+                              <SelectItem value="US">America</SelectItem>
+                              <SelectItem value="UK">UK</SelectItem>
+                              <SelectItem value="FR">France</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormControl>
@@ -325,6 +413,7 @@ const page = () => {
                         </FormLabel>
                         <FormControl>
                           <Input
+                            required
                             placeholder=" enter your state"
                             {...field}
                             className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
@@ -346,6 +435,7 @@ const page = () => {
                         </FormLabel>
                         <FormControl>
                           <Input
+                            required
                             placeholder="enter your city"
                             {...field}
                             className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
@@ -365,6 +455,7 @@ const page = () => {
                         </FormLabel>
                         <FormControl>
                           <Input
+                            required
                             placeholder=" enter postal code"
                             {...field}
                             className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
@@ -386,6 +477,7 @@ const page = () => {
                       </FormLabel>
                       <FormControl>
                         <Input
+                          required
                           placeholder=" enter your address"
                           {...field}
                           className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
@@ -401,35 +493,36 @@ const page = () => {
                 </p>
 
                 <div className="flex w-full mt-2 gap-2 items-center justify-center">
-                  <Link
-                    href={"/create-account"}
+                  <button
                     className="bg-[#333547] hidden md:block mb-4 w-fit border border-[#2a2b2a] rounded-xl hover:bg-slate-600 mt-4 text-white font-semibold py-3  px-8 2xl:text-lg   focus:outline-none focus:shadow-outline"
+                    onClick={goBack}
                   >
                     BACK
-                  </Link>
+                  </button>
                   <Button
                     type="submit"
                     className="bg-[#333547] mb-4 inner-shadow border border-[#28B601] w-full rounded-xl hover:bg-slate-600 mt-4 text-white font-semibold py-6 px-10 2xl:text-lg   focus:outline-none focus:shadow-outline"
+                    disabled={isPending}
                   >
-                    {/* {isLoading ? (
-                    <ColorRing
-                      visible={true}
-                      height="35"
-                      width="35"
-                      ariaLabel="color-ring-loading"
-                      wrapperStyle={{}}
-                      wrapperClass="color-ring-wrapper"
-                      colors={[
-                        "#ffffff",
-                        "#ffffff",
-                        "#ffffff",
-                        "#ffffff",
-                        "#ffffff",
-                      ]}
-                    />
-                  ) : ( */}
-                    <span className=" capitalize">LET'S GO</span>
-                    {/* )} */}
+                    {isPending ? (
+                      <ColorRing
+                        visible={true}
+                        height="35"
+                        width="35"
+                        ariaLabel="color-ring-loading"
+                        wrapperStyle={{}}
+                        wrapperClass="color-ring-wrapper"
+                        colors={[
+                          "#ffffff",
+                          "#ffffff",
+                          "#ffffff",
+                          "#ffffff",
+                          "#ffffff",
+                        ]}
+                      />
+                    ) : (
+                      <span className=" capitalize">LET'S GO</span>
+                    )}
                   </Button>
                 </div>
                 <p className="text-xs block md:hidden text-center 2xl:text-sm text-[#848BAC]  font-medium  peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
@@ -447,7 +540,7 @@ const page = () => {
             >
               <form
                 id="container"
-                onSubmit={cardForm.handleSubmit(onSubmit)}
+                onSubmit={cardForm.handleSubmit(onSubmitCard)}
                 className=" w-full "
               >
                 <FormField
@@ -460,6 +553,7 @@ const page = () => {
                       </FormLabel>
                       <FormControl>
                         <Input
+                          required
                           placeholder="  enter card number"
                           {...field}
                           className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
@@ -480,6 +574,7 @@ const page = () => {
                         </FormLabel>
                         <FormControl>
                           <Input
+                            required
                             placeholder=" enter card expiry"
                             {...field}
                             className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
@@ -495,10 +590,11 @@ const page = () => {
                     render={({ field }) => (
                       <FormItem className="mb-4 w-full">
                         <FormLabel className="block 2xl:text-[1.05rem] text-gray-300  mb-2.5">
-                          Last Name
+                          CVV
                         </FormLabel>
                         <FormControl>
                           <Input
+                            required
                             placeholder=" enter your last name"
                             {...field}
                             className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
@@ -520,14 +616,14 @@ const page = () => {
                           Country
                         </FormLabel>
                         <FormControl>
-                          <Select onValueChange={field.onChange}>
+                          <Select required onValueChange={field.onChange}>
                             <SelectTrigger className="  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight ">
                               <SelectValue placeholder=" select your country " />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="system">America</SelectItem>
-                              <SelectItem value="sysstem">UK</SelectItem>
-                              <SelectItem value="sysstsem">France</SelectItem>
+                              <SelectItem value="US">America</SelectItem>
+                              <SelectItem value="UK">UK</SelectItem>
+                              <SelectItem value="FR">France</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormControl>
@@ -545,6 +641,7 @@ const page = () => {
                         </FormLabel>
                         <FormControl>
                           <Input
+                            required
                             placeholder=" enter postal code"
                             {...field}
                             className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
@@ -567,25 +664,25 @@ const page = () => {
                     type="submit"
                     className="bg-[#333547] mb-4 inner-shadow border border-[#28B601] w-full rounded-xl hover:bg-slate-600 mt-4 text-white font-semibold py-6 px-10 2xl:text-lg   focus:outline-none focus:shadow-outline"
                   >
-                    {/* {isLoading ? (
-                    <ColorRing
-                      visible={true}
-                      height="35"
-                      width="35"
-                      ariaLabel="color-ring-loading"
-                      wrapperStyle={{}}
-                      wrapperClass="color-ring-wrapper"
-                      colors={[
-                        "#ffffff",
-                        "#ffffff",
-                        "#ffffff",
-                        "#ffffff",
-                        "#ffffff",
-                      ]}
-                    />
-                  ) : ( */}
-                    <span className=" capitalize">LET'S GO</span>
-                    {/* )} */}
+                    {isPending ? (
+                      <ColorRing
+                        visible={true}
+                        height="35"
+                        width="35"
+                        ariaLabel="color-ring-loading"
+                        wrapperStyle={{}}
+                        wrapperClass="color-ring-wrapper"
+                        colors={[
+                          "#ffffff",
+                          "#ffffff",
+                          "#ffffff",
+                          "#ffffff",
+                          "#ffffff",
+                        ]}
+                      />
+                    ) : (
+                      <span className=" capitalize">LET'S GO</span>
+                    )}
                   </Button>
                 </div>
                 <p className="text-sm 2xl:text-base mb-4 text-gray-200 leading-snug font-semibold  peer-disabled:cursor-not-allowed peer-disabled:opacity-70">

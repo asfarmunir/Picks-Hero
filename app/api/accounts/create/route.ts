@@ -1,25 +1,66 @@
-// import { NextApiRequest, NextApiResponse } from 'next';
-// import prisma from '@/prisma/client';
+import { NextApiRequest, NextApiResponse } from 'next';
+import prisma from '@/prisma/client';
+import { NextRequest, NextResponse } from 'next/server';
+import { connectToDatabase } from '@/helper/dbconnect';
 
+export async function POST(req: NextRequest, res: NextApiResponse) {
+  if (req.method === 'POST') {
+    const { account, billingDetails, card, userId } = await req.json();
+    
+    try {
 
-// export async function POST(req: NextApiRequest, res: NextApiResponse) {
-//   if (req.method === 'POST') {
-//     const { accountSize, userId } = req.body;
+        await connectToDatabase();
 
-//     try {
-//       // Create a new account linked to the user
-//       const newAccount = await prisma.account.create({
-//         data: {
-//           accountSize,
-//           status: 'challenge',  // Set default status to 'challenge'
-//           user: { connect: { id: userId } },  // Link account to user
-//         },
-//       });
-//       res.status(200).json(newAccount);
-//     } catch (error) {
-//       res.status(500).json({ error: 'Failed to create account' });
-//     }
-//   } else {
-//     res.status(405).json({ error: 'Method Not Allowed' });
-//   }
-// }
+        // Create a new account linked to the user      
+        const newAccount = await prisma.account.create({
+            data: {
+                accountSize: account.accountSize,
+                accountType: account.accountType,
+                status: account.status,
+                userId: userId
+            }
+        });
+
+        console.log(newAccount)
+
+        // save billing address
+        const billingAddress = await prisma.billingAddress.create({
+            data: {
+                address: billingDetails.address,
+                city: billingDetails.city,
+                country: billingDetails.country,
+                email: billingDetails.email,
+                firstName: billingDetails.firstName,
+                lastName: billingDetails.lastName,
+                phone: billingDetails.phone,
+                zipCode: billingDetails.postalCode,
+                state: billingDetails.state,
+                accountId: newAccount.id
+            }
+        });
+
+        console.log("Billing address saved!")
+
+        // save payment card
+        const paymentCard = await prisma.paymentCard.create({
+            data: {
+                cardNumber: card.cardNumber,
+                cardExpiry: card.cardExpiry,
+                zipCode: card.zipCode,
+                cardCvv: card.cardCvv,
+                country: card.country,
+                accountId: newAccount.id
+            }
+        });
+
+        console.log("Payment card saved!")
+      
+        return NextResponse.json({ newAccount }, { status: 200 });
+    } catch (error) {
+      console.log(error)
+      return NextResponse.json({ error: 'Failed to create account' }, { status: 500 });
+    }
+  } else {
+    return NextResponse.json({ error: 'Method Not Allowed' }, { status: 405 });
+  }
+}
