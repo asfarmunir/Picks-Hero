@@ -1,58 +1,132 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/prisma/client";
 import { connectToDatabase } from "@/helper/dbconnect";
-import * as bcryptjs from 'bcryptjs';
-import nodemailer from 'nodemailer';
+import * as bcryptjs from "bcryptjs";
+import nodemailer from "nodemailer";
+import { generateReferralCode } from "@/helper/referral";
 
 export async function POST(req: NextRequest) {
-  connectToDatabase();
-
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL, 
-      pass: process.env.PASSWORD, 
-    },
-  });
-
   try {
+
+    await connectToDatabase();
+
     const { firstName, lastName, country, email, password } = await req.json();
-    const existedEmail = await prisma.user.findUnique({
-      where: {
-        email: email,
-      },
-    });
-    if (existedEmail) {
-      return NextResponse.json({
-        message: "User with this email already exists",
-      }, { status: 401 });
-    }
+    const referrerCode = req.nextUrl.searchParams.get("referral");
+
+
+
     const salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash(password, salt);
-    const newUser = await prisma.user.create({
-      data: {
-        firstName: firstName,
-        lastName: lastName,
-        country: country,
-        email: email,
-        password: hashedPassword,
+
+    let newUser;
+
+    if (!referrerCode) {
+console.log('2', referrerCode)
+const existingUser = await prisma.user.findUnique({
+  where: { email },
+});
+console.log('1', existingUser)
+if (existingUser) {
+  return NextResponse.json(
+    { message: "User with this email already exists" },
+    { status: 409 }
+  );
+}
+
+      newUser = await prisma.user.create({
+        data: {
+          firstName,
+          lastName,
+          country,
+          email,
+          password: hashedPassword,
+          referralCode: generateReferralCode(),
+        },
+      });
+    } else {
+      const existingUser = await prisma.user.findUnique({
+        where: { email },
+      });
+  console.log('1', existingUser)
+
+      if (existingUser) {
+        return NextResponse.json(
+          { message: "User with this email already exists" },
+          { status: 409 }
+        );
+      }
+      const referrer = await prisma.user.findFirst({
+        where: { referralCode: referrerCode },
+      });
+
+      if (!referrer) {
+        return NextResponse.json(
+          { message: "Invalid referral code" },
+          { status: 400 }
+        );
+      }
+
+      newUser = await prisma.user.create({
+        data: {
+          firstName,
+          lastName,
+          country,
+          email,
+          password: hashedPassword,
+          referredBy: referrer.id,
+          referralCode: generateReferralCode(),
+        },
+      });
+
+
+      await prisma.$transaction([
+        prisma.user.update({
+          where: { id: referrer.id },
+          data: { referralBonus: { increment: 10 } },
+        }),
+        prisma.referralHistory.create({
+          data: {
+            userId: referrer.id,
+            referredUserId: newUser.id,
+            orderValue: 0,
+            commission: 10,
+            status: "paid",
+            orderNumber: null,
+          },
+        }),
+      ]);
+    }
+
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL,
+        pass: process.env.PASSWORD,
       },
     });
+
     const mailOptions = {
-      from: process.env.EMAIL, 
-      to: email, 
-      subject: 'Welcome to PicksHero! Confirm Your Account',
-      text: `Hello ${firstName},\n\nWelcome to PicksHero! We're thrilled to have you on board. You're just one step away from unlocking all the exciting features of our app.\n\nThank you for joining our community. Get ready to make your picks and start winning!\n\nBest regards,\nThe PicksHero Team`,
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Welcome to PicksHero! Confirm Your Account",
       html: `<p>Hello ${firstName},</p>
-             <p>Welcome to <strong>PicksHero</strong>! We're thrilled to have you on board. You're just one step away from unlocking all the exciting features of our app.</p>
-             <p>Thank you for joining our community. Get ready to make your picks and start winning!</p>
-             <p>Best regards,<br/>The PicksHero Team</p>`,
+            <p>Welcome to <strong>PicksHero</strong>! We're thrilled to have you on board. You're just one step away from unlocking all the exciting features of our app.</p>
+            <p>Best regards,<br/>The PicksHero Team</p>`,
     };
+
     await transporter.sendMail(mailOptions);
 
-    return NextResponse.json({ message: 'User created successfully, confirmation email sent', user: newUser });
+    return NextResponse.json({
+      message: "User created successfully, confirmation email sent",
+      user: newUser,
+    });
   } catch (error) {
-    return NextResponse.json({ message: 'Error creating user', error: error }, { status: 500 });
+    console.error("Error during registration:", error);
+    return NextResponse.json(
+      { message: "Error creating user", error: error },
+      { status: 500 }
+    );
   } finally {
     await prisma.$disconnect();
   }
