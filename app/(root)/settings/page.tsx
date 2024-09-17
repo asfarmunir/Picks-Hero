@@ -20,6 +20,7 @@ import BillingSettings from "@/components/shared/BillingSettings";
 import Verification from "@/components/shared/Verification";
 import { useSession } from "next-auth/react";
 import { useGetPreferences } from "@/app/hooks/useGetPreferences";
+import KYCVerification from "./kyc-verfication";
 
 const page = () => {
   const [tab, setTab] = useState<string>("general");
@@ -31,10 +32,10 @@ const page = () => {
   // GET PREFERENCES
   const { mutate: fetchPreferences, data: preferences } = useGetPreferences({
     onSuccess: (data) => {
-      console.log(data);
+      // console.log(data);
     },
     onError: (error) => {
-      console.log(error);
+      // console.log(error);
     },
   });
   
@@ -90,7 +91,7 @@ const page = () => {
                 key={index}
                 className={`border  
              px-5 text-xs 2xl:text-lg py-2 flex-grow md:flex-grow-0 text-nowrap rounded-full ${
-               tab === curr.name
+               tab === curr.tab
                  ? "border-[#52FC18] bg-[#1A5B0B]"
                  : " border-gray-700 text-[#848BAC] border-2"
              } font-semibold uppercase`}
@@ -106,6 +107,7 @@ const page = () => {
               preferences: <PreferenceSettings preferences={preferences} fetchPreferences={fetchPreferences} />,
               billing: <BillingSettings />,
               verification: <Verification />,
+              kyc: <KYCVerification />
             }[tab]
           }
         </div>

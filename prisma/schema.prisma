@@ -29,6 +29,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   profileLevel Int @default(0)
+  kycVerified Boolean @default(false)
 
   twoFactorCode    String?
   twoFactorSecret  String?
