@@ -45,6 +45,17 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
         console.log("Billing address saved!")
 
         // save payment card
+
+        const isPaymentCardExist = await prisma.paymentCard.findFirst({
+            where: {
+                cardNumber: card.cardNumber
+            }
+        });
+
+        if (isPaymentCardExist) {
+          return NextResponse.json({ newAccount }, { status: 200 });
+        }
+
         const paymentCard = await prisma.paymentCard.create({
             data: {
                 cardNumber: card.cardNumber,

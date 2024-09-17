@@ -12,29 +12,29 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FaAngleDown } from "react-icons/fa6";
+import { toast } from "react-toastify";
 
-const PreferenceSettings = () => {
-  const [displayStatsLive, setDisplayStatsLive] = useState(false);
-  const [phoneNotification, setPhoneNotification] = useState(false);
-  const [emailNotification, setEmailNotification] = useState(false);
+const PreferenceSettings = ({ preferences, fetchPreferences } : { preferences: any, fetchPreferences: ()=>void }) => {
+  const [displayStatsLive, setDisplayStatsLive] = useState(preferences?.displayStatsLive || false);
+  const [phoneNotification, setPhoneNotification] = useState(preferences?.phoneNotification || false);
+  const [emailNotification, setEmailNotification] = useState(preferences?.emailNotification || false);
 
 
-  const handleToggleChange = async (field: any, checked: any) => {
-    if (checked) {
-      try {
-        const response = await axios.patch("http://localhost:3000/api/preferences", {
-          field,
-          value: true,
-        });
-
-        if (response.status !== 200) {
-          throw new Error("Failed to update preferences");
-        }
-  
-        console.log("Preferences updated successfully:", response.data);
-      } catch (error) {
-        console.error("Error updating preferences:", error);
+  const handleToggleChange = async (field: any, checked: boolean) => {
+    try {
+      const response = await axios.patch("http://localhost:3000/api/preferences", {
+        field,
+        value: checked,
+      });
+      
+      if (response.status !== 200) {
+        throw new Error("Failed to update preferences");
       }
+
+      toast.success("Preferences updated successfully:", response.data);
+      fetchPreferences();
+    } catch (error) {
+      toast.error("Error updating preferences");
     }
   };
   
@@ -50,9 +50,11 @@ const PreferenceSettings = () => {
         </div>
         <Switch
           checked={displayStatsLive}
-          onChange={(checked:any):any => {
-            setDisplayStatsLive(checked);
-            handleToggleChange("displayStatsLive", checked);
+          onClick={(e) => {
+            const switch_ = e.target as HTMLButtonElement;
+            const toggle = switch_.getAttribute("data-state");
+            handleToggleChange("displayStatsLive", toggle!=="checked");
+            setDisplayStatsLive(!displayStatsLive);
           }}
         />
       </div>
@@ -66,9 +68,11 @@ const PreferenceSettings = () => {
         </div>
         <Switch
           checked={phoneNotification}
-          onChange={(checked:any):any => {
-            setPhoneNotification(checked);
-            handleToggleChange("phoneNotification", checked);
+          onClick={(e) => {
+            const switch_ = e.target as HTMLButtonElement;
+            const toggle = switch_.getAttribute("data-state");
+            handleToggleChange("phoneNotification", toggle!=="checked");
+            setPhoneNotification(!phoneNotification);
           }}
         />
       </div>
@@ -81,11 +85,14 @@ const PreferenceSettings = () => {
           </p>
         </div>
         <Switch
-        checked={emailNotification}
-        onChange={(checked:any):any => {
-          setDisplayStatsLive(checked);
-          handleToggleChange("displayStatsLive", checked);
-        }} />
+          checked={emailNotification}
+          onClick={(e) => {
+            const switch_ = e.target as HTMLButtonElement;
+            const toggle = switch_.getAttribute("data-state");
+            handleToggleChange("emailNotification", toggle!=="checked");
+            setEmailNotification(!emailNotification);
+          }}
+        />
       </div>
       <div className=" w-full flex justify-between py-4  ">
         <div className="flex flex-col gap-1">

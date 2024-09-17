@@ -2,7 +2,7 @@
 import Navbar from "@/components/shared/Navbar";
 import { settingTabs } from "@/lib/constants";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect } from "react";
 
 import {
   DropdownMenu,
@@ -19,6 +19,7 @@ import PreferenceSettings from "@/components/shared/PreferenceSettings";
 import BillingSettings from "@/components/shared/BillingSettings";
 import Verification from "@/components/shared/Verification";
 import { useSession } from "next-auth/react";
+import { useGetPreferences } from "@/app/hooks/useGetPreferences";
 
 const page = () => {
   const [tab, setTab] = useState<string>("general");
@@ -26,6 +27,23 @@ const page = () => {
   const changeTab = (tab: string) => {
     setTab(tab);
   };
+
+  // GET PREFERENCES
+  const { mutate: fetchPreferences, data: preferences } = useGetPreferences({
+    onSuccess: (data) => {
+      console.log(data);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+  
+  useEffect(() => {
+    if (session) {
+      fetchPreferences();
+    }
+  }, [session]);
+
   return (
     <>
       <div
@@ -85,7 +103,7 @@ const page = () => {
           {
             {
               general: <GeneralSettings />,
-              preferences: <PreferenceSettings />,
+              preferences: <PreferenceSettings preferences={preferences} fetchPreferences={fetchPreferences} />,
               billing: <BillingSettings />,
               verification: <Verification />,
             }[tab]
