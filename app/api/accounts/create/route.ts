@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '@/prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/helper/dbconnect';
+import { generateCustomId } from '@/helper/keyGenerator';
 
 export async function POST(req: NextRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
@@ -11,17 +12,19 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
 
         await connectToDatabase();
 
+        const startingBalance = parseFloat(account.accountSize.replace('K', '000'));
+        
         // Create a new account linked to the user      
         const newAccount = await prisma.account.create({
             data: {
                 accountSize: account.accountSize,
                 accountType: account.accountType,
                 status: account.status,
-                userId: userId
+                balance: startingBalance,
+                accountNumber: generateCustomId(),
+                userId: userId,
             }
         });
-
-        console.log(newAccount)
 
         // save billing address
         const billingAddress = await prisma.billingAddress.create({

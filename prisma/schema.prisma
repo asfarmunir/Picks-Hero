@@ -28,6 +28,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  profileLevel Int @default(0)
+
   twoFactorCode    String?
   twoFactorSecret  String?
   ascii            String?
@@ -59,9 +61,11 @@ model Account {
   id     String @id @default(auto()) @map("_id") @db.ObjectId
   userId String @db.ObjectId
 
-  accountType AccountType  // 2 step, 3 step
-  accountSize String // 1k, 5k, 10k, 50k, 100k
-  status      AccountStatus // Challenge, Funded, Breached
+  accountType   AccountType // 2 step, 3 step
+  accountSize   String // 1k, 5k, 10k, 50k, 100k
+  status        AccountStatus // Challenge, Funded, Breached
+  balance       Float // Store account balance
+  accountNumber String // Store account number
 
   paymentMethod  String? // Store payment method details
   user           User?            @relation(fields: [userId], references: [id])
