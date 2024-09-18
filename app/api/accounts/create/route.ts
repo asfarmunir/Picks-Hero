@@ -4,6 +4,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/helper/dbconnect';
 import { generateCustomId } from '@/helper/keyGenerator';
 
+
+function generateInvoice (account: any, newAccount: any, userId: any) {
+  
+  // strip $ from accounPrice
+  const accountPrice = account.accountPrice.replace('$', '');
+  
+  const invoice = {
+    amount: parseFloat(accountPrice),
+    invoiceNumber: generateCustomId(false, false),
+    accountId: newAccount.id,
+    status: 'paid',
+    userId: userId,
+    paymentMethod: 'card',
+    paymentDate: new Date()
+  }
+  return invoice;
+}
+
 export async function POST(req: NextRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     const { account, billingDetails, card, userId } = await req.json();
@@ -46,13 +64,21 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
 
         // save payment card
 
-        const isPaymentCardExist = await prisma.paymentCard.findFirst({
+        const existingCard = await prisma.paymentCard.findFirst({
             where: {
                 cardNumber: card.cardNumber
             }
         });
 
-        if (isPaymentCardExist) {
+        if (existingCard) {
+
+          await prisma.accountInvoices.create({
+            data: {
+              ...generateInvoice(account, newAccount, userId),
+              paymentCardId: existingCard.id
+            }
+          }); 
+          
           return NextResponse.json({ newAccount }, { status: 200 });
         }
 
@@ -70,6 +96,13 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
 
         console.log("Payment card saved!")
       
+        await prisma.accountInvoices.create({
+          data: {
+            ...generateInvoice(account, newAccount, userId),
+            paymentCardId: paymentCard.id
+          }
+        });
+        
         return NextResponse.json({ newAccount }, { status: 200 });
     } catch (error) {
       console.log(error)
