@@ -9,7 +9,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
+import { useGetPaymentCard } from "@/app/hooks/useGetPaymentCard";
+
+const formatCreditCardNumber = (cardNumber: string) => {
+  const censoredCardNum = `**** **** **** ${cardNumber?.slice(-4)}`;
+  return censoredCardNum;
+};
+
 const BillingSettings = () => {
+  const { data, isPending, isError } = useGetPaymentCard();
+
   return (
     <div className=" w-full space-y-5 bg-primary-100 py-6  md:p-3  rounded-2xl 2xl:p-5 mb-8">
       <div className=" bg-[#272837] p-3 pb-8 md:p-7   rounded-2xl w-full  flex flex-col gap-1 ">
@@ -35,9 +44,19 @@ const BillingSettings = () => {
             width={48}
             height={48}
           />
-          <p className="   md:mt-0 text-lg  2xl:text-2xl font-semibold">
-            **** **** **** 5645
-          </p>
+          {isPending ? (
+            <p className="text-white text-lg 2xl:text-2xl font-semibold">
+              Loading...
+            </p>
+          ) : isError ? (
+            <p className="text-white text-lg 2xl:text-2xl font-semibold">
+              No Payment Card Found
+            </p>
+          ) : (
+            <p className="   md:mt-0 text-lg  2xl:text-2xl font-semibold">
+              {formatCreditCardNumber(data?.paymentCard.cardNumber)}
+            </p>
+          )}
         </div>
       </div>
       <div className=" w-full border border-gray-700 rounded-xl  flex flex-col">

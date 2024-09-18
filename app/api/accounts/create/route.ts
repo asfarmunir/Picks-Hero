@@ -63,6 +63,7 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
                 zipCode: card.zipCode,
                 cardCvv: card.cardCvv,
                 country: card.country,
+                userId: userId,
                 accountId: newAccount.id
             }
         });

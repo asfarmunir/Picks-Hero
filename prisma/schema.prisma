@@ -28,8 +28,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  profileLevel Int @default(0)
-  kycVerified Boolean @default(false)
+  profileLevel Int     @default(0)
+  kycVerified  Boolean @default(false)
 
   twoFactorCode    String?
   twoFactorSecret  String?
@@ -53,7 +53,8 @@ model User {
   referralBonus Float   @default(0.0)
   totalEarned   Float   @default(0.0)
 
-  accounts Account[]
+  accounts    Account[]
+  PaymentCard PaymentCard[]
 
   @@map("users")
 }
@@ -118,6 +119,7 @@ model BillingAddress {
 model PaymentCard {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   accountId String @db.ObjectId
+  userId    String @db.ObjectId
 
   cardNumber String // Store encrypted card number
   cardExpiry String
@@ -126,6 +128,7 @@ model PaymentCard {
   cardCvv    String // Store encrypted cvv
 
   account Account @relation(fields: [accountId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
