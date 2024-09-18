@@ -136,31 +136,6 @@ const BillingSettings = () => {
                 </TableRow>
               ))
             }
-            
-            {/* <TableRow className=" border-none">
-              <TableCell className=" font-semibold max-w-[100px] capitalize py-6 border-b border-gray-700 text-xs 2xl:text-base text-center truncate">
-                07 jul 2024 at 34:23pm
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[100px] capitalize py-6 border-b border-gray-700 text-xs 2xl:text-base text-center truncate">
-                123456789123456789
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[100px] capitalize py-6 border-b border-gray-700 text-xs 2xl:text-base text-center truncate">
-                €10.00
-              </TableCell>
-
-              <TableCell className=" font-semibold max-w-[100px]  capitalize py-6 border-b border-gray-700 text-xs 2xl:text-base  justify-center ">
-                <p className="flex items-center gap-1 text-xs  text-primary-50 font-semibold ">
-                  <Image
-                    src="/icons/download.png"
-                    alt="Coin Icon"
-                    width={14}
-                    className="mb-0.5"
-                    height={14}
-                  />
-                  <span className=" ">DOWNLOAD</span>
-                </p>
-              </TableCell>
-            </TableRow> */}
           </TableBody>
         </Table>
         <div className="flex items-center justify-between p-5">
