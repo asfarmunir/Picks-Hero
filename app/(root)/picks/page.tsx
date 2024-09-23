@@ -1,7 +1,7 @@
 "use client";
 import { picksTabs } from "@/lib/constants";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -27,20 +27,141 @@ import Navbar from "@/components/shared/Navbar";
 import UserAccount from "@/components/shared/UserAccount";
 import Link from "next/link";
 import BetModal from "@/components/shared/BetModal";
+import { useGetSports } from "@/app/hooks/useGetSports";
+import GamesTable from "./games";
+import BetSlip from "./bet-slip";
+import { useCreateBet } from "@/app/hooks/useCreateBet";
+import toast from "react-hot-toast";
+
+type oddsType = "american" | "decimal";
+
+interface Bet {
+  id: number;
+  team: string;
+  odds: number;
+  pick: number;
+  toWin: number;
+  home_team: string;
+  away_team: string;
+  oddsFormat: "decimal" | "american";
+  gameDate: string;
+}
 
 const page = () => {
+  // BET SLIP DATA
+  const [selectedBets, setSelectedBets] = React.useState<Bet[]>([]);
+  const addBet = (bet: Bet) => {
+    setSelectedBets([...selectedBets, bet]);
+  };
+  const removeBet = (id: number) => {
+    setSelectedBets(selectedBets.filter((bet) => bet.id !== id));
+  };
+  const calculateOverallOdds = () => {
+    return selectedBets.reduce((acc, bet) => acc * bet.odds, 1).toFixed(2);
+  };
+  const calculateToCollect = () => {
+    return selectedBets.reduce((acc, bet) => acc + bet.toWin, 0).toFixed(2);
+  };
+
+  // TABS MECHANISM
   const [tab, setTab] = React.useState("football");
-  const [selectedBet1, setSelectedBet1] = React.useState<boolean>(false);
-  const [selectedBet2, setSelectedBet2] = React.useState<boolean>(false);
-  const [selectCombination, setSelectCombination] =
-    React.useState<boolean>(false);
-
-  console.log("selectedBet1", selectedBet1);
-  console.log("selectedBet2", selectedBet2);
-  console.log("selectCombination", selectCombination);
-
   const changeTab = (tab: string) => {
+    const leaguesArray = data.filter((sport: any) => sport.group === tab);
+    setLeagues(leaguesArray);
     setTab(tab);
+    changeLeagueTab(leaguesArray[0].key);
+  };
+
+  const [leagueTab, setLeagueTab] = React.useState("");
+  const changeLeagueTab = (league: string) => {
+    setLeagueTab(league);
+  };
+
+  // ODDS FORMAT
+  const [oddsFormat, setOddsFormat] = React.useState<oddsType>("american");
+  const changeOddsFormat = (format: oddsType) => {
+    setOddsFormat(format);
+  };
+
+  // FEATURED MATCH
+  const [featuredMatch, setFeaturedMatch] = React.useState<any>(null);
+
+  // SPORTS DATA
+  const { data, isPending, isError } = useGetSports();
+  const [sports, setSports] = React.useState<any>([]);
+  const [leagues, setLeagues] = React.useState<any>([]);
+
+  useEffect(() => {
+    if (data) {
+      const sportsArray: string[] = data.map(
+        (sport: any) => sport.group as string
+      );
+      const uniqueSports = sportsArray.filter(function (item, pos) {
+        return sportsArray.indexOf(item) == pos;
+      });
+      setSports(uniqueSports);
+
+      const leaguesArray = data.filter(
+        (sport: any) => sport.group === uniqueSports[0]
+      );
+      setLeagues(leaguesArray);
+
+      changeTab(uniqueSports[0]);
+      changeLeagueTab(leaguesArray[0].key);
+    }
+  }, [data]);
+
+  // PLACE BETS
+  const { mutate: placeBet, isPending: placingBet } = useCreateBet({
+    onSuccess: (data) => {},
+    onError: (error) => {},
+  });
+
+  const placeBets = async () => {
+    if (selectedBets.length === 0) {
+      toast.error("No bets selected");
+      return;
+    }
+
+    const alteredBets = selectedBets.map((bet) => {
+      return {
+        eventId: (bet.id).toString(),
+        sportKey: leagueTab,
+        sport: tab,
+        event: `${bet.home_team} vs ${bet.away_team}`,
+        league: leagueTab,
+        team: bet.team,
+        odds: bet.odds,
+        pick: bet.pick,
+        winnings: bet.toWin,
+        oddsFormat: bet.oddsFormat.toUpperCase(),
+        gameDate: new Date(bet.gameDate),
+      };
+    });
+
+    try {
+      const results = await Promise.all(
+        alteredBets.map((bet) => 
+          new Promise((resolve, reject) => {
+            // Place each bet using the `placeBet` mutation
+            placeBet({bet, accountNumber: "PH3537349-22"}, {
+              onSuccess: (data) => {
+                toast.success(`Bet placed for ${bet.team}`);
+                resolve({ bet, success: true, data });
+              },
+              onError: (error) => {
+                toast.error(`${error}`);
+                reject({ bet, success: false, error });
+              },
+            });
+          })
+        )
+      );
+      toast.success("All bets placed successfully");
+    } catch (error: any) {
+      toast.error(error.error.message);
+    }
+    setSelectedBets([]);
   };
 
   return (
@@ -66,29 +187,17 @@ const page = () => {
           <UserAccount />
         </div>
 
-        <div className="flex mt-4 items-center pb-3 max-w-full overflow-auto justify-evenly md:justify-start  gap-2 mb-3">
-          {picksTabs.map((curr, index) => (
-            <button
-              key={index}
-              className={`border  
-             px-4 text-xs 2xl:text-lg py-2 flex w-full md:w-fit justify-center font-bold text-nowrap  items-center flex-grow md:flex-grow-0 rounded-full ${
-               tab === curr.tab
-                 ? "border-[#52FC18] bg-[#1A5B0B]"
-                 : " border-gray-700 text-[#848BAC] border-2"
-             } uppercase`}
-              onClick={() => changeTab(curr.tab)}
-            >
-              <Image
-                src={tab === curr.tab ? curr.icon[1] : curr.icon[1]}
-                alt="Icon"
-                width={18}
-                height={18}
-                className="mr-2"
-              />
-              {curr.title}
-            </button>
-          ))}
-        </div>
+        {isPending ? <SkeletonLoader /> : null}
+        {!isPending && (
+          <>
+            <SportsTabs sports={sports} tab={tab} changeTab={changeTab} />
+            <LeaguesTabs
+              leagues={leagues}
+              leagueTab={leagueTab}
+              changeLeagueTab={changeLeagueTab}
+            />
+          </>
+        )}
         <div className="w-full bg-[#181926] shadow-inner shadow-gray-700 rounded-xl p-5 py-7 flex-col md:flex-row  flex items-center justify-between gap-4">
           <div className="flex flex-col  items-start justify-start  w-full md:w-fit  ">
             <h3 className="text-lg 2xl:text-2xl font-bold mb-1">Featured</h3>
@@ -99,35 +208,20 @@ const page = () => {
           </div>
           <div className="flex w-full md:w-fit items-center gap-2 flex-col md:flex-row">
             <button className="flex justify-center items-center gap-2 p-4 text-sm w-full md:w-fit 2xl:text-lg  bg-[#272837] shadow-inner shadow-gray-600 rounded-lg">
-              <Image
-                src="/icons/baltimore.png"
-                alt="Arrow Icon"
-                width={30}
-                height={30}
-                className="w-[20px] h-[20px]
-                2xl:w-[23px] 2xl:h-[23px]
-                "
-              />
-              Baltimore Ravens
+              {featuredMatch?.home_team}
             </button>
             <p className=" p-1.5 text-sm px-2 rounded-full font-bold -mx-4 -my-4 z-30 text-primary-50 bg-green-700/30 border-green-700/40 border-2">
               vs
             </p>
             <button className="flex justify-center items-center gap-2 p-4 text-sm w-full md:w-fit 2xl:text-lg  bg-[#272837] shadow-inner shadow-gray-600 rounded-lg">
-              <Image
-                src="/icons/kansas.png"
-                alt="Arrow Icon"
-                width={20}
-                height={20}
-              />
-              Kansas City Chiefs
+              {featuredMatch?.away_team}
             </button>
             <button className="flex justify-center uppercase items-center gap-2 p-4 text-sm w-full md:w-fit 2xl:text-base font-bold bg-[#333547] inner-shadow rounded-lg">
               BET NOW
             </button>
           </div>
         </div>
-        <div className=" w-full flex gap-5 flex-col-reverse md:flex-row  rounded-2xl  mb-8">
+        <div className=" w-full flex gap-5 flex-col-reverse md:flex-row rounded-2xl mb-8 items-start">
           <div className=" w-full transition-all border border-gray-700 rounded-xl bg-primary-100  flex flex-col">
             <div className="flex flex-col md:flex-row  mb-4 w-full items-center justify-between">
               <div className="flex  items-center gap-3 w-full p-2 md:p-6 md:pr-32 ">
@@ -170,129 +264,41 @@ const page = () => {
                 </div>
               </div>
               <DropdownMenu>
-                <DropdownMenuTrigger className="  bg-[#393C53]  font-bold   justify-center w-[95%] text-sm 2xl:text-base md:w-fit  p-3.5 md:mr-3  rounded-xl inline-flex items-center gap-2">
+                <DropdownMenuTrigger className="  bg-[#393C53]  font-bold   justify-center w-[95%] text-sm 2xl:text-base md:w-fit  p-3.5 md:mr-3  rounded-xl inline-flex items-center gap-2 uppercase">
                   <Image
                     src="/icons/odds.png"
                     alt="Arrow Icon"
                     width={23}
                     height={23}
                   />
-                  <span className="text-[#737897] ">Odds:</span>
-                  AMERICAN
+                  <span className="text-[#737897] capitalize">Odds:</span>
+                  {oddsFormat}
                   <FaAngleDown className=" text-lg ml-0.5 mb-0.5 " />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-48  bg-[#181926] text-white border-none  mt-1  p-3 rounded-lg text-xs 2xl:text-base">
-                  <DropdownMenuItem className="flex items-center justify-between ">
+                  <DropdownMenuItem
+                    className="flex items-center justify-between"
+                    onClick={() => changeOddsFormat("decimal")}
+                  >
                     <p> Decimal</p>
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem className="flex items-center justify-between ">
+                  <DropdownMenuItem
+                    className="flex items-center justify-between "
+                    onClick={() => changeOddsFormat("american")}
+                  >
                     <p>American</p>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="flex items-center justify-between ">
-                    <p> Fractional</p>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>{" "}
             </div>
-
-            <Table>
-              {/* <TableCaption>A list of your recent invoices.</TableCaption> */}
-              <TableHeader className=" bg-[#333547] text-[#848BAC] border-none">
-                <TableRow className=" border-none">
-                  <TableHead className="uppercase  font-bold text-start">
-                    TIME
-                  </TableHead>
-                  <TableHead className="uppercase font-bold text-start">
-                    TEAM & ODDS
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className=" ">
-                <TableRow className="">
-                  <TableCell className=" font-semibold w-[160px] capitalize text-xs py-5 border-b border-gray-700 2xl:text-base text-start truncate">
-                    8:20 PM (EST)
-                  </TableCell>
-
-                  <TableCell className=" w-full py-5 border-b border-gray-700 ">
-                    <div
-                      className={`flex w-full cursor-pointer items-center gap-2`}
-                    >
-                      <div
-                        onClick={() => {
-                          setSelectedBet1(!selectedBet1);
-                          if (selectedBet1 && selectedBet2) {
-                            setSelectCombination(true);
-                          } else {
-                            setSelectCombination(false);
-                          }
-                        }}
-                        className={`  ${
-                          selectedBet1
-                            ? " border border-primary-50/80 shadow shadow-green-700"
-                            : ""
-                        }  flex w-full text-start justify-between
-                       items-center gap-5 p-3 text-sm  2xl:text-base  bg-[#272837]
-                        shadow-inner shadow-gray-600 rounded-lg`}
-                      >
-                        <p className="flex items-center text-nowrap gap-1">
-                          <Image
-                            src="/icons/baltimore.png"
-                            alt="Arrow Icon"
-                            width={30}
-                            height={30}
-                            className="w-[20px] h-[20px]"
-                          />
-                          Baltimore Ravens
-                        </p>
-
-                        <span className=" ">2.99</span>
-                      </div>
-                      <p
-                        className={`flex justify-center font-bold text-nowrap items-center gap-2 p-3 text-sm   2xl:text-base 
-                       bg-[#272837] shadow-inner  ${
-                         false
-                           ? " border border-primary-50/80 shadow shadow-green-700"
-                           : ""
-                       } shadow-gray-600 rounded-lg`}
-                      >
-                        x 3.19
-                      </p>
-                      <div
-                        onClick={() => {
-                          setSelectedBet2(!selectedBet2);
-                          if (selectedBet1 && selectedBet2) {
-                            setSelectCombination(true);
-                          } else {
-                            setSelectCombination(false);
-                          }
-                        }}
-                        className={`  ${
-                          selectedBet2
-                            ? " border border-primary-50/80 shadow shadow-green-700"
-                            : ""
-                        }  flex w-full text-start justify-between
-                       items-center gap-5 p-3 text-sm  2xl:text-base  bg-[#272837]
-                        shadow-inner shadow-gray-600 rounded-lg`}
-                      >
-                        <p className="flex items-center text-nowrap gap-1">
-                          <Image
-                            src="/icons/kansas.png"
-                            alt="Arrow Icon"
-                            width={30}
-                            height={30}
-                            className="w-[20px] h-[20px]"
-                          />
-                          Kansas City Chiefs
-                        </p>
-
-                        <span className=" ">2.99</span>
-                      </div>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+            <GamesTable
+              sportKey={leagueTab}
+              oddsFormat={oddsFormat}
+              addBet={addBet}
+              bets={selectedBets}
+              setFeaturedMatch={setFeaturedMatch}
+            />
             <div className="flex items-center justify-between p-5">
               <h4 className="text-[#848BAC] font-thin text-xs 2xl:text-base ">
                 PAGE 1-5
@@ -307,7 +313,6 @@ const page = () => {
               </div>
             </div>
           </div>
-          {/* {selectedBet && ( */}
           <div
             className={` w-full md:w-[65%]  border border-gray-700 p-4 rounded-xl bg-primary-100  flex flex-col`}
           >
@@ -316,7 +321,7 @@ const page = () => {
               <div className="flex items-center border-gray-[#737897] rounded-lg bg-[#737897]/20">
                 <button
                   className={` ${
-                    selectCombination === false
+                    selectedBets.length === 1
                       ? "text-white"
                       : "text-primary-200"
                   } text-xs font-bold p-2p px-3  uppercase border-r border-gray-700`}
@@ -325,122 +330,58 @@ const page = () => {
                 </button>
                 <button
                   className={`text-xs font-bold p-2 px-3 uppercase ${
-                    selectCombination === true
-                      ? "text-white"
-                      : "text-primary-200"
+                    selectedBets.length > 1 ? "text-white" : "text-primary-200"
                   }`}
                 >
                   combination
                 </button>
               </div>
             </div>
-            <div className="  ">
-              <div className=" w-full mb-4 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Image
-                    src="/icons/baltimore.png"
-                    alt="Arrow Icon"
-                    width={23}
-                    height={23}
-                  />
-                  <p className="uppercase  text-sm">Baltimore Ravens</p>
-                </div>
-                <button>
-                  <Image
-                    src="/icons/discard.png"
-                    alt="Arrow Icon"
-                    width={23}
-                    height={23}
-                  />
-                </button>
-              </div>
-              <div className=" w-full mb-4  rounded-xl text-primary-50 bg-[#52FC18]/20 p-3 flex items-center justify-between">
-                <p className="text-sm font-thin capitalize">money line</p>
-                <p className="font-bold">+105</p>
-              </div>
-              <div className="w-full flex items-center gap-3">
-                <div className="bg-[#272837] rounded-xl p-3.5 flex flex-col gap-2.5 flex-grow">
-                  <p className=" text-xs font-thin text-primary-200">Pick</p>
-                  <h2 className=" font-bold">0.00$</h2>
-                </div>
-                <div className="bg-[#272837] rounded-xl p-3.5 flex flex-col gap-2.5 flex-grow">
-                  <p className=" text-xs font-thin text-primary-200">To Win</p>
-                  <h2 className=" font-bold">0.00$</h2>
-                </div>
-              </div>
-              <div className=" w-full  mt-3 border-t border-gray-700 py-3 flex items-center justify-between">
-                <p className="text-sm  text-primary-200 font-thin     ">
-                  OVERALL ODDS
+
+            {selectedBets.length === 0 && (
+              <div className="flex items-center justify-center h-96 w-full">
+                <p className="text-[#848BAC] text-sm 2xl:text-lg uppercase">
+                  No bets selected
                 </p>
-                <p className="font-bold">4.3</p>
               </div>
-              <div className=" w-full mb-4  flex items-center - justify-between">
-                <p className="text-sm  text-primary-200 font-thin     ">
-                  TO COLLECT
-                </p>
-                <p className="font-bold">0.00 USD</p>
-              </div>
-            </div>
-            {selectCombination && (
-              <div className="pt-4 border-t border-gray-700 ">
-                <div className=" w-full mb-4 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src="/icons/kansas.png"
-                      alt="Arrow Icon"
-                      width={23}
-                      height={23}
-                    />
-                    <p className="uppercase  text-sm"> Kansas city chiefs</p>
-                  </div>
-                  <Image
-                    src="/icons/discard.png"
-                    alt="Arrow Icon"
-                    width={23}
-                    height={23}
-                  />
-                </div>
-                <div className=" w-full mb-4  rounded-xl text-primary-50 bg-[#52FC18]/20 p-3 flex items-center justify-between">
-                  <p className="text-sm font-thin capitalize">money line</p>
-                  <p className="font-bold">+105</p>
-                </div>
-                <div className="w-full flex items-center gap-3">
-                  <div className="bg-[#272837] rounded-xl p-3.5 flex flex-col gap-2.5 flex-grow">
-                    <p className=" text-xs font-thin text-primary-200">Pick</p>
-                    <h2 className=" font-bold">0.00$</h2>
-                  </div>
-                  <div className="bg-[#272837] rounded-xl p-3.5 flex flex-col gap-2.5 flex-grow">
-                    <p className=" text-xs font-thin text-primary-200">
-                      To Win
-                    </p>
-                    <h2 className=" font-bold">0.00$</h2>
-                  </div>
-                </div>
+            )}
+
+            {selectedBets.map((bet, index) => (
+              <>
+                <BetSlip key={index} bet={bet} removeBet={removeBet} />
                 <div className=" w-full  mt-3 border-t border-gray-700 py-3 flex items-center justify-between">
                   <p className="text-sm  text-primary-200 font-thin     ">
                     OVERALL ODDS
                   </p>
-                  <p className="font-bold">4.3</p>
+                  <p className="font-bold">{calculateOverallOdds()}</p>
                 </div>
                 <div className=" w-full mb-4  flex items-center - justify-between">
                   <p className="text-sm  text-primary-200 font-thin     ">
                     TO COLLECT
                   </p>
-                  <p className="font-bold">0.00 USD</p>
+                  <p className="font-bold">{calculateToCollect()} USD</p>
                 </div>
-              </div>
-            )}
+              </>
+            ))}
 
             <div className=" w-full  border-t border-gray-700 py-3 flex items-center justify-between">
-              <button className=" p-3.5 px-4 uppercase font-bold bg-[#393C53] text-xs rounded-lg">
+              <button
+                className=" p-3.5 px-4 uppercase font-bold bg-[#393C53] text-xs rounded-lg"
+                onClick={() => setSelectedBets([])}
+              >
                 clear
               </button>
-              <button className=" p-3.5 uppercase font-bold inner-shadow text-xs rounded-lg">
-                PLACE pick
+              <button
+                className=" p-3.5 uppercase font-bold inner-shadow text-xs rounded-lg disabled:opacity-50"
+                disabled={placingBet}
+                onClick={placeBets}
+              >
+                {
+                  placingBet ? "Placing bet..." : "place pick"
+                }
               </button>
             </div>
           </div>
-          {/* )} */}
         </div>
       </div>
     </>
@@ -448,3 +389,74 @@ const page = () => {
 };
 
 export default page;
+
+const SkeletonLoader = () => {
+  return (
+    <div className="flex mt-4 items-center pb-3 max-w-full overflow-auto justify-evenly md:justify-start gap-2 mb-3">
+      {[...Array(8)].map((_, index) => (
+        <div
+          key={index}
+          className="bg-slate-600 animate-pulse w-full min-w-16 md:w-fit flex-grow md:flex-grow-0 rounded-full px-4 py-2 h-10"
+        ></div>
+      ))}
+    </div>
+  );
+};
+
+const SportsTabs = ({
+  sports,
+  tab,
+  changeTab,
+}: {
+  sports: any;
+  tab: string;
+  changeTab: (sport: string) => void;
+}) => {
+  return (
+    <div className="flex mt-4 items-center pb-3 max-w-full overflow-auto justify-evenly md:justify-start gap-2 mb-3">
+      {sports?.map((sport: any, index: number) => (
+        <button
+          key={index}
+          className={`border  
+              px-4 text-xs 2xl:text-lg py-2 flex w-full md:w-fit justify-center font-bold text-nowrap  items-center flex-grow md:flex-grow-0 rounded-full ${
+                tab === sport
+                  ? "border-[#52FC18] bg-[#1A5B0B]"
+                  : " border-gray-700 text-[#848BAC] border-2"
+              } uppercase`}
+          onClick={() => changeTab(sport)}
+        >
+          {sport}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const LeaguesTabs = ({
+  leagues,
+  leagueTab,
+  changeLeagueTab,
+}: {
+  leagues: any;
+  leagueTab: string;
+  changeLeagueTab: (league: string) => void;
+}) => {
+  return (
+    <div className="flex mt-4 items-center pb-3 max-w-full overflow-auto justify-evenly md:justify-start gap-2 mb-3">
+      {leagues?.map((league: any, index: number) => (
+        <button
+          key={index}
+          className={`border  
+              px-4 text-xs 2xl:text-lg py-2 flex w-full md:w-fit justify-center font-bold text-nowrap  items-center flex-grow md:flex-grow-0 rounded-full ${
+                leagueTab === league.key
+                  ? "border-[#52FC18] bg-[#1A5B0B]"
+                  : " border-gray-700 text-[#848BAC] border-2"
+              } uppercase`}
+          onClick={() => changeLeagueTab(league.key)}
+        >
+          {league.title}
+        </button>
+      ))}
+    </div>
+  );
+};

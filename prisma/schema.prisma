@@ -38,7 +38,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   profileLevel ProfileLevels @default(NEWBIE)
-  picksWon    Int           @default(0)
+  picksWon     Int           @default(0)
   kycVerified  Boolean       @default(false)
 
   twoFactorCode    String?
@@ -66,6 +66,7 @@ model User {
   accounts        Account[]
   PaymentCard     PaymentCard[]
   AccountInvoices AccountInvoices[]
+  Bets            Bets[]
 
   @@map("users")
 }
@@ -88,6 +89,7 @@ model Account {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   AccountInvoices AccountInvoices[]
+  Bets            Bets[]
 
   @@map("accounts")
 }
@@ -167,4 +169,51 @@ model AccountInvoices {
   updatedAt DateTime @updatedAt
 
   @@map("accountinvoices")
+}
+
+enum BetResult {
+  WIN
+  LOSE
+  DRAW
+}
+
+enum BetStatus {
+  OPENED
+  CLOSED
+}
+
+enum OddsFormat {
+  DECIMAL
+  AMERICAN
+}
+
+model Bets {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String @db.ObjectId
+  accountId String @db.ObjectId
+
+  sportKey String
+  sport    String
+  eventId  String
+  event    String // home vs away teams
+  league   String
+
+  team     String
+  odds     Float
+  pick     Float
+  winnings Float
+
+  oddsFormat OddsFormat
+  betStatus  BetStatus
+  betResult  BetResult?
+  betDate    DateTime
+  gameDate   DateTime
+
+  user    User    @relation(fields: [userId], references: [id])
+  account Account @relation(fields: [accountId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("bets")
 }
