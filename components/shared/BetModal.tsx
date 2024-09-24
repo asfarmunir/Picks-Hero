@@ -38,10 +38,9 @@ const formatDate = (date: string) => {
   });
 };
 
-
 const BetModal = () => {
   const { data: bets, isPending, isError } = useGetBets("PH3537349-22");
-  
+
   return (
     <Dialog>
       <DialogTrigger
@@ -57,7 +56,7 @@ const BetModal = () => {
         />
         BET HISTORY{" "}
       </DialogTrigger>
-      <DialogContent className=" bg-primary-100 gap-1 p-5 text-white border-none  md:max-w-[1300px] 2xl:min-w-[1400px] flex flex-col ">
+      <DialogContent className=" bg-primary-100 gap-1 p-5 text-white border-none  md:max-w-[1300px] 2xl:min-w-[1400px] flex flex-col !max-h-[80vh] overflow-y-auto">
         <h2 className=" text-3xl font-bold mt-2 mb-5">BET HISTORY</h2>
 
         <div className=" w-full border bg-primary-100 border-gray-700 rounded-xl  flex flex-col">
@@ -155,61 +154,67 @@ const BetModal = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-          {isPending && (
-            <TableRow className=" border-none">
-              <TableCell className=" font-semibold max-w-[100px] uppercase text-xs 2xl:text-sm text-center truncate">
-                Loading...
-              </TableCell>
-            </TableRow>
-          )}
-          {bets?.map((bet: any) => (
-            <TableRow className=" border-none">
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                {bet.id}
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                {bet.sport}
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
-                {bet.event}
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                {bet.league.split("_")[1].toUpperCase()}
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
-                {bet.team}
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                {bet.odds}
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                ${bet.pick}
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm flex items-center justify-center truncate">
-                <p className=" px-2 py-1 bg-green-500/20 text-green-500 border mt-2 border-green-500 rounded-full">
-                  {bet.betStatus}
-                </p>
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                ${bet.winnings.toFixed(2)}
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center ">
-                {formatDate(bet.betDate)}
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center ">
-                {formatDate(bet.gameDate)}
-              </TableCell>
-              <TableCell className=" font-semibold  capitalize text-xs 2xl:text-sm text-center ">
-                <Dialog>
-                  <DialogTrigger className=" w-fit text-xs 2xl:text-sm text-nowrap rounded-xl inner-shadow px-4 py-3 inline-flex items-center gap-3">
-                    <span className=" font-bold uppercase">Bet slip</span>{" "}
-                  </DialogTrigger>
-                  <BetSlipDialogBody bet={bet} />
-                </Dialog>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
+              {isPending && (
+                <TableRow className=" border-none">
+                  <TableCell className=" font-semibold max-w-[100px] uppercase text-xs 2xl:text-sm text-center truncate">
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              )}
+              {bets?.map((bet: any) => (
+                <TableRow className=" border-none">
+                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                    {bet.id}
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                    {bet.sport}
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
+                    {bet.event}
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                    {bet.league.split("_")[1].toUpperCase()}
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
+                    {bet.team}
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                    {bet.odds}
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                    ${bet.pick}
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm flex items-center justify-center truncate">
+                    <p
+                      className={`px-2 py-1 border mt-2 rounded-full ${
+                        bet.betStatus === "OPENED"
+                          ? "bg-green-500/20 text-green-500 border-green-500"
+                          : "bg-red-500/20 text-red-500 border-red-500"
+                      }`}
+                    >
+                      {bet.betStatus}
+                    </p>
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                    ${bet.winnings.toFixed(2)}
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center ">
+                    {formatDate(bet.betDate)}
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center ">
+                    {formatDate(bet.gameDate)}
+                  </TableCell>
+                  <TableCell className=" font-semibold  capitalize text-xs 2xl:text-sm text-center ">
+                    <Dialog>
+                      <DialogTrigger className=" w-fit text-xs 2xl:text-sm text-nowrap rounded-xl inner-shadow px-4 py-3 inline-flex items-center gap-3">
+                        <span className=" font-bold uppercase">Bet slip</span>{" "}
+                      </DialogTrigger>
+                      <BetSlipDialogBody bet={bet} />
+                    </Dialog>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
           </Table>
           <div className="flex items-center justify-between p-5 border-t border-gray-700">
             <h4 className="text-[#848BAC] font-thin text-xs 2xl:text-base ">
@@ -247,7 +252,7 @@ const BetSlipDialogBody = ({ bet }: { bet: any }) => (
               IN PROGRESS
             </p>
           )}
-          {bet.betResult === "LOSS" && (
+          {bet.betResult === "LOSE" && (
             <p className="text-white font-bold px-2 py-1.5 rounded-lg bg-[#F74418]/20 border border-[#F74418] text-xs 2xl:text-sm">
               LOSS{" "}
             </p>
@@ -260,9 +265,7 @@ const BetSlipDialogBody = ({ bet }: { bet: any }) => (
         </div>
         <div className="flex flex-col max-h-44 2xl:max-h-56 mt-1 overflow-auto px-1 w-full gap-3 ">
           <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
-            <p className=" text-sm mb-2">
-              {bet.event}
-            </p>
+            <p className=" text-sm mb-2">{bet.event}</p>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
                 <p className="text-sm">{bet.team}</p>
@@ -298,6 +301,5 @@ const BetSlipDialogBody = ({ bet }: { bet: any }) => (
     </div>
   </DialogContent>
 );
-
 
 export default BetModal;

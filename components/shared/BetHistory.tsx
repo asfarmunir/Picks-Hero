@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -29,6 +29,7 @@ import { MdOutlineArrowUpward } from "react-icons/md";
 import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
 import Image from "next/image";
 import { useGetBets } from "@/app/hooks/useGetBets";
+import { useGetResults } from "@/app/hooks/useGetResults";
 
 const formatDate = (date: string) => {
   const dateObj = new Date(date);
@@ -42,7 +43,17 @@ const formatDate = (date: string) => {
 };
 
 const BetHistory = () => {
-  const { data: bets, isPending, isError } = useGetBets("PH3537349-22");
+  const { data: bets, isPending, refetch } = useGetBets("PH3537349-22");
+
+  const {
+    data: results,
+    isPending: isPendingResults,
+    isError: isErrorResults,
+  } = useGetResults("PH3537349-22");
+
+  useEffect(() => {
+    refetch();
+  }, [results]);
 
   return (
     <div className=" w-full border bg-primary-100 border-gray-700 rounded-xl  flex flex-col">
@@ -171,7 +182,13 @@ const BetHistory = () => {
                 ${bet.pick}
               </TableCell>
               <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm flex items-center justify-center truncate">
-                <p className=" px-2 py-1 bg-green-500/20 text-green-500 border mt-2 border-green-500 rounded-full">
+                <p
+                  className={`px-2 py-1 border mt-2 rounded-full ${
+                    bet.betStatus === "OPENED"
+                      ? "bg-green-500/20 text-green-500 border-green-500"
+                      : "bg-red-500/20 text-red-500 border-red-500"
+                  }`}
+                >
                   {bet.betStatus}
                 </p>
               </TableCell>
@@ -230,7 +247,7 @@ const BetSlipDialogBody = ({ bet }: { bet: any }) => (
               IN PROGRESS
             </p>
           )}
-          {bet.betResult === "LOSS" && (
+          {bet.betResult === "LOSE" && (
             <p className="text-white font-bold px-2 py-1.5 rounded-lg bg-[#F74418]/20 border border-[#F74418] text-xs 2xl:text-sm">
               LOSS{" "}
             </p>
@@ -243,9 +260,7 @@ const BetSlipDialogBody = ({ bet }: { bet: any }) => (
         </div>
         <div className="flex flex-col max-h-44 2xl:max-h-56 mt-1 overflow-auto px-1 w-full gap-3 ">
           <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
-            <p className=" text-sm mb-2">
-              {bet.event}
-            </p>
+            <p className=" text-sm mb-2">{bet.event}</p>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
                 <p className="text-sm">{bet.team}</p>
