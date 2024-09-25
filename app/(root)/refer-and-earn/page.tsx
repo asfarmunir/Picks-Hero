@@ -10,13 +10,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useSession } from "next-auth/react";
 import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
+import {
+  LEVEL_1_TARGET,
+  LEVEL_2_TARGET,
+  REFER_COMMISSIONS,
+} from "@/lib/constants";
+import { useGetUser } from "@/app/hooks/useGetUser";
+import { useGetReferHistory } from "@/app/hooks/useGetReferHistory";
 
 const page = () => {
   const [toggle, setToggle] = useState(false);
@@ -32,17 +35,46 @@ const page = () => {
 
   let link = `http://localhost:3000/signup?referrerCode=${session?.user?.referralCode}`;
 
-
   const handleCopyLink = () => {
     navigator.clipboard.writeText(link).then(
       () => {
         setCopySuccess("Link copied!");
-        setTimeout(() => setCopySuccess(""), 2000); 
+        setTimeout(() => setCopySuccess(""), 2000);
       },
       (err) => {
         console.error("Failed to copy: ", err);
       }
     );
+  };
+
+  const { data: referHistory, isPending: referHistoryPending } =
+    useGetReferHistory();
+  const { data: user, isPending } = useGetUser();
+
+  const getUserCommision = (totalReferrals: number) => {
+    // Determine referral level
+    let referralLevel: "level1" | "level2" | "level3" = "level1";
+    if (totalReferrals < LEVEL_1_TARGET) {
+      referralLevel = "level1";
+    } else if (totalReferrals < LEVEL_2_TARGET) {
+      referralLevel = "level2";
+    } else {
+      referralLevel = "level3";
+    }
+
+    const levelInformation = REFER_COMMISSIONS[referralLevel];
+    return levelInformation.commission;
+  };
+
+  const formatDate = (date: string) => {
+    const dateObj = new Date(date);
+    // format in the form "May 29, 23:26"
+    return dateObj.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   return (
@@ -86,20 +118,34 @@ const page = () => {
           </div>
           <div className="bg-[#272837] p-3 md:p-7 rounded-2xl w-full flex flex-col md:flex-row items-center justify-between gap-3">
             <h2 className="font-bold text-[#848BAC]">
-              Your commission: <span className="text-white ml-1">15%</span>
+              Your commission:{" "}
+              <span className="text-white ml-1">
+                {isPending
+                  ? "Loading..."
+                  : `${getUserCommision(user.user.totalReferrals || 0) * 100}%`}
+              </span>
             </h2>
             <Sheet>
-              <SheetTrigger
-                className="text-white font-semibold hover:border hover:border-primary-200 uppercase text-xs md:text-base 2xl:text-lg bg-[#333547] px-5 py-3 rounded-lg shadow-inner shadow-gray-500 inline-flex items-center gap-3"
-              >
-                <Image src="/icons/trophy.png" alt="Edit" width={18} height={18} />
+              <SheetTrigger className="text-white font-semibold hover:border hover:border-primary-200 uppercase text-xs md:text-base 2xl:text-lg bg-[#333547] px-5 py-3 rounded-lg shadow-inner shadow-gray-500 inline-flex items-center gap-3">
+                <Image
+                  src="/icons/trophy.png"
+                  alt="Edit"
+                  width={18}
+                  height={18}
+                />
                 VIEW MILESTONES
               </SheetTrigger>
               <SheetContent className="bg-primary text-white border-none">
                 <div className="bg-[#181926] h-full flex flex-col p-4 gap-2 overflow-auto max-h-full">
                   <h2 className="text-3xl font-bold mb-5">MILESTONES</h2>
                   <div className="flex flex-col items-center p-3 py-7 rounded-2xl shadow-inner shadow-gray-700 gap-3 bg-[#050614]">
-                    <Image src="/images/p1.png" alt="Edit" width={60} className="mb-2" height={60} />
+                    <Image
+                      src="/images/p1.png"
+                      alt="Edit"
+                      width={60}
+                      className="mb-2"
+                      height={60}
+                    />
                     <h2 className="text-xl font-bold">
                       {" "}
                       <span className="text-primary-50 mr-1">10</span> REFERRALS
@@ -109,7 +155,13 @@ const page = () => {
                     </p>
                   </div>
                   <div className="flex flex-col items-center p-3 py-7 rounded-2xl shadow-inner shadow-gray-700 gap-3 bg-[#050614]">
-                    <Image src="/images/p2.png" alt="Edit" width={70} className="mb-2" height={70} />
+                    <Image
+                      src="/images/p2.png"
+                      alt="Edit"
+                      width={70}
+                      className="mb-2"
+                      height={70}
+                    />
                     <h2 className="text-xl font-bold">
                       {" "}
                       <span className="text-primary-50 mr-1">50</span> REFERRALS
@@ -119,10 +171,17 @@ const page = () => {
                     </p>
                   </div>
                   <div className="flex flex-col items-center p-3 py-7 rounded-2xl shadow-inner shadow-gray-700 gap-3 bg-[#050614]">
-                    <Image src="/images/p3.png" alt="Edit" width={70} className="mb-2" height={70} />
+                    <Image
+                      src="/images/p3.png"
+                      alt="Edit"
+                      width={70}
+                      className="mb-2"
+                      height={70}
+                    />
                     <h2 className="text-xl font-bold">
                       {" "}
-                      <span className="text-primary-50 mr-1">100</span> REFERRALS
+                      <span className="text-primary-50 mr-1">100</span>{" "}
+                      REFERRALS
                     </h2>
                     <p className="text-sm font-thin text-center px-4">
                       BECOME AN OFFICIAL PICKSHERO PARTNER. GET OPTIONS TO MAKE
@@ -166,7 +225,10 @@ const page = () => {
                     height={45}
                   />
                   <p className="md:mt-0 text-3xl 2xl:text-4xl font-semibold">
-                    $45,865.55
+                    $
+                    {isPending
+                      ? "Loading..."
+                      : user.user.totalEarned.toFixed(2) || 0}
                   </p>
                 </div>
               </div>
@@ -206,44 +268,43 @@ const page = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  <TableRow className="border-none">
-                    <TableCell className="font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
-                      07 jul 2024 at 34:23pm
-                    </TableCell>
-                    <TableCell className="font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
-                      $2342
-                    </TableCell>
-                    <TableCell className="font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
-                      12345678
-                    </TableCell>
-                    <TableCell className="font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
-                      $10.00
-                    </TableCell>
-                    <TableCell className="font-semibold max-w-[140px] capitalize text-xs 2xl:text-base flex items-center justify-center truncate">
-                      <p className="px-2 py-1 bg-green-500/20 text-green-500 border border-green-500 rounded-full">
-                        paid
-                      </p>
-                    </TableCell>
-                  </TableRow>
-                  <TableRow className="border-none">
-                    <TableCell className="font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
-                      07 jul 2024 at 34:23pm
-                    </TableCell>
-                    <TableCell className="font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
-                      $2342
-                    </TableCell>
-                    <TableCell className="font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
-                      12345678
-                    </TableCell>
-                    <TableCell className="font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
-                      $10.00
-                    </TableCell>
-                    <TableCell className="font-semibold max-w-[140px] capitalize text-[0.25rem] 2xl:text-base flex items-center justify-center truncate">
-                      <p className="px-2 py-1 text-[10px] text-[#AFB2CA] border border-gray-700 rounded-full">
-                        OUTSTANDING
-                      </p>
-                    </TableCell>
-                  </TableRow>
+                  {referHistoryPending ? (
+                    <div className="text-center w-full h-full flex justify-center items-center">
+                      Loading...
+                    </div>
+                  ) : referHistory.length === 0 ? (
+                    <div className="text-center w-full h-24 flex justify-center items-center">
+                      No referal history
+                    </div>
+                  ) : (
+                    referHistory.map((refer: any) => (
+                      <TableRow className="border-none">
+                        <TableCell className="font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
+                          {formatDate(refer.createdAt)}
+                        </TableCell>
+                        <TableCell className="font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
+                          ${refer.orderValue}
+                        </TableCell>
+                        <TableCell className="font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
+                          #{refer.orderNumber}
+                        </TableCell>
+                        <TableCell className="font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
+                          ${refer.commission}
+                        </TableCell>
+                        <TableCell className="font-semibold max-w-[140px] capitalize text-xs 2xl:text-base flex items-center justify-center truncate">
+                          {refer.status === "paid" ? (
+                            <p className="px-2 py-1 bg-green-500/20 text-green-500 border border-green-500 rounded-full">
+                              paid
+                            </p>
+                          ) : (
+                            <p className="px-2 py-1 text-[10px] text-[#AFB2CA] border border-gray-700 rounded-full">
+                              OUTSTANDING
+                            </p>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
               <div className="flex items-center justify-between p-5">

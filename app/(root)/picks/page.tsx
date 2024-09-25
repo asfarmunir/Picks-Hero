@@ -349,6 +349,8 @@ const page = () => {
             {selectedBets.map((bet, index) => (
               <>
                 <BetSlip key={index} bet={bet} removeBet={removeBet} />
+              </>
+            ))}
                 <div className=" w-full  mt-3 border-t border-gray-700 py-3 flex items-center justify-between">
                   <p className="text-sm  text-primary-200 font-thin     ">
                     OVERALL ODDS
@@ -361,8 +363,6 @@ const page = () => {
                   </p>
                   <p className="font-bold">{calculateToCollect()} USD</p>
                 </div>
-              </>
-            ))}
 
             <div className=" w-full  border-t border-gray-700 py-3 flex items-center justify-between">
               <button

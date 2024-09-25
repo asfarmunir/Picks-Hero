@@ -7,13 +7,10 @@ import { generateReferralCode } from "@/helper/referral";
 
 export async function POST(req: NextRequest) {
   try {
-
     await connectToDatabase();
 
     const { firstName, lastName, country, email, password } = await req.json();
     const referrerCode = req.nextUrl.searchParams.get("referral");
-
-
 
     const salt = await bcryptjs.genSalt(10);
     const hashedPassword = await bcryptjs.hash(password, salt);
@@ -21,17 +18,17 @@ export async function POST(req: NextRequest) {
     let newUser;
 
     if (!referrerCode) {
-console.log('2', referrerCode)
-const existingUser = await prisma.user.findUnique({
-  where: { email },
-});
-console.log('1', existingUser)
-if (existingUser) {
-  return NextResponse.json(
-    { message: "User with this email already exists" },
-    { status: 409 }
-  );
-}
+      console.log("2", referrerCode);
+      const existingUser = await prisma.user.findUnique({
+        where: { email },
+      });
+      console.log("1", existingUser);
+      if (existingUser) {
+        return NextResponse.json(
+          { message: "User with this email already exists" },
+          { status: 409 }
+        );
+      }
 
       newUser = await prisma.user.create({
         data: {
@@ -47,7 +44,7 @@ if (existingUser) {
       const existingUser = await prisma.user.findUnique({
         where: { email },
       });
-  console.log('1', existingUser)
+      console.log("1", existingUser);
 
       if (existingUser) {
         return NextResponse.json(
@@ -78,25 +75,13 @@ if (existingUser) {
         },
       });
 
-
       await prisma.$transaction([
         prisma.user.update({
           where: { id: referrer.id },
-          data: { referralBonus: { increment: 10 } },
-        }),
-        prisma.referralHistory.create({
-          data: {
-            userId: referrer.id,
-            referredUserId: newUser.id,
-            orderValue: 0,
-            commission: 10,
-            status: "paid",
-            orderNumber: null,
-          },
+          data: { totalReferrals: { increment: 1 } },
         }),
       ]);
     }
-
 
     const transporter = nodemailer.createTransport({
       service: "gmail",

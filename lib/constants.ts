@@ -224,3 +224,24 @@ export const profileLevels = {
     target: 351,
   }
 }
+
+export const LEVEL_1_TARGET = 10;
+export const LEVEL_2_TARGET = 50;
+export const LEVEL_3_TARGET = 100;
+
+export const BONUS = 50;
+
+export const REFER_COMMISSIONS = {
+  level1: {
+    target: 10,
+    commission: 0.15, // 15%
+  },
+  level2: {
+    target: 50,
+    commission: 0.15, // 15%
+  },
+  level3: {
+    target: 100,
+    commission: 0.20, // 20%
+  }
+}

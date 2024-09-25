@@ -62,6 +62,7 @@ model User {
   referredBy    String?
   referralBonus Float   @default(0.0)
   totalEarned   Float   @default(0.0)
+  totalReferrals Int     @default(0)
 
   accounts        Account[]
   PaymentCard     PaymentCard[]
