@@ -2,25 +2,26 @@
 import Navbar from "@/components/shared/Navbar";
 import { settingTabs } from "@/lib/constants";
 import Image from "next/image";
-import React, { useEffect } from "react";
+import React, { Suspense, useEffect } from "react";
 
+import { useGetPreferences } from "@/app/hooks/useGetPreferences";
+import BillingSettings from "@/components/shared/BillingSettings";
+import GeneralSettings from "@/components/shared/GeneralSettings";
+import PreferenceSettings from "@/components/shared/PreferenceSettings";
+import Verification from "@/components/shared/Verification";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { MdOutlineArrowUpward } from "react-icons/md";
-import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
-import GeneralSettings from "@/components/shared/GeneralSettings";
-import PreferenceSettings from "@/components/shared/PreferenceSettings";
-import BillingSettings from "@/components/shared/BillingSettings";
-import Verification from "@/components/shared/Verification";
-import { useSession } from "next-auth/react";
-import { useGetPreferences } from "@/app/hooks/useGetPreferences";
-import KYCVerification from "./kyc-verfication";
+import { noSSR } from "next/dynamic";
+
+// import KYCVerification from "./kyc-verfication";
+const KYCVerification = React.lazy(() => import("./kyc-verfication"));
 
 const page = () => {
   const [tab, setTab] = useState<string>("general");
@@ -38,7 +39,7 @@ const page = () => {
       // console.log(error);
     },
   });
-  
+
   useEffect(() => {
     if (session) {
       fetchPreferences();
@@ -104,10 +105,19 @@ const page = () => {
           {
             {
               general: <GeneralSettings />,
-              preferences: <PreferenceSettings preferences={preferences} fetchPreferences={fetchPreferences} />,
+              preferences: (
+                <PreferenceSettings
+                  preferences={preferences}
+                  fetchPreferences={fetchPreferences}
+                />
+              ),
               billing: <BillingSettings />,
               verification: <Verification />,
-              kyc: <KYCVerification />
+              kyc: (
+                <Suspense fallback={<div>Loading...</div>}>
+                  <KYCVerification />
+                </Suspense>
+              ),
             }[tab]
           }
         </div>

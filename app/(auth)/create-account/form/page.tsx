@@ -1,21 +1,15 @@
 "use client";
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import { useCreateAccount } from "@/app/hooks/useCreateAccount";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
+  FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -23,11 +17,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useRouter, useSearchParams } from "next/navigation";
-import { toast } from "react-toastify";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
-import { useCreateAccount } from "@/app/hooks/useCreateAccount";
+import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 import { ColorRing } from "react-loader-spinner";
+import { toast } from "react-toastify";
+import { z } from "zod";
 
 const formSchema = z.object({
   firstName: z.string().min(2, {
@@ -112,12 +110,14 @@ const page = () => {
     },
   });
 
-  const [step, setStep] = useState(
-    localStorage.getItem("step")
-      ? parseInt(localStorage.getItem("step") || "1")
-      : 1
-  );
+  const [step, setStep] = useState<number>(1);
 
+  useMemo(() => {
+    if(typeof window === "undefined") return;
+    const localStep = localStorage.getItem("step");
+    setStep(localStep ? parseInt(localStep) : 1);
+  }, []);
+  
   useEffect(() => {
     const localStep = localStorage.getItem("step");
     if (step === 1 && localStep !== "2") return;

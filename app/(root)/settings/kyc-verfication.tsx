@@ -1,14 +1,18 @@
 "use client";
-import { Veriff } from "@veriff/js-sdk";
+import { useGetKyc } from "@/app/hooks/useGetKyc";
+import { useVerifyKyc } from "@/app/hooks/useVerifyKyc";
 import { createVeriffFrame, MESSAGES } from "@veriff/incontext-sdk";
+import { Veriff } from "@veriff/js-sdk";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
-import { useVerifyKyc } from "@/app/hooks/useVerifyKyc";
-import { useGetKyc } from "@/app/hooks/useGetKyc";
 
 const KYCVerification = () => {
   //   GET KYC STATUS
-  const { mutate: getKyc, data, isPending } = useGetKyc({
+  const {
+    mutate: getKyc,
+    data,
+    isPending,
+  } = useGetKyc({
     onSuccess: (data) => {
       //
     },
@@ -20,7 +24,7 @@ const KYCVerification = () => {
   //   VERIFY KYC
   const { mutate: verifyKYC } = useVerifyKyc({
     onSuccess: () => {
-      getKyc();  
+      getKyc();
       toast.success("KYC verification successful");
     },
     onError: (error: any) => {
@@ -57,13 +61,15 @@ const KYCVerification = () => {
   };
 
   useEffect(() => {
-    getKyc();
+    if (typeof window !== "undefined") {
+      getKyc();
+    }
   }, []);
-  
+
   useEffect(() => {
     if (data && !isPending && !data.kycVerified) {
-        startVerification();
-      }
+      startVerification();
+    }
   }, [data, isPending]);
 
   return (
