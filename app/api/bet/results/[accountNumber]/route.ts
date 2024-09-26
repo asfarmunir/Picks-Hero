@@ -121,18 +121,7 @@ export async function GET(req: NextRequest, { params }: { params: { accountNumbe
                         },
                         data: {
                             balance: {
-                                increment: bet.pick * bet.odds,
-                            },
-                        },
-                    });
-                } else {
-                    await prisma.account.update({
-                        where: {
-                            id: account.id,
-                        },
-                        data: {
-                            balance: {
-                                decrement: bet.pick,
+                                increment: bet.pick + bet.winnings,
                             },
                         },
                     });

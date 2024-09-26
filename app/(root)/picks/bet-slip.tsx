@@ -15,16 +15,23 @@ interface Bet {
 const BetSlip = ({
   bet,
   removeBet,
+  onPickInputChange,
 }: {
   bet: Bet;
   removeBet: (id: number) => void;
+  onPickInputChange: (e: React.ChangeEvent<HTMLInputElement>, value: number) => void;
 }) => {
   return (
     <div className="py-4">
       <div className=" w-full mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <p className="uppercase  text-sm">{bet.team}{" "}
-            <span className="text-white text-opacity-40">{"("}{bet.oddsFormat}{" format )"}</span>
+          <p className="uppercase  text-sm">
+            {bet.team}{" "}
+            <span className="text-white text-opacity-40">
+              {"("}
+              {bet.oddsFormat}
+              {" format )"}
+            </span>
           </p>
         </div>
         <button onClick={() => removeBet(bet.id)}>
@@ -43,9 +50,15 @@ const BetSlip = ({
       <div className="w-full flex items-center gap-3">
         <div className="bg-[#272837] rounded-xl p-3.5 flex flex-col gap-2.5 flex-grow">
           <p className=" text-xs font-thin text-primary-200">Pick</p>
-          <h2 className=" font-bold">
-            {bet.pick.toFixed(2)}$
-          </h2>
+          <div className="flex gap-2">
+            <input
+              className=" font-bold bg-transparent focus:outline-none border border-transparent focus:border-primary-50 w-24 rounded-sm px-2"
+              // value={bet.pick.toFixed(2)}
+              defaultValue={bet.pick.toFixed(2)}
+              onChange={(e) => onPickInputChange(e, bet.id)}
+            />
+            <p className="font-bold">$</p>
+          </div>
         </div>
         <div className="bg-[#272837] rounded-xl p-3.5 flex flex-col gap-2.5 flex-grow">
           <p className=" text-xs font-thin text-primary-200">To Win</p>

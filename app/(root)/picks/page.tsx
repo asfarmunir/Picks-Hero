@@ -57,10 +57,45 @@ const page = () => {
     setSelectedBets(selectedBets.filter((bet) => bet.id !== id));
   };
   const calculateOverallOdds = () => {
-    return selectedBets.reduce((acc, bet) => acc * bet.odds, 1).toFixed(2);
+    let odds = 1;
+    selectedBets.forEach((bet) => {
+      odds *= bet.oddsFormat === "american" ? americanToDecimalOdds(bet.odds) : bet.odds;
+    });
+    return odds.toFixed(2);
   };
   const calculateToCollect = () => {
-    return selectedBets.reduce((acc, bet) => acc + bet.toWin, 0).toFixed(2);
+    let sum = 0;
+    selectedBets.forEach((bet) => {
+      sum += bet.toWin;
+    });
+    return sum.toFixed(2);
+  };
+  const americanToDecimalOdds = (odds: number) => {
+    return odds > 0 ? odds / 100 + 1 : 100 / Math.abs(odds) + 1;
+  }
+  const calculateToWin = (bet: Bet, newPick: number) => {
+    let decimalOdds = bet.odds;
+    if (bet.oddsFormat === "american") {
+      decimalOdds = americanToDecimalOdds(bet.odds);
+    }
+    return newPick * (decimalOdds - 1);
+  };
+  const onPickInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    id: number
+  ) => {
+    const value = parseFloat(e.target.value);
+    const updatedBets = selectedBets.map((bet) => {
+      if (bet.id === id) {
+        return {
+          ...bet,
+          pick: value,
+          toWin: calculateToWin(bet, value),
+        };
+      }
+      return bet;
+    });
+    setSelectedBets(updatedBets);
   };
 
   // TABS MECHANISM
@@ -125,7 +160,7 @@ const page = () => {
 
     const alteredBets = selectedBets.map((bet) => {
       return {
-        eventId: (bet.id).toString(),
+        eventId: bet.id.toString(),
         sportKey: leagueTab,
         sport: tab,
         event: `${bet.home_team} vs ${bet.away_team}`,
@@ -141,20 +176,24 @@ const page = () => {
 
     try {
       const results = await Promise.all(
-        alteredBets.map((bet) => 
-          new Promise((resolve, reject) => {
-            // Place each bet using the `placeBet` mutation
-            placeBet({bet, accountNumber: "PH3537349-22"}, {
-              onSuccess: (data) => {
-                toast.success(`Bet placed for ${bet.team}`);
-                resolve({ bet, success: true, data });
-              },
-              onError: (error) => {
-                toast.error(`${error}`);
-                reject({ bet, success: false, error });
-              },
-            });
-          })
+        alteredBets.map(
+          (bet) =>
+            new Promise((resolve, reject) => {
+              // Place each bet using the `placeBet` mutation
+              placeBet(
+                { bet, accountNumber: "PH3537349-22" },
+                {
+                  onSuccess: (data) => {
+                    toast.success(`Bet placed for ${bet.team}`);
+                    resolve({ bet, success: true, data });
+                  },
+                  onError: (error) => {
+                    toast.error(`${error}`);
+                    reject({ bet, success: false, error });
+                  },
+                }
+              );
+            })
         )
       );
       toast.success("All bets placed successfully");
@@ -348,21 +387,26 @@ const page = () => {
 
             {selectedBets.map((bet, index) => (
               <>
-                <BetSlip key={index} bet={bet} removeBet={removeBet} />
+                <BetSlip
+                  key={index}
+                  bet={bet}
+                  removeBet={removeBet}
+                  onPickInputChange={onPickInputChange}
+                />
               </>
             ))}
-                <div className=" w-full  mt-3 border-t border-gray-700 py-3 flex items-center justify-between">
-                  <p className="text-sm  text-primary-200 font-thin     ">
-                    OVERALL ODDS
-                  </p>
-                  <p className="font-bold">{calculateOverallOdds()}</p>
-                </div>
-                <div className=" w-full mb-4  flex items-center - justify-between">
-                  <p className="text-sm  text-primary-200 font-thin     ">
-                    TO COLLECT
-                  </p>
-                  <p className="font-bold">{calculateToCollect()} USD</p>
-                </div>
+            <div className=" w-full  mt-3 border-t border-gray-700 py-3 flex items-center justify-between">
+              <p className="text-sm  text-primary-200 font-thin     ">
+                OVERALL ODDS
+              </p>
+              <p className="font-bold">{calculateOverallOdds()}</p>
+            </div>
+            <div className=" w-full mb-4  flex items-center - justify-between">
+              <p className="text-sm  text-primary-200 font-thin     ">
+                TO COLLECT
+              </p>
+              <p className="font-bold">{calculateToCollect()} USD</p>
+            </div>
 
             <div className=" w-full  border-t border-gray-700 py-3 flex items-center justify-between">
               <button
@@ -376,9 +420,7 @@ const page = () => {
                 disabled={placingBet}
                 onClick={placeBets}
               >
-                {
-                  placingBet ? "Placing bet..." : "place pick"
-                }
+                {placingBet ? "Placing bet..." : "place pick"}
               </button>
             </div>
           </div>

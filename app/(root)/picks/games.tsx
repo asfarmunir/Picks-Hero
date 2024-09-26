@@ -80,28 +80,23 @@ const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch }: Ge
     setSelectedGame(null);
   };
 
-  const addGameToBetSlip = (e: FormEvent) => {
-    e.preventDefault();
+  const addGameToBetSlip = ({ game, home }: { game: any; home: boolean }) => {
+    // e.preventDefault();
 
-    if (!pick || pick === 0) {
-      toast.error("Please enter a valid bet amount.");
-      return;
-    }
-    
     const odds = home
-    ? selectedGame.bookmakers[0]?.markets[0]?.outcomes[0].price
-    : selectedGame.bookmakers[0]?.markets[0]?.outcomes[1].price
+    ? game.bookmakers[0]?.markets[0]?.outcomes[0].price
+    : game.bookmakers[0]?.markets[0]?.outcomes[1].price
     
     const bet: Bet = {
-      id: selectedGame.id,
-      team: selectedTeam || selectedGame.home_team,
+      id: game.id,
+      team: home ? game.home_team : game.away_team,
       odds: Number(odds),
-      pick: Number(pick) * Number(odds),
-      toWin: (Number(pick) * Number(odds)) - Number(pick),
+      pick: Number(0) * Number(odds),
+      toWin: (Number(0) * Number(odds)) - Number(pick),
       oddsFormat: oddsFormat,
-      home_team: selectedGame.home_team,
-      away_team: selectedGame.away_team,
-      gameDate: selectedGame.commence_time,
+      home_team: game.home_team,
+      away_team: game.away_team,
+      gameDate: game.commence_time,
     };
 
     
@@ -164,7 +159,7 @@ const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch }: Ge
                   className={`flex w-full cursor-pointer items-center gap-2`}
                 >
                   <div
-                    onClick={() => openPickModal({ game, home: true })}
+                    onClick={() => addGameToBetSlip({ game, home: true })}
                     className={`  ${
                       findTeamInBets(game.home_team, game.id)
                         ? " border border-primary-50/80 shadow shadow-green-700"
@@ -187,7 +182,7 @@ const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch }: Ge
                     vs
                   </p>
                   <div
-                    onClick={() => openPickModal({ game, home: false })}
+                    onClick={() => addGameToBetSlip({ game, home: false })}
                     className={`${
                       findTeamInBets(game.away_team, game.id)
                         ? " border border-primary-50/80 shadow shadow-green-700"
@@ -210,9 +205,9 @@ const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch }: Ge
           ))}
         </TableBody>
       </Table>
-      <Dialog open={oepnPickModal} onOpenChange={onClose}>
+      {/* <Dialog open={oepnPickModal} onOpenChange={onClose}>
         <DialogContent className=" bg-primary-100 gap-1 p-5 text-white border-none">
-          <form className="space-y-4" onSubmit={addGameToBetSlip}>
+          <form className="space-y-4" >
             <p>Bet on {selectedTeam}</p>
             <div>
               <label htmlFor="pick" className="text-sm">
@@ -234,7 +229,7 @@ const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch }: Ge
             </button>
           </form>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </>
   );
 };
