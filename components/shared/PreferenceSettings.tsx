@@ -14,19 +14,33 @@ import {
 import { FaAngleDown } from "react-icons/fa6";
 import { toast } from "react-toastify";
 
-const PreferenceSettings = ({ preferences, fetchPreferences } : { preferences: any, fetchPreferences: ()=>void }) => {
-  const [displayStatsLive, setDisplayStatsLive] = useState(preferences?.displayStatsLive || false);
-  const [phoneNotification, setPhoneNotification] = useState(preferences?.phoneNotification || false);
-  const [emailNotification, setEmailNotification] = useState(preferences?.emailNotification || false);
-
+const PreferenceSettings = ({
+  preferences,
+  fetchPreferences,
+}: {
+  preferences: any;
+  fetchPreferences: () => void;
+}) => {
+  const [displayStatsLive, setDisplayStatsLive] = useState(
+    preferences?.displayStatsLive || false
+  );
+  const [phoneNotification, setPhoneNotification] = useState(
+    preferences?.phoneNotification || false
+  );
+  const [emailNotification, setEmailNotification] = useState(
+    preferences?.emailNotification || false
+  );
 
   const handleToggleChange = async (field: any, checked: boolean) => {
     try {
-      const response = await axios.patch("http://localhost:3000/api/preferences", {
-        field,
-        value: checked,
-      });
-      
+      const response = await axios.patch(
+        "https://app.pickshero.io/api/preferences",
+        {
+          field,
+          value: checked,
+        }
+      );
+
       if (response.status !== 200) {
         throw new Error("Failed to update preferences");
       }
@@ -37,7 +51,7 @@ const PreferenceSettings = ({ preferences, fetchPreferences } : { preferences: a
       toast.error("Error updating preferences");
     }
   };
-  
+
   return (
     <div className=" w-full flex text-white flex-col gap-4">
       <div className=" w-full flex justify-between py-4 pb-8 border-b border-gray-700">
@@ -53,7 +67,7 @@ const PreferenceSettings = ({ preferences, fetchPreferences } : { preferences: a
           onClick={(e) => {
             const switch_ = e.target as HTMLButtonElement;
             const toggle = switch_.getAttribute("data-state");
-            handleToggleChange("displayStatsLive", toggle!=="checked");
+            handleToggleChange("displayStatsLive", toggle !== "checked");
             setDisplayStatsLive(!displayStatsLive);
           }}
         />
@@ -71,7 +85,7 @@ const PreferenceSettings = ({ preferences, fetchPreferences } : { preferences: a
           onClick={(e) => {
             const switch_ = e.target as HTMLButtonElement;
             const toggle = switch_.getAttribute("data-state");
-            handleToggleChange("phoneNotification", toggle!=="checked");
+            handleToggleChange("phoneNotification", toggle !== "checked");
             setPhoneNotification(!phoneNotification);
           }}
         />
@@ -89,7 +103,7 @@ const PreferenceSettings = ({ preferences, fetchPreferences } : { preferences: a
           onClick={(e) => {
             const switch_ = e.target as HTMLButtonElement;
             const toggle = switch_.getAttribute("data-state");
-            handleToggleChange("emailNotification", toggle!=="checked");
+            handleToggleChange("emailNotification", toggle !== "checked");
             setEmailNotification(!emailNotification);
           }}
         />

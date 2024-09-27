@@ -24,7 +24,7 @@ export default function TwoFactorAuthPage() {
   const fetchQRCode = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:3000/api/auth/generate-qrcode"
+        "https://app.pickshero.io/api/auth/generate-qrcode"
       );
       setQrUrl(res.data.qrcode);
       settwofactorsecret(res.data.twofactorsecret);
@@ -37,7 +37,7 @@ export default function TwoFactorAuthPage() {
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/api/auth/verify-otp",
+        "https://app.pickshero.io/api/auth/verify-otp",
         {
           token: code,
           twoFa: twofactorsecret,
