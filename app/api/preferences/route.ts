@@ -1,7 +1,7 @@
 import prisma from "@/prisma/client";
 import { getServerSession } from "next-auth"; // Use getServerSession for next-auth in server-side
 import { NextRequest, NextResponse } from "next/server";
-import { AuthOptions } from "../auth/AuthOptions";
+import { AuthOptions } from "../auth/authOptions";
 
 export async function PATCH(req: NextRequest) {
   try {
