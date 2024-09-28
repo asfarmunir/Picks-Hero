@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "backend": "cd background-services && nodemon index.js",
     "lint": "next lint"
   },
   "dependencies": {
@@ -35,6 +36,8 @@
     "clsx": "^2.1.1",
     "countries-list": "^3.1.1",
     "crypto": "^1.0.1",
+    "express": "^4.21.0",
+    "http-proxy-middleware": "^3.0.2",
     "i": "^0.3.7",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.414.0",
@@ -44,6 +47,7 @@
     "next": "14.2.5",
     "next-auth": "^4.24.7",
     "nextjs-toploader": "^1.6.12",
+    "node-cron": "^3.0.3",
     "nodemailer": "^6.9.14",
     "nodemailer-sendgrid-transport": "^0.2.0",
     "npm": "^10.8.2",
