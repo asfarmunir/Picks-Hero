@@ -61,7 +61,16 @@ const page = () => {
     selectedBets.forEach((bet) => {
       odds *= bet.oddsFormat === "american" ? americanToDecimalOdds(bet.odds) : bet.odds;
     });
-    return odds.toFixed(2);
+    // if single pick
+    if(selectedBets.length === 1)  return odds.toFixed(2);
+
+    // if parlay
+    let betAmount = 1;
+    selectedBets.forEach((bet) => {
+      betAmount *= bet.pick;
+    });
+
+    return ((betAmount * odds)-betAmount).toFixed(2);
   };
   const calculateToCollect = () => {
     let sum = 0;
