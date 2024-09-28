@@ -33,7 +33,7 @@ const page = () => {
     return str.slice(0, num) + "...";
   };
 
-  let link = `/signup?referrerCode=${session?.user?.referralCode}`;
+  let link = `https://app.pickshero.io/signup?referrerCode=${session?.user?.referralCode}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(link).then(

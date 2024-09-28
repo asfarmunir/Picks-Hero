@@ -117,7 +117,7 @@ const GeneralSettings = () => {
       };
 
       const response = await axios.patch(
-        `/api/general-setting`,
+        `https://app.pickshero.io/api/general-setting`,
         userData
       );
 

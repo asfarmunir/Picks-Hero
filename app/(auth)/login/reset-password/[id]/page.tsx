@@ -63,17 +63,17 @@ const Page = ({ params: { id }, searchParams: { token } }: props) => {
 
     try {
       const response = await axios.patch(
-        `/api/auth/reset-password/${id}?token=${token}`,
+        `https://app.pickshero.io/api/auth/reset-password/${id}?token=${token}`,
         {
           password: values.password,
           confirmPassword: values.confirmPassword,
-          token, 
+          token,
         }
       );
 
       if (response.status === 200) {
         toast.success("Password reset successfully");
-        router.push("/login"); 
+        router.push("/login");
       }
     } catch (error) {
       toast.error("An error occurred during the password reset");
@@ -152,7 +152,13 @@ const Page = ({ params: { id }, searchParams: { token } }: props) => {
                       ariaLabel="color-ring-loading"
                       wrapperStyle={{}}
                       wrapperClass="color-ring-wrapper"
-                      colors={["#ffffff", "#ffffff", "#ffffff", "#ffffff", "#ffffff"]}
+                      colors={[
+                        "#ffffff",
+                        "#ffffff",
+                        "#ffffff",
+                        "#ffffff",
+                        "#ffffff",
+                      ]}
                     />
                   ) : (
                     <span className="capitalize">Submit</span>
