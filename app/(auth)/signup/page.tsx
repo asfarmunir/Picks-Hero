@@ -85,13 +85,13 @@ async function onSubmit(values: any) {
 
     if (referrerCode) {
       res = await axios.post(
-        `http://localhost:3000/api/register?referral=${referrerCode}`,
+        `/api/register?referral=${referrerCode}`,
         values
       );
     } else {
 
       res = await axios.post(
-        "http://localhost:3000/api/register",
+        "/api/register",
         values
       );
     }

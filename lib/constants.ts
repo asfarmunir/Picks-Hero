@@ -245,3 +245,17 @@ export const REFER_COMMISSIONS = {
     commission: 0.20, // 20%
   }
 }
+
+export const ALL_STEP_CHALLENGES = {
+  minPicks: 25,
+  minPickAmount: 0.025, // 2.5%
+  maxPickAmount: 0.1, // 10%
+  maxLoss: 0.2, // 20%
+  maxDailyLoss: 0.15, // 15%
+  profitTarget: 0.3, // 30%
+  minBetPeriod: 7, // 7 days
+  maxBetPeriod: 30, // 30 days
+}
+
+export const DAILY_LOSS_TIMER_RESET = new Date().setUTCHours(6, 0, 0, 0);
+

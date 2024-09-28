@@ -63,7 +63,7 @@ const Page = ({ params: { id }, searchParams: { token } }: props) => {
 
     try {
       const response = await axios.patch(
-        `http://localhost:3000/api/auth/reset-password/${id}?token=${token}`,
+        `/api/auth/reset-password/${id}?token=${token}`,
         {
           password: values.password,
           confirmPassword: values.confirmPassword,

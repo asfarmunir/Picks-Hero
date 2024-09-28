@@ -37,7 +37,7 @@ const Page = () => {
     setLoading(true);
     console.log('this is the value : ', values)
     try {
-      const response = await axios.post("http://localhost:3000/api/auth/reset-password", {
+      const response = await axios.post("/api/auth/reset-password", {
         email: values.email,
       });
    console.log('this is the response in th page : ', response)

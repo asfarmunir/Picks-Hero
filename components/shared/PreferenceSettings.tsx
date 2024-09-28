@@ -22,7 +22,7 @@ const PreferenceSettings = ({ preferences, fetchPreferences } : { preferences: a
 
   const handleToggleChange = async (field: any, checked: boolean) => {
     try {
-      const response = await axios.patch("http://localhost:3000/api/preferences", {
+      const response = await axios.patch("/api/preferences", {
         field,
         value: checked,
       });

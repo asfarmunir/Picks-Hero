@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Generate the password reset link (fallback link)
-    const resetLink = `http://localhost:3000/login/reset-password/${user.id}?token=${resetToken}`;
+    const resetLink = `/login/reset-password/${user.id}?token=${resetToken}`;
 
     // Send the email with the reset link
     await sendResetEmail(user.email, resetLink);

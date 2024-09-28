@@ -33,7 +33,7 @@ const page = () => {
     return str.slice(0, num) + "...";
   };
 
-  let link = `http://localhost:3000/signup?referrerCode=${session?.user?.referralCode}`;
+  let link = `/signup?referrerCode=${session?.user?.referralCode}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(link).then(

@@ -81,6 +81,9 @@ model Account {
   status        AccountStatus // Challenge, Funded, Breached
   balance       Float // Store account balance
   accountNumber String // Store account number
+  phase        Int @default(0) // Store account phase
+
+  dailyLoss    Float? // Store daily loss limit
 
   paymentMethod  String? // Store payment method details
   user           User?            @relation(fields: [userId], references: [id])
