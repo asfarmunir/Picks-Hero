@@ -34,7 +34,7 @@ const PreferenceSettings = ({
   const handleToggleChange = async (field: any, checked: boolean) => {
     try {
       const response = await axios.patch(
-        "https://app.pickshero.io/api/preferences",
+        "/api/preferences",
         {
           field,
           value: checked,

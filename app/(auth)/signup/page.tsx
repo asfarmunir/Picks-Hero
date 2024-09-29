@@ -84,11 +84,11 @@ const page = ({ searchParams: { referrerCode } }: props) => {
 
       if (referrerCode) {
         res = await axios.post(
-          `https://app.pickshero.io/api/register?referral=${referrerCode}`,
+          `/api/register?referral=${referrerCode}`,
           values
         );
       } else {
-        res = await axios.post("https://app.pickshero.io/api/register", values);
+        res = await axios.post("/api/register", values);
       }
 
       if (!res) {
