@@ -224,6 +224,15 @@ const page = () => {
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {
+              !isPending && data?.length === 0 ? (
+                <div className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative  rounded-2xl w-full  flex flex-col gap-1 ">
+                  <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
+                    No accounts found
+                  </p>
+                </div>
+              ) : null
+            }
             {isPending ? (
               <>Loading...</>
             ) : (
