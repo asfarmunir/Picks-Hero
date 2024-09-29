@@ -1,4 +1,6 @@
 import { connectToDatabase } from "@/helper/dbconnect";
+import { ALL_STEP_CHALLENGES } from "@/lib/constants";
+import { areStepObjectivesComplete, checkObjectivesAndUpgrade, getOriginalAccountValue } from "@/lib/utils";
 import prisma from "@/prisma/client";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
@@ -47,6 +49,32 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Account not found" }, { status: 404 });
   }
 
+  // reject if amount is NaN
+  if (isNaN(bet.pick)) {
+    return NextResponse.json(
+      { error: "Bet amount must be a number" },
+      { status: 400 }
+    );
+  }
+  
+  // reject if amount is less than minimum allowed
+  const minPickAmount = getOriginalAccountValue(account) * ALL_STEP_CHALLENGES.minPickAmount;
+  if (bet.pick < minPickAmount) {
+    return NextResponse.json(
+      { error: `Bet amount must be greater than $${minPickAmount}` },
+      { status: 400 }
+    );
+  }
+
+  // reject if amount is greater than maximum allowed
+  const maxPickAmount = getOriginalAccountValue(account) * ALL_STEP_CHALLENGES.maxPickAmount;
+  if (bet.pick > maxPickAmount) {
+    return NextResponse.json(
+      { error: `Bet amount must be less than $${maxPickAmount}` },
+      { status: 400 }
+    );
+  }
+
   // reject if account balance is less than bet.pick
   if (account.balance < bet.pick) {
     return NextResponse.json({ error: "Insufficient funds" }, { status: 400 });
@@ -68,39 +96,45 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // create a new bet
-  const newBet = await prisma.bets.create({
-    data: {
-      userId: existingUser.id,
-      accountId: account.id,
-      betStatus: "OPENED",
-      betDate: new Date(),
-      ...bet,
-    },
-  });
+  // Using transaction to place bet and update account balance
+  try {
+    const [newBet, updatedAccount] = await prisma.$transaction([
+      // Create a new bet
+      prisma.bets.create({
+        data: {
+          userId: existingUser.id,
+          accountId: account.id,
+          betStatus: "OPENED",
+          betDate: new Date(),
+          ...bet,
+        },
+      }),
+      // Subtract bet.pick from account balance
+      prisma.account.update({
+        where: {
+          id: account.id,
+        },
+        data: {
+          balance: {
+            decrement: bet.pick,
+          },
+          picks: {
+            increment: 1,
+          }
+        },
+      }),
+    ]);
 
-  if (!newBet) {
+    // After transaction, check objectives
+    await checkObjectivesAndUpgrade(prisma, updatedAccount);
+
+    // If the transaction is successful, return success response
+    return NextResponse.json(
+      { message: "Bet placed successfully", bet: newBet },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Transaction error:', error);
     return NextResponse.json({ error: "Failed to place bet" }, { status: 500 });
   }
-
-  // subtract bet.pick from account balance
-  const updatedAccount = await prisma.account.update({
-    where: {
-      id: account.id,
-    },
-    data: {
-      balance: {
-        decrement: bet.pick,
-      },
-    },
-  });
-
-  if (!updatedAccount) {
-    return NextResponse.json({ error: "Failed to place bet" }, { status: 500 });
-  }
-
-  return NextResponse.json(
-    { message: "Bet placed successfully" },
-    { status: 200 }
-  );
 }
