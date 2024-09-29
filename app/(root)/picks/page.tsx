@@ -1,37 +1,26 @@
 "use client";
-import { picksTabs } from "@/lib/constants";
-import Image from "next/image";
-import React, { useEffect } from "react";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { useCreateBet } from "@/app/hooks/useCreateBet";
+import { useGetAccount } from "@/app/hooks/useGetAccount";
+import { useGetSports } from "@/app/hooks/useGetSports";
+import BetModal from "@/components/shared/BetModal";
+import Navbar from "@/components/shared/Navbar";
+import UserAccount from "@/components/shared/UserAccount";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import { FaAngleDown } from "react-icons/fa";
-import { MdOutlineArrowUpward } from "react-icons/md";
 import { Input } from "@/components/ui/input";
-import { LuSearch } from "react-icons/lu";
-import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
-import Navbar from "@/components/shared/Navbar";
-import UserAccount from "@/components/shared/UserAccount";
-import Link from "next/link";
-import BetModal from "@/components/shared/BetModal";
-import { useGetSports } from "@/app/hooks/useGetSports";
-import GamesTable from "./games";
-import BetSlip from "./bet-slip";
-import { useCreateBet } from "@/app/hooks/useCreateBet";
+import Image from "next/image";
+import React, { useEffect } from "react";
 import toast from "react-hot-toast";
+import { FaAngleDown } from "react-icons/fa";
+import { LuSearch } from "react-icons/lu";
+import { MdOutlineArrowUpward } from "react-icons/md";
+import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
+import BetSlip from "./bet-slip";
+import GamesTable from "./games";
 
 type oddsType = "american" | "decimal";
 
@@ -48,6 +37,11 @@ interface Bet {
 }
 
 const page = () => {
+  // ACCOUNT
+  const { data: account, isPending: loadingAccount } = useGetAccount(
+    "66f870324f9d0a9dc1b1dc62"
+  );
+
   // BET SLIP DATA
   const [selectedBets, setSelectedBets] = React.useState<Bet[]>([]);
   const addBet = (bet: Bet) => {
@@ -59,10 +53,13 @@ const page = () => {
   const calculateOverallOdds = () => {
     let odds = 1;
     selectedBets.forEach((bet) => {
-      odds *= bet.oddsFormat === "american" ? americanToDecimalOdds(bet.odds) : bet.odds;
+      odds *=
+        bet.oddsFormat === "american"
+          ? americanToDecimalOdds(bet.odds)
+          : bet.odds;
     });
     // if single pick
-    if(selectedBets.length === 1)  return odds.toFixed(2);
+    if (selectedBets.length === 1) return odds.toFixed(2);
 
     // if parlay
     let betAmount = 1;
@@ -70,7 +67,7 @@ const page = () => {
       betAmount *= bet.pick;
     });
 
-    return ((betAmount * odds)-betAmount).toFixed(2);
+    return (betAmount * odds - betAmount).toFixed(2);
   };
   const calculateToCollect = () => {
     let sum = 0;
@@ -81,7 +78,7 @@ const page = () => {
   };
   const americanToDecimalOdds = (odds: number) => {
     return odds > 0 ? odds / 100 + 1 : 100 / Math.abs(odds) + 1;
-  }
+  };
   const calculateToWin = (bet: Bet, newPick: number) => {
     let decimalOdds = bet.odds;
     if (bet.oddsFormat === "american") {
@@ -190,7 +187,7 @@ const page = () => {
             new Promise((resolve, reject) => {
               // Place each bet using the `placeBet` mutation
               placeBet(
-                { bet, accountNumber: "PH3537349-22" },
+                { bet, accountNumber: "PH4504514-22" },
                 {
                   onSuccess: (data) => {
                     toast.success(`Bet placed for ${bet.team}`);
@@ -340,13 +337,16 @@ const page = () => {
                 </DropdownMenuContent>
               </DropdownMenu>{" "}
             </div>
-            <GamesTable
-              sportKey={leagueTab}
-              oddsFormat={oddsFormat}
-              addBet={addBet}
-              bets={selectedBets}
-              setFeaturedMatch={setFeaturedMatch}
-            />
+            {account && (
+              <GamesTable
+                sportKey={leagueTab}
+                oddsFormat={oddsFormat}
+                addBet={addBet}
+                bets={selectedBets}
+                setFeaturedMatch={setFeaturedMatch}
+                account={account}
+              />
+            )}
             <div className="flex items-center justify-between p-5">
               <h4 className="text-[#848BAC] font-thin text-xs 2xl:text-base ">
                 PAGE 1-5
@@ -394,7 +394,7 @@ const page = () => {
               </div>
             )}
 
-            {selectedBets.map((bet, index) => (
+            {account && selectedBets.map((bet, index) => (
               <>
                 <BetSlip
                   key={index}

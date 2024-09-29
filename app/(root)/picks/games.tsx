@@ -1,8 +1,5 @@
 "use client";
 import { useGetGames } from "@/app/hooks/useGetGames";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -11,8 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ALL_STEP_CHALLENGES } from "@/lib/constants";
+import { getOriginalAccountValue } from "@/lib/utils";
 import { LoaderCircle } from "lucide-react";
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 interface GetGamesParams {
@@ -21,6 +20,7 @@ interface GetGamesParams {
   addBet: (bet: Bet) => void;
   bets: Bet[];
   setFeaturedMatch: (match: any) => void;
+  account: any;
 }
 
 interface Bet {
@@ -35,7 +35,7 @@ interface Bet {
   gameDate: string;
 }
 
-const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch }: GetGamesParams) => {
+const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch, account }: GetGamesParams) => {
   // GAMES DATA
   const {
     data: games,
@@ -79,7 +79,7 @@ const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch }: Ge
     setSelectedTeam(null);
     setSelectedGame(null);
   };
-
+  
   const addGameToBetSlip = ({ game, home }: { game: any; home: boolean }) => {
     // e.preventDefault();
 
@@ -91,7 +91,7 @@ const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch }: Ge
       id: game.id,
       team: home ? game.home_team : game.away_team,
       odds: Number(odds),
-      pick: Number(0) * Number(odds),
+      pick: getOriginalAccountValue(account) * ALL_STEP_CHALLENGES.minPickAmount,
       toWin: (Number(0) * Number(odds)) - Number(pick),
       oddsFormat: oddsFormat,
       home_team: game.home_team,
