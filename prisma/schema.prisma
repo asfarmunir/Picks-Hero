@@ -82,8 +82,12 @@ model Account {
   balance       Float // Store account balance
   accountNumber String // Store account number
   phase        Int @default(0) // Store account phase
+  picks        Int @default(0) // Store account picks
 
   dailyLoss    Float? // Store daily loss limit
+  minBetPeriod DateTime // Store minimum bet period
+  maxBetPeriod DateTime // Store maximum bet period
+  minBetPeriodCompleted Boolean @default(false) // Store minimum bet period completed
 
   paymentMethod  String? // Store payment method details
   user           User?            @relation(fields: [userId], references: [id])
@@ -220,4 +224,29 @@ model Bets {
   updatedAt DateTime @updatedAt
 
   @@map("bets")
+}
+
+enum CronJobType {
+  objectiveMin
+  objectiveMax
+  inactivity
+}
+enum CronJobStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+model CronJobs {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  accountId String @db.ObjectId
+
+  jobName   String
+  jobStatus CronJobStatus
+  jobDate   String
+  type     CronJobType
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cronjobs")
 }
