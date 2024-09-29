@@ -1,7 +1,56 @@
+"use client"
+import { useGetAccount } from "@/app/hooks/useGetAccount";
+import { ALL_STEP_CHALLENGES } from "@/lib/constants";
+import { getOriginalAccountValue, getPercentageTimePassed } from "@/lib/utils";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const Objectives = () => {
+  const { data: account, isPending } = useGetAccount(
+    "66f870324f9d0a9dc1b1dc62"
+  );
+
+  // States to store the countdowns
+  const [minBetCountdown, setMinBetCountdown] = useState("");
+  const [maxBetCountdown, setMaxBetCountdown] = useState("");
+
+  useEffect(() => {
+    if (!account) return;
+
+    // Helper function to calculate the time remaining in a readable format
+    const calculateCountdown = (endDate: Date) => {
+      const now = new Date().getTime();
+      const distance = new Date(endDate).getTime() - now;
+
+      if (distance <= 0) return "0D 0H 0M 0S"; // If time has passed
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      return `${days}D ${hours}H ${minutes}M ${seconds}S`;
+    };
+
+    // Update countdown every second
+    const interval = setInterval(() => {
+      setMinBetCountdown(calculateCountdown(new Date(account.minBetPeriod)));
+      setMaxBetCountdown(calculateCountdown(new Date(account.maxBetPeriod)));
+    }, 1000);
+
+    // Clear the interval on component unmount
+    return () => clearInterval(interval);
+  }, [account]);
+  
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
+
+  if (!account) {
+    return <div>Account not found</div>;
+  }
+  
+
   return (
     <div className=" w-full space-y-4">
       <div className="w-full flex-col bg-[#181926] shadow-inner p-5 rounded-xl shadow-gray-700 md:flex-row  flex items-center justify-between gap-4">
@@ -12,7 +61,7 @@ const Objectives = () => {
             width={23}
             height={23}
           />
-          $10,000
+          ${account.accountSize.replace("K", "000")}
           <span className=" text-primary-200">ACCOUNT</span>
         </h3>
         <div className="flex w-full md:w-fit items-center gap-2 flex-col md:flex-row">
@@ -24,7 +73,7 @@ const Objectives = () => {
               height={20}
             />
             <span className="text-primary-200 uppercase">start date</span>
-            jun,23 2023
+            {new Date(account.createdAt).toLocaleDateString()}
           </button>
           <button className="flex justify-center text-primary-50 uppercase items-center gap-2 px-4 py-2 text-xs w-full md:w-fit 2xl:text-base font-bold  bg-[#52FC18]/10 rounded-lg">
             <Image
@@ -33,7 +82,7 @@ const Objectives = () => {
               width={18}
               height={18}
             />
-            PHASE 1/2
+            PHASE {account.phase} / {account.accountType === "TWO_STEP" ? 2 : 3}
           </button>
         </div>
       </div>
@@ -47,16 +96,34 @@ const Objectives = () => {
               height={43}
             />
             <div className="  font-bold flex flex-col  gap-1">
-              <p className=" text-base 2xl:text-lg ">$768 / $1,000</p>
+              <p className=" text-base 2xl:text-lg ">
+                ${account.balance - getOriginalAccountValue(account)} / $
+                {getOriginalAccountValue(account) *
+                  ALL_STEP_CHALLENGES.profitTarget}{" "}
+              </p>
               <span className=" text-xs 2xl:text-sm text-primary-200">
                 PROFIT TARGET
               </span>
             </div>
           </div>
           <div className=" hidden md:flex flex-col items-end gap-2">
-            <p className=" text-green-600 font-thin text-sm">1.8%</p>
+            <p className=" text-green-600 font-thin text-sm">
+              {((account.balance - getOriginalAccountValue(account)) /
+                getOriginalAccountValue(account)) *
+                100}{" "}
+              %
+            </p>
             <div className=" w-36 h-4 bg-[#393C53] rounded-sm border-gray-700">
-              <div className=" w-[30%] h-full bg-[#00B544] rounded-sm shadow-inner shadow-gray-700 "></div>
+              <div
+                className="h-full bg-[#00B544] rounded-sm shadow-inner shadow-gray-700"
+                style={{
+                  width: `${
+                    ((account.balance - getOriginalAccountValue(account)) /
+                      getOriginalAccountValue(account)) *
+                    100
+                  }%`,
+                }}
+              ></div>
             </div>
           </div>
         </div>
@@ -69,16 +136,29 @@ const Objectives = () => {
               height={43}
             />
             <div className="  font-bold flex flex-col  gap-1">
-              <p className=" text-base 2xl:text-lg ">-$1234 / -$5,000</p>
+              <p className=" text-base 2xl:text-lg ">
+                -${account.dailyLoss} / -$
+                {getOriginalAccountValue(account) *
+                  ALL_STEP_CHALLENGES.maxDailyLoss}
+              </p>
               <span className=" text-xs 2xl:text-sm uppercase text-primary-200">
                 Maximum daily loss
               </span>
             </div>
           </div>
           <div className=" hidden md:flex flex-col items-end gap-2">
-            <p className=" text-red-600 font-thin text-sm">-1.8%</p>
+            <p className=" text-red-600 font-thin text-sm">
+              {(account.dailyLoss / getOriginalAccountValue(account)) * 100}%
+            </p>
             <div className=" w-36 h-4 bg-[#393C53] rounded-sm border-gray-700">
-              <div className=" w-[30%] h-full bg-[#F74418] rounded-sm shadow-inner shadow-gray-700 "></div>
+              <div
+                className="h-full bg-[#F74418] rounded-sm shadow-inner shadow-gray-700 "
+                style={{
+                  width: `${
+                    (account.dailyLoss / getOriginalAccountValue(account)) * 100
+                  }%`,
+                }}
+              ></div>
             </div>
           </div>
         </div>
@@ -91,16 +171,33 @@ const Objectives = () => {
               height={43}
             />
             <div className="  font-bold flex flex-col  gap-1">
-              <p className=" text-base 2xl:text-lg ">-$1234 / -$5,000</p>
+              <p className=" text-base 2xl:text-lg ">
+                -${getOriginalAccountValue(account) - account.balance} / -$
+                {getOriginalAccountValue(account) * ALL_STEP_CHALLENGES.maxLoss}
+              </p>
               <span className=" text-xs 2xl:text-sm uppercase text-primary-200">
                 Maximum loss
               </span>
             </div>
           </div>
           <div className=" hidden md:flex flex-col items-end gap-2">
-            <p className=" text-red-600 font-thin text-sm">-1.8%</p>
+            <p className=" text-red-600 font-thin text-sm">
+              {((getOriginalAccountValue(account) - account.balance) /
+                getOriginalAccountValue(account)) *
+                100}
+              %
+            </p>
             <div className=" w-36 h-4 bg-[#393C53] rounded-sm border-gray-700">
-              <div className=" w-[30%] h-full bg-[#F74418] rounded-sm shadow-inner shadow-gray-700 "></div>
+              <div
+                className="h-full bg-[#F74418] rounded-sm shadow-inner shadow-gray-700 "
+                style={{
+                  width: `${
+                    ((getOriginalAccountValue(account) - account.balance) /
+                      getOriginalAccountValue(account)) *
+                    100
+                  }%`,
+                }}
+              ></div>
             </div>
           </div>
         </div>
@@ -113,16 +210,24 @@ const Objectives = () => {
               height={43}
             />
             <div className="  font-bold flex flex-col  gap-1">
-              <p className=" text-base 2xl:text-lg ">5/20</p>
+              <p className=" text-base 2xl:text-lg ">{account.picks}/{ALL_STEP_CHALLENGES.minPicks}</p>
               <span className=" text-xs 2xl:text-sm text-primary-200">
                 MINIMUM NUMBER OF PICKS
               </span>
             </div>
           </div>
           <div className=" hidden md:flex flex-col items-end gap-2">
-            <p className=" text-green-600 font-thin text-sm">1.8%</p>
+            <p className=" text-green-600 font-thin text-sm">
+              {(account.picks / ALL_STEP_CHALLENGES.minPicks) * 100}%
+            </p>
             <div className=" w-36 h-4 bg-[#393C53] rounded-sm border-gray-700">
-              <div className=" w-[30%] h-full bg-[#00B544] rounded-sm shadow-inner shadow-gray-700 "></div>
+              <div className="h-full bg-[#00B544] rounded-sm shadow-inner shadow-gray-700 "
+                style={{
+                  width: `${
+                    (account.picks / ALL_STEP_CHALLENGES.minPicks) * 100
+                  }%`,
+                }}
+              ></div>
             </div>
           </div>
         </div>
@@ -135,16 +240,23 @@ const Objectives = () => {
               height={43}
             />
             <div className="  font-bold flex flex-col  gap-1">
-              <p className=" text-base 2xl:text-lg ">1/5 SPORTS</p>
+              <p className=" text-base 2xl:text-lg ">
+                {account.minBetPeriod ? minBetCountdown : `0 Days` } Remaining</p>
               <span className=" text-xs 2xl:text-sm text-primary-200">
-                DIVERSITY OF SPORTS
+                MINIMUM BET PERIOD
               </span>
             </div>
           </div>
           <div className=" hidden md:flex flex-col items-end gap-2">
-            <p className=" text-green-600 font-thin text-sm">1.8%</p>
+            <p className=" text-green-600 font-thin text-sm">
+              {getPercentageTimePassed(new Date(account.createdAt), new Date(account.minBetPeriod))}%
+            </p>
             <div className=" w-36 h-4 bg-[#393C53] rounded-sm border-gray-700">
-              <div className=" w-[30%] h-full bg-[#00B544] rounded-sm shadow-inner shadow-gray-700 "></div>
+              <div className="h-full bg-[#00B544] rounded-sm shadow-inner shadow-gray-700 "
+                style={{
+                  width: `${getPercentageTimePassed(new Date(account.createdAt), new Date(account.minBetPeriod))}%`,
+                }}
+              ></div>
             </div>
           </div>
         </div>
@@ -157,16 +269,24 @@ const Objectives = () => {
               height={43}
             />
             <div className="  font-bold flex flex-col  gap-1">
-              <p className=" text-base 2xl:text-lg ">2D 41mins 31s</p>
+              <p className=" text-base 2xl:text-lg ">
+                {account.accountType !== "FUNDED" ? maxBetCountdown : `0 Days` } Remaining
+              </p>
               <span className=" text-xs 2xl:text-sm text-primary-200">
                 TIME REMAINING
               </span>
             </div>
           </div>
           <div className=" hidden md:flex flex-col items-end gap-2">
-            <p className=" text-green-600 font-thin text-sm">1.8%</p>
+            <p className=" text-green-600 font-thin text-sm">
+              {getPercentageTimePassed(new Date(account.createdAt), new Date(account.maxBetPeriod)).toFixed(2)}%
+            </p>
             <div className=" w-36 h-4 bg-[#393C53] rounded-sm border-gray-700">
-              <div className=" w-[30%] h-full bg-[#00B544] rounded-sm shadow-inner shadow-gray-700 "></div>
+              <div className="h-full bg-[#00B544] rounded-sm shadow-inner shadow-gray-700 "
+                style={{
+                  width: `${getPercentageTimePassed(new Date(account.createdAt), new Date(account.maxBetPeriod))}%`,
+                }}
+              ></div>
             </div>
           </div>
         </div>
