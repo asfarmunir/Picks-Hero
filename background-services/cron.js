@@ -202,7 +202,7 @@ const addCronJob = async (jobName, time, type, accountId, alreadyExists=false) =
 };
 
 // Function to edit an existing cron job
-const editCronJob = (jobName, newTime) => {
+const editCronJob = async (jobName, newTime) => {
   const job = cronJobs[jobName];
   if (!job) {
     throw new Error("Job not found");
@@ -216,16 +216,29 @@ const editCronJob = (jobName, newTime) => {
     timezone: "UTC",
   });
 
+  // edit in database
+  await prisma.cronJobs.update({
+    where: { jobName },
+    data: {
+      jobDate: newTime,
+    },
+  });
+
   cronJobs[jobName] = newJob; // Update the stored job
 };
 
 // Function to delete a cron job
-const deleteCronJob = (jobName) => {
+const deleteCronJob = async (jobName) => {
   const job = cronJobs[jobName];
   if (job) {
     job.stop(); // Stop the job
     job.destroy(); // Destroy the job instance
     delete cronJobs[jobName]; // Remove from the stored jobs
+    // delete from db
+    await prisma.cronJobs.delete({
+      where: { jobName },
+    }); 
+    
   } else {
     throw new Error("Job not found");
   }

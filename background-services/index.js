@@ -57,11 +57,11 @@ app.post("/add-cron-job", async (req, res) => {
 });
 
 // Route to edit an existing cron job
-app.put("/edit-cron-job", (req, res) => {
+app.put("/edit-cron-job", async (req, res) => {
   const { jobName, newTime } = req.body;
 
   try {
-    editCronJob(jobName, newTime);
+    await editCronJob(jobName, newTime);
     return res.status(200).json({ message: "Cron job updated successfully" });
   } catch (error) {
     return res.status(404).json({ error: error.message });
@@ -69,11 +69,11 @@ app.put("/edit-cron-job", (req, res) => {
 });
 
 // Route to delete a cron job
-app.delete("/delete-cron-job", (req, res) => {
+app.delete("/delete-cron-job", async (req, res) => {
   const { jobName } = req.body;
 
   try {
-    deleteCronJob(jobName);
+    await deleteCronJob(jobName);
     return res.status(200).json({ message: "Cron job deleted successfully" });
   } catch (error) {
     return res.status(404).json({ error: error.message });
