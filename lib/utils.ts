@@ -64,12 +64,14 @@ export const areStepObjectivesComplete = (account: any) => {
   }
 
   // Check total loss
-  if (account.totalLoss >= accountValue * ALL_STEP_CHALLENGES.maxLoss) {
+  const totalLoss = accountValue - account.balance;
+  if (totalLoss >= accountValue * ALL_STEP_CHALLENGES.maxLoss) {
     return false;
   }
 
   // Check profit target
-  if (account.profit <= accountValue * ALL_STEP_CHALLENGES.profitTarget) {
+  const profit = account.balance - accountValue
+  if (profit <= accountValue * ALL_STEP_CHALLENGES.profitTarget) {
     return false;
   }
 
@@ -158,6 +160,7 @@ export const checkObjectivesAndUpgrade = async (prisma: any, account: any) => {
           dailyLoss: 0,
           // 7 days from now
           minBetPeriod: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          minBetCompleted: false,
           // 30 days from now
           maxBetPeriod: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         },
@@ -167,5 +170,7 @@ export const checkObjectivesAndUpgrade = async (prisma: any, account: any) => {
     } catch (e) {
       throw new Error(`Error updating account: ${e}`);
     }
+  } else {
+    return null;
   }
 };

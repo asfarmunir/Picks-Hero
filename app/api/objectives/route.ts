@@ -39,6 +39,9 @@ export async function GET(req: NextRequest) {
 
     try {
         const newAccount = await checkObjectivesAndUpgrade(prisma, account);
+        if(!newAccount) {
+            return NextResponse.json({ error: "Not eligible for phase upgrade." }, { status: 200 });
+        }
         return NextResponse.json(newAccount);
     } catch (e) {
         return NextResponse.json({ error: e }, { status: 500 });
