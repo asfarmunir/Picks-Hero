@@ -1,4 +1,5 @@
-import React from "react";
+"use client"
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -26,6 +27,7 @@ import {
 import Image from "next/image";
 import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
 import { useGetBets } from "@/app/hooks/useGetBets";
+import { useUpgradeAccount } from "@/app/hooks/useUpgradeAccount";
 
 const formatDate = (date: string) => {
   const dateObj = new Date(date);
@@ -39,7 +41,55 @@ const formatDate = (date: string) => {
 };
 
 const BetModal = () => {
-  const { data: bets, isPending, isError } = useGetBets("PH3537349-22");
+
+  const { data: bets, isPending, refetch } = useGetBets("PH4504514-22");
+  const { data, refetch: checkAndUpgradeObjectives } = useUpgradeAccount();
+  
+  const results = [{}]
+
+  const [updates, setUpdates] = useState([{}]);
+
+  useEffect(() => {
+    const socket = new WebSocket("ws://localhost:443");
+    
+    // When connection is established
+    socket.onopen = () => {
+      console.log("WebSocket connection established");
+      socket.send("Hello from the client!");
+    };
+
+    // When a message is received
+    socket.onmessage = (event) => {
+      console.log("Received message:", event.data);
+    };
+
+    // When connection is closed
+    socket.onclose = () => {
+      console.log("WebSocket connection closed");
+    };
+
+    // When there's an error
+    socket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    socket.onmessage = (event) => {
+        const newUpdates = event.data;
+        console.log("NEW UPDATES FROM WS::: ", newUpdates)
+        if(Array.isArray(newUpdates)){
+          setUpdates(newUpdates);
+          checkAndUpgradeObjectives();
+        }
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, []);
+
+  useEffect(() => {
+    refetch();
+  }, [updates]);
 
   return (
     <Dialog>
@@ -56,6 +106,7 @@ const BetModal = () => {
         />
         BET HISTORY{" "}
       </DialogTrigger>
+      <DialogTitle className="invisible">Bets</DialogTitle>
       <DialogContent className=" bg-primary-100 gap-1 p-5 text-white border-none  md:max-w-[1300px] 2xl:min-w-[1400px] flex flex-col !max-h-[80vh] overflow-y-auto">
         <h2 className=" text-3xl font-bold mt-2 mb-5">BET HISTORY</h2>
 
@@ -173,7 +224,7 @@ const BetModal = () => {
                     {bet.event}
                   </TableCell>
                   <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                    {bet.league.split("_")[1].toUpperCase()}
+                    {bet?.league?.split("_")[1].toUpperCase()}
                   </TableCell>
                   <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
                     {bet.team}

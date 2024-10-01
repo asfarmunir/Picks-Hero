@@ -1,3 +1,4 @@
+"use client"
 import React, { useEffect } from "react";
 import {
   Table,
@@ -30,6 +31,7 @@ import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
 import Image from "next/image";
 import { useGetBets } from "@/app/hooks/useGetBets";
 import { useGetResults } from "@/app/hooks/useGetResults";
+import { useUpgradeAccount } from "@/app/hooks/useUpgradeAccount";
 
 const formatDate = (date: string) => {
   const dateObj = new Date(date);
@@ -43,17 +45,60 @@ const formatDate = (date: string) => {
 };
 
 const BetHistory = () => {
-  const { data: bets, isPending, refetch } = useGetBets("PH3537349-22");
+  const { data: bets, isPending, refetch } = useGetBets("PH4504514-22");
+  const { data, refetch: checkAndUpgradeObjectives } = useUpgradeAccount();
 
-  const {
-    data: results,
-    isPending: isPendingResults,
-    isError: isErrorResults,
-  } = useGetResults("PH3537349-22");
+  // const {
+  //   data: results,
+  //   isPending: isPendingResults,
+  //   isError: isErrorResults,
+  // } = useGetResults("PH4504514-22");
+  
+  const results = [{}]
+
+  const [updates, setUpdates] = useState([{}]);
+
+  useEffect(() => {
+    const socket = new WebSocket("ws://localhost:443");
+    
+    // When connection is established
+    socket.onopen = () => {
+      console.log("WebSocket connection established");
+      socket.send("Hello from the client!");
+    };
+
+    // When a message is received
+    socket.onmessage = (event) => {
+      console.log("Received message:", event.data);
+    };
+
+    // When connection is closed
+    socket.onclose = () => {
+      console.log("WebSocket connection closed");
+    };
+
+    // When there's an error
+    socket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    socket.onmessage = (event) => {
+        const newUpdates = event.data;
+        console.log("NEW UPDATES FROM WS::: ", newUpdates)
+        if(Array.isArray(newUpdates)){
+          setUpdates(newUpdates);
+          checkAndUpgradeObjectives();
+        }
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, []);
 
   useEffect(() => {
     refetch();
-  }, [results]);
+  }, [updates]);
 
   return (
     <div className=" w-full border bg-primary-100 border-gray-700 rounded-xl  flex flex-col">
@@ -170,7 +215,7 @@ const BetHistory = () => {
                 {bet.event}
               </TableCell>
               <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                {bet.league.split("_")[1].toUpperCase()}
+                {bet?.league?.split("_")[1].toUpperCase()}
               </TableCell>
               <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
                 {bet.team}

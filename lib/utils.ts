@@ -105,15 +105,65 @@ export const checkObjectivesAndUpgrade = async (prisma: any, account: any) => {
     }
 
     try {
-      await prisma.account.update({
+      // reset cron job for 30 days.
+      const response = await fetch(
+        `${process.env.BG_SERVICES_URL}/edit-cron-job`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            jobName: `${account.id}_MAX_BET_PERIOD`,
+            newTime: dateToFullCronString(
+              new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+            ),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
+      // new cron job for 7 days.
+      const response2 = await fetch(
+        `${account.id}_MIN_BET_PERIOD`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            jobName: `${account.id}_MIN_BET_PERIOD`,
+            newTime: dateToFullCronString(
+              new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+            ),
+          }),
+        });
+      
+      if(!response2.ok) {
+        throw new Error(await response2.text());
+      }
+
+      const updatedAccount = await prisma.account.update({
         where: {
           id: account.id,
         },
         data: {
           phase: newPhase,
           status: goFunded ? "FUNDED" : "CHALLENGE",
+          balance: getOriginalAccountValue(account),
+          picks: 0,
+          dailyLoss: 0,
+          // 7 days from now
+          minBetPeriod: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          // 30 days from now
+          maxBetPeriod: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         },
       });
+
+      return updatedAccount;
     } catch (e) {
       throw new Error(`Error updating account: ${e}`);
     }
