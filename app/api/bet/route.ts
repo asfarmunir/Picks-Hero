@@ -1,6 +1,10 @@
 import { connectToDatabase } from "@/helper/dbconnect";
 import { ALL_STEP_CHALLENGES } from "@/lib/constants";
-import { areStepObjectivesComplete, checkObjectivesAndUpgrade, getOriginalAccountValue } from "@/lib/utils";
+import {
+  areStepObjectivesComplete,
+  checkObjectivesAndUpgrade,
+  getOriginalAccountValue,
+} from "@/lib/utils";
 import prisma from "@/prisma/client";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
@@ -49,6 +53,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Account not found" }, { status: 404 });
   }
 
+  // reject if dailyLoss > 15% of account value
+  const accountValue = getOriginalAccountValue(account);
+  if (
+    account.dailyLoss &&
+    account.dailyLoss >= accountValue * ALL_STEP_CHALLENGES.maxDailyLoss
+  ) {
+    return NextResponse.json(
+      { error: "Daily loss limit reached" },
+      { status: 400 }
+    );
+  }
+
   // reject if amount is NaN
   if (isNaN(bet.pick)) {
     return NextResponse.json(
@@ -56,9 +72,18 @@ export async function POST(req: NextRequest) {
       { status: 400 }
     );
   }
-  
+
+  // reject if toWin is less than 0 or 0
+  if (bet.winnings <= 0) {
+    return NextResponse.json(
+      { error: "To win amount must be greater than 0" },
+      { status: 400 }
+    );
+  }
+
   // reject if amount is less than minimum allowed
-  const minPickAmount = getOriginalAccountValue(account) * ALL_STEP_CHALLENGES.minPickAmount;
+  const minPickAmount =
+    getOriginalAccountValue(account) * ALL_STEP_CHALLENGES.minPickAmount;
   if (bet.pick < minPickAmount) {
     return NextResponse.json(
       { error: `Bet amount must be greater than $${minPickAmount}` },
@@ -67,7 +92,8 @@ export async function POST(req: NextRequest) {
   }
 
   // reject if amount is greater than maximum allowed
-  const maxPickAmount = getOriginalAccountValue(account) * ALL_STEP_CHALLENGES.maxPickAmount;
+  const maxPickAmount =
+    getOriginalAccountValue(account) * ALL_STEP_CHALLENGES.maxPickAmount;
   if (bet.pick > maxPickAmount) {
     return NextResponse.json(
       { error: `Bet amount must be less than $${maxPickAmount}` },
@@ -96,6 +122,24 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // odds validation
+  if (account.status === "FUNDED") {
+    if (bet.oddsFormat === "AMERICAN" && parseInt(bet.odds) < -800) {
+      return NextResponse.json(
+        { error: "Odds must be greater than -800" },
+        { status: 400 }
+      );
+    } else if (bet.oddsFormat === "DECIMAL") {
+      const americanOdd = (bet.odds - 1) * 100;
+      if (americanOdd < -800) {
+        return NextResponse.json(
+          { error: "Odds must be greater than -800" },
+          { status: 400 }
+        );
+      }
+    }
+  }
+
   // Using transaction to place bet and update account balance
   try {
     const [newBet, updatedAccount] = await prisma.$transaction([
@@ -120,10 +164,30 @@ export async function POST(req: NextRequest) {
           },
           picks: {
             increment: 1,
-          }
+          },
         },
       }),
     ]);
+
+    // if account is funded, reset inactivity timer
+    if (account.status === "FUNDED") {
+      const response = await fetch(
+        `${process.env.BG_SERVICES_URL}/edit-cron-job`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            jobName: `${account.id}_INACTIVITY`,
+            time: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+    }
 
     // After transaction, check objectives
     await checkObjectivesAndUpgrade(prisma, updatedAccount);
@@ -134,7 +198,7 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Transaction error:', error);
+    console.error("Transaction error:", error);
     return NextResponse.json({ error: "Failed to place bet" }, { status: 500 });
   }
 }

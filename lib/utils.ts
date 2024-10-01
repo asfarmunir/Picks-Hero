@@ -70,7 +70,7 @@ export const areStepObjectivesComplete = (account: any) => {
   }
 
   // Check profit target
-  const profit = account.balance - accountValue
+  const profit = account.balance - accountValue;
   if (profit <= accountValue * ALL_STEP_CHALLENGES.profitTarget) {
     return false;
   }
@@ -107,32 +107,31 @@ export const checkObjectivesAndUpgrade = async (prisma: any, account: any) => {
     }
 
     try {
-      // reset cron job for 30 days.
-      const response = await fetch(
-        `${process.env.BG_SERVICES_URL}/edit-cron-job`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            jobName: `${account.id}_MAX_BET_PERIOD`,
-            newTime: dateToFullCronString(
-              new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-            ),
-          }),
+      if (!goFunded) {
+        // reset cron job for 30 days.
+        const response = await fetch(
+          `${process.env.BG_SERVICES_URL}/edit-cron-job`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              jobName: `${account.id}_MAX_BET_PERIOD`,
+              newTime: dateToFullCronString(
+                new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+              ),
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(await response.text());
         }
-      );
 
-      if (!response.ok) {
-        throw new Error(await response.text());
-      }
-
-      // new cron job for 7 days.
-      const response2 = await fetch(
-        `${account.id}_MIN_BET_PERIOD`,
-        {
-          method: "POST",
+        // new cron job for 7 days.
+        const response2 = await fetch(`${account.id}_MIN_BET_PERIOD`, {
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
@@ -143,9 +142,49 @@ export const checkObjectivesAndUpgrade = async (prisma: any, account: any) => {
             ),
           }),
         });
-      
-      if(!response2.ok) {
-        throw new Error(await response2.text());
+
+        if (!response2.ok) {
+          throw new Error(await response2.text());
+        }
+      } else {
+        // delete 30 days cron job
+        const response = await fetch(
+          `${process.env.BG_SERVICES_URL}/delete-cron-job`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              jobName: `${account.id}_MAX_BET_PERIOD`,
+            }),
+          }
+        );
+        if(!response.ok) {
+          throw new Error(await response.text());
+        }
+
+        // add 7 days cron job for inactivity
+        const response2 = await fetch(
+          `${process.env.BG_SERVICES_URL}/add-cron-job`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              jobName: `${account.id}_INACTIVITY`,
+              time: dateToFullCronString(
+                new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+              ),
+              account: account.id,
+              type: "inactivity"
+            }),
+          }
+        );
+        if(!response2.ok) {
+          throw new Error(await response2.text());
+        }
       }
 
       const updatedAccount = await prisma.account.update({

@@ -87,9 +87,9 @@ const checkAllObjectives = async (accountId) => {
     }
 
     // OBJECTIVE: MAX DAILY LOSS
-    if (account.dailyLoss > tailoredObjectives.maxDailyLoss) {
-      flag = true;
-    }
+    // if (account.dailyLoss > tailoredObjectives.maxDailyLoss) {
+    //   flag = true;
+    // }
 
     // OBJECTIVE: PROFIT TARGET
     const totalProfit = calculateTotalProfit(account);
