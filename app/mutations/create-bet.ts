@@ -1,15 +1,15 @@
 type Bet = {
-  eventId: string;
-  sportKey: string;
-  sport: string;
-  event: string; // Home vs away teams
-  league: string;
-  team: string;
+  eventId: string[];
+  sportKey: string[];
+  sport: string[];
+  event: string[]; // Home vs away teams
+  league: string[];
+  team: string[];
   odds: number;
   pick: number;
   winnings: number;
   oddsFormat: string; // Assuming OddsFormat is an enum, you may need to adjust this
-  gameDate: Date;
+  gameDate: Date[];
 };
 
 interface CreateBet {

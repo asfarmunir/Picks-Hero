@@ -200,13 +200,13 @@ model Bets {
   userId    String @db.ObjectId
   accountId String @db.ObjectId
 
-  sportKey String
-  sport    String
-  eventId  String
-  event    String // home vs away teams
-  league   String
+  sportKey String[]
+  sport    String[]
+  eventId  String[]
+  event    String[] // home vs away teams
+  league   String[]
 
-  team     String
+  team     String[]
   odds     Float
   pick     Float
   winnings Float
@@ -215,7 +215,7 @@ model Bets {
   betStatus  BetStatus
   betResult  BetResult?
   betDate    DateTime
-  gameDate   DateTime
+  gameDate   DateTime[]
 
   user    User    @relation(fields: [userId], references: [id])
   account Account @relation(fields: [accountId], references: [id])

@@ -2,6 +2,18 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { ALL_STEP_CHALLENGES } from "./constants";
 
+interface Bet {
+  id: number;
+  team: string;
+  odds: number;
+  pick: number;
+  toWin: number;
+  home_team: string;
+  away_team: string;
+  oddsFormat: "decimal" | "american";
+  gameDate: string;
+}
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -16,6 +28,17 @@ export function dateToFullCronString(date: Date) {
   // If you need a specific year, you'll handle that logic separately
   return `${minutes} ${hours} ${dayOfMonth} ${month} ${dayOfWeek}`;
 }
+
+export const americanToDecimalOdds = (odds: number) => {
+  return odds > 0 ? odds / 100 + 1 : 100 / Math.abs(odds) + 1;
+};
+export const calculateToWin = (bet: Bet, newPick: number) => {
+  let decimalOdds = bet.odds;
+  if (bet.oddsFormat === "american") {
+    decimalOdds = americanToDecimalOdds(bet.odds);
+  }
+  return newPick * (decimalOdds - 1);
+};
 
 export function getOriginalAccountValue(account: any) {
   return parseInt(account.accountSize.replace("K", "000"));

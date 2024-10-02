@@ -9,7 +9,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
@@ -21,6 +21,7 @@ import { MdOutlineArrowUpward } from "react-icons/md";
 import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
 import BetSlip from "./bet-slip";
 import GamesTable from "./games";
+import { americanToDecimalOdds, calculateToWin } from "@/lib/utils";
 
 type oddsType = "american" | "decimal";
 
@@ -34,6 +35,9 @@ interface Bet {
   away_team: string;
   oddsFormat: "decimal" | "american";
   gameDate: string;
+  sport: string;
+  event: string;
+  league: string;
 }
 
 const page = () => {
@@ -44,6 +48,7 @@ const page = () => {
 
   // BET SLIP DATA
   const [selectedBets, setSelectedBets] = React.useState<Bet[]>([]);
+  const [toCollect, setToCollect] = React.useState<string>("0.00");
   const addBet = (bet: Bet) => {
     setSelectedBets([...selectedBets, bet]);
   };
@@ -51,40 +56,42 @@ const page = () => {
     setSelectedBets(selectedBets.filter((bet) => bet.id !== id));
   };
   const calculateOverallOdds = () => {
-    let odds = 1;
+    let overallOdds = 1;
+
+    // Multiply odds for each bet
     selectedBets.forEach((bet) => {
-      odds *=
+      const decimalOdds =
         bet.oddsFormat === "american"
           ? americanToDecimalOdds(bet.odds)
           : bet.odds;
-    });
-    // if single pick
-    if (selectedBets.length === 1) return odds.toFixed(2);
-
-    // if parlay
-    let betAmount = 1;
-    selectedBets.forEach((bet) => {
-      betAmount *= bet.pick;
+      overallOdds *= decimalOdds;
     });
 
-    return (betAmount * odds - betAmount).toFixed(2);
+    return overallOdds.toFixed(2);
   };
+
   const calculateToCollect = () => {
-    let sum = 0;
+    let overallOdds = 1;
+
+    // Multiply odds for each bet
     selectedBets.forEach((bet) => {
-      sum += bet.toWin;
+      const decimalOdds =
+        bet.oddsFormat === "american"
+          ? americanToDecimalOdds(bet.odds)
+          : bet.odds;
+      overallOdds *= decimalOdds;
     });
-    return sum.toFixed(2);
-  };
-  const americanToDecimalOdds = (odds: number) => {
-    return odds > 0 ? odds / 100 + 1 : 100 / Math.abs(odds) + 1;
-  };
-  const calculateToWin = (bet: Bet, newPick: number) => {
-    let decimalOdds = bet.odds;
-    if (bet.oddsFormat === "american") {
-      decimalOdds = americanToDecimalOdds(bet.odds);
-    }
-    return newPick * (decimalOdds - 1);
+
+    // For parlays
+    let totalBetAmount = 0;
+    selectedBets.forEach((bet) => {
+      totalBetAmount += bet.pick; // Sum the total bet amount (wagered amount)
+    });
+
+    // Calculate parlay payout: betAmount * (overallOdds - 1)
+    const potentialPayout = totalBetAmount * (overallOdds - 1);
+
+    return potentialPayout.toFixed(2); // Return net profit from parlay
   };
   const onPickInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -103,6 +110,10 @@ const page = () => {
     });
     setSelectedBets(updatedBets);
   };
+
+  useEffect(()=>{
+  setToCollect(calculateToCollect());
+  }, [selectedBets])
 
   // TABS MECHANISM
   const [tab, setTab] = React.useState("football");
@@ -154,8 +165,13 @@ const page = () => {
 
   // PLACE BETS
   const { mutate: placeBet, isPending: placingBet } = useCreateBet({
-    onSuccess: (data) => {},
-    onError: (error) => {},
+    onSuccess: (data) => {
+      setSelectedBets([]);
+      toast.success("Bet placed successfully");
+    },
+    onError: (error) => {
+      toast.error(error.error.message);
+    },
   });
 
   const placeBets = async () => {
@@ -164,49 +180,61 @@ const page = () => {
       return;
     }
 
-    const alteredBets = selectedBets.map((bet) => {
-      return {
-        eventId: bet.id.toString(),
-        sportKey: leagueTab,
-        sport: tab,
-        event: `${bet.home_team} vs ${bet.away_team}`,
-        league: leagueTab,
-        team: bet.team,
+    let alteredBet;
+    if (selectedBets.length === 1) {
+      const bet = selectedBets[0];
+      alteredBet = {
+        eventId: [bet.id.toString()],
+        sportKey: [bet.league],
+        sport: [bet.sport],
+        event: [bet.event],
+        league: [bet.league],
+        team: [bet.team],
         odds: bet.odds,
         pick: bet.pick,
         winnings: bet.toWin,
         oddsFormat: bet.oddsFormat.toUpperCase(),
-        gameDate: new Date(bet.gameDate),
+        gameDate: [new Date(bet.gameDate)],
       };
-    });
-
-    try {
-      const results = await Promise.all(
-        alteredBets.map(
-          (bet) =>
-            new Promise((resolve, reject) => {
-              // Place each bet using the `placeBet` mutation
-              placeBet(
-                { bet, accountNumber: "PH4504514-22" },
-                {
-                  onSuccess: (data) => {
-                    toast.success(`Bet placed for ${bet.team}`);
-                    resolve({ bet, success: true, data });
-                  },
-                  onError: (error) => {
-                    toast.error(`${error}`);
-                    reject({ bet, success: false, error });
-                  },
-                }
-              );
-            })
-        )
-      );
-      toast.success("All bets placed successfully");
-    } catch (error: any) {
-      toast.error(error.error.message);
+    } else if (selectedBets.length > 1) {
+      // create a parlay
+      let totalPick = 0;
+      const eventIds: string[] = [];
+      const sports: string[] = [];
+      const events: string[] = [];
+      const leagues: string[] = [];
+      const teams: string[] = [];
+      const gameDates: Date[] = [];
+      selectedBets.forEach((bet) => {
+        eventIds.push(bet.id.toString());
+        sports.push(bet.sport);
+        events.push(bet.event);
+        leagues.push(bet.league);
+        teams.push(bet.team);
+        gameDates.push(new Date(bet.gameDate));
+        totalPick += bet.pick;
+      });
+      alteredBet = {
+        eventId: eventIds,
+        sportKey: leagues,
+        sport: sports,
+        event: events,
+        league: leagues,
+        team: teams,
+        odds: Number(calculateOverallOdds()),
+        pick: totalPick,
+        winnings: Number(calculateToCollect()),
+        oddsFormat: "DECIMAL",
+        gameDate: gameDates,
+      };
     }
-    setSelectedBets([]);
+
+    if (!alteredBet) return;
+
+    placeBet({
+      bet: alteredBet,
+      accountNumber: "PH4504514-22",
+    });
   };
 
   return (
@@ -339,6 +367,7 @@ const page = () => {
             </div>
             {account && (
               <GamesTable
+                tab={tab}
                 sportKey={leagueTab}
                 oddsFormat={oddsFormat}
                 addBet={addBet}
@@ -394,16 +423,17 @@ const page = () => {
               </div>
             )}
 
-            {account && selectedBets.map((bet, index) => (
-              <>
-                <BetSlip
-                  key={index}
-                  bet={bet}
-                  removeBet={removeBet}
-                  onPickInputChange={onPickInputChange}
-                />
-              </>
-            ))}
+            {account &&
+              selectedBets.map((bet, index) => (
+                <>
+                  <BetSlip
+                    key={index}
+                    bet={bet}
+                    removeBet={removeBet}
+                    onPickInputChange={onPickInputChange}
+                  />
+                </>
+              ))}
             <div className=" w-full  mt-3 border-t border-gray-700 py-3 flex items-center justify-between">
               <p className="text-sm  text-primary-200 font-thin     ">
                 OVERALL ODDS
@@ -414,7 +444,7 @@ const page = () => {
               <p className="text-sm  text-primary-200 font-thin     ">
                 TO COLLECT
               </p>
-              <p className="font-bold">{calculateToCollect()} USD</p>
+              <p className="font-bold">{toCollect} USD</p>
             </div>
 
             <div className=" w-full  border-t border-gray-700 py-3 flex items-center justify-between">

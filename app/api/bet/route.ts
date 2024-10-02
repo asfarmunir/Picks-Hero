@@ -111,7 +111,9 @@ export async function POST(req: NextRequest) {
     where: {
       userId: existingUser.id,
       accountId: account.id,
-      eventId: bet.eventId,
+      eventId: {
+        hasSome: bet.eventId,
+      },
     },
   });
 

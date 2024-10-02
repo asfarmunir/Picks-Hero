@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ALL_STEP_CHALLENGES } from "@/lib/constants";
-import { getOriginalAccountValue } from "@/lib/utils";
+import { americanToDecimalOdds, calculateToWin, getOriginalAccountValue } from "@/lib/utils";
 import { LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -21,6 +21,7 @@ interface GetGamesParams {
   bets: Bet[];
   setFeaturedMatch: (match: any) => void;
   account: any;
+  tab: string;
 }
 
 interface Bet {
@@ -33,9 +34,12 @@ interface Bet {
   home_team: string;
   away_team: string;
   gameDate: string;
+  sport: string;
+  event: string;
+  league: string;
 }
 
-const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch, account }: GetGamesParams) => {
+const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch, account, tab }: GetGamesParams) => {
   // GAMES DATA
   const {
     data: games,
@@ -59,7 +63,7 @@ const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch, acco
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [selectedGame, setSelectedGame] = useState<any | null>(null);
   const [home, setHome] = useState(true);
-  const [pick, setPick] = useState(1);
+  // const [pick, setPick] = useState(1);
 
   const openPickModal = ({ game, home }: { game: any; home: boolean }) => {
     // if bet id is already there, skip
@@ -87,16 +91,20 @@ const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch, acco
     ? game.bookmakers[0]?.markets[0]?.outcomes[0].price
     : game.bookmakers[0]?.markets[0]?.outcomes[1].price
     
+    const initialPick = getOriginalAccountValue(account) * ALL_STEP_CHALLENGES.minPickAmount;
     const bet: Bet = {
       id: game.id,
       team: home ? game.home_team : game.away_team,
       odds: Number(odds),
-      pick: getOriginalAccountValue(account) * ALL_STEP_CHALLENGES.minPickAmount,
-      toWin: (Number(0) * Number(odds)) - Number(pick),
+      pick: initialPick,
+      toWin: oddsFormat === "decimal" ? initialPick * (Number(odds) - 1) : initialPick * (americanToDecimalOdds(Number(odds)) - 1),
       oddsFormat: oddsFormat,
       home_team: game.home_team,
       away_team: game.away_team,
       gameDate: game.commence_time,
+      sport: tab,
+      league: sportKey,
+      event: `${game.home_team} vs ${game.away_team}`,
     };
 
     
