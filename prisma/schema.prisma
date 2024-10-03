@@ -84,6 +84,7 @@ model Account {
   phase        Int @default(0) // Store account phase
   picks        Int @default(0) // Store account picks
 
+  totalLoss    Float? @default(0) // Store total loss
   dailyLoss    Float? // Store daily loss limit
   minBetPeriod DateTime // Store minimum bet period
   maxBetPeriod DateTime // Store maximum bet period

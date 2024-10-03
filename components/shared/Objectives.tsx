@@ -172,7 +172,7 @@ const Objectives = () => {
             />
             <div className="  font-bold flex flex-col  gap-1">
               <p className=" text-base 2xl:text-lg ">
-                -${getOriginalAccountValue(account) - account.balance} / -$
+                -${account.totalLoss} / -$
                 {getOriginalAccountValue(account) * ALL_STEP_CHALLENGES.maxLoss}
               </p>
               <span className=" text-xs 2xl:text-sm uppercase text-primary-200">
@@ -182,7 +182,7 @@ const Objectives = () => {
           </div>
           <div className=" hidden md:flex flex-col items-end gap-2">
             <p className=" text-red-600 font-thin text-sm">
-              {((getOriginalAccountValue(account) - account.balance) /
+              {(account.totalLoss /
                 getOriginalAccountValue(account)) *
                 100}
               %
@@ -192,7 +192,7 @@ const Objectives = () => {
                 className="h-full bg-[#F74418] rounded-sm shadow-inner shadow-gray-700 "
                 style={{
                   width: `${
-                    ((getOriginalAccountValue(account) - account.balance) /
+                    ((account.totalLoss) /
                       getOriginalAccountValue(account)) *
                     100
                   }%`,

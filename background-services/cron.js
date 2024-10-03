@@ -81,7 +81,7 @@ const checkAllObjectives = async (accountId) => {
     }
 
     // OBJECTIVE: MAX LOSS
-    const totalLoss = calculateTotalLoss(account);
+    const totalLoss = account.totalLoss;
     if (totalLoss > tailoredObjectives.maxLoss) {
       flag = true;
     }

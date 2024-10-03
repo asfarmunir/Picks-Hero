@@ -27,12 +27,17 @@ async function checkForUpdates(wss) {
       return;
     }
 
-    // Group bets by sportKey
+    // Create a map of sportKeys to associated bets
     const groupedBets = bets.reduce((acc, bet) => {
-      if (!acc[bet.sportKey]) {
-        acc[bet.sportKey] = [];
-      }
-      acc[bet.sportKey].push(bet);
+      bet.sportKey.forEach((key, index) => {
+        if (!acc[key]) {
+          acc[key] = [];
+        }
+        acc[key].push({
+          bet,
+          matchIndex: index, // To keep track of which match in the bet
+        });
+      });
       return acc;
     }, {});
 
@@ -44,11 +49,11 @@ async function checkForUpdates(wss) {
             `https://api.the-odds-api.com/v4/sports/${sportKey}/scores/?apiKey=${
               process.env.NEXT_PUBLIC_PICKS_API_KEY
             }&daysFrom=3&eventIds=${groupedBets[sportKey]
-              .map((bet) => bet.eventId)
+              .map(({ bet, matchIndex }) => bet.eventId[matchIndex])
               .join(",")}`
           );
           if (!response.ok) {
-            console.log(response)
+            console.log(response);
             throw new Error(
               `API request failed with status ${response.status}`
             );
@@ -61,50 +66,72 @@ async function checkForUpdates(wss) {
       })
     );
 
-    // Filter completed games
+    // Flatten and filter completed games
     const completedGames = results.flat().filter((game) => game.completed);
 
     if (completedGames.length > 0) {
       // Broadcast the completed game results to all connected WebSocket clients
       broadcast(completedGames, wss);
 
-      // Update the database with the completed results
+      // Iterate over each bet and update accordingly
       bets.forEach(async (bet) => {
         try {
-          const game = completedGames.find((game) => game.id === bet.eventId);
-          if (game) {
-            let isHomeTeam = bet.team === game.home_team;
-            let betResult =
-              (isHomeTeam &&
-                Number(game.scores[0].score) > Number(game.scores[1].score)) ||
-              (!isHomeTeam &&
-                Number(game.scores[0].score) < Number(game.scores[1].score))
-                ? "WIN"
-                : "LOSE";
+          let allMatchesWon = true; // To track if all matches in the bet are won
 
-            await prisma.bets.update({
-              where: { id: bet.id },
-              data: { betResult, betStatus: "CLOSED" },
-            });
+          for (let i = 0; i < bet.eventId.length; i++) {
+            const game = completedGames.find(
+              (game) => game.id === bet.eventId[i]
+            );
+            if (game) {
+              let isHomeTeam = bet.team[i] === game.home_team;
+              let matchWon =
+                (isHomeTeam &&
+                  Number(game.scores[0].score) > Number(game.scores[1].score)) ||
+                (!isHomeTeam &&
+                  Number(game.scores[0].score) < Number(game.scores[1].score));
 
-            if (betResult === "WIN") {
-              await prisma.account.update({
-                where: { id: bet.accountId },
-                data: {
-                  balance: { increment: bet.pick + bet.winnings },
-                },
-              });
-              await prisma.user.update({
-                where: {
-                    id: bet.userId
-                },
-                data: {
-                    picksWon:{
-                        increment: 1
-                    }
-                }
-              })
+              if (!matchWon) {
+                allMatchesWon = false; // If any match is lost, mark the entire bet as lost
+                break;
+              }
             }
+          }
+
+          let betResult = allMatchesWon ? "WIN" : "LOSE";
+
+          // Update the bet in the database
+          await prisma.bets.update({
+            where: { id: bet.id },
+            data: { betResult, betStatus: "CLOSED" },
+          });
+
+          // If the bet is won, update the account balance and increment picks won
+          if (betResult === "WIN") {
+            await prisma.account.update({
+              where: { id: bet.accountId },
+              data: {
+                balance: { increment: bet.pick + bet.winnings },
+              },
+            });
+            await prisma.user.update({
+              where: {
+                id: bet.userId,
+              },
+              data: {
+                picksWon: {
+                  increment: 1,
+                },
+              },
+            });
+          } else {
+            await prisma.account.update({
+              where: {
+                id: bet.accountId,
+              },
+              data: {
+                totalLoss: { increment: bet.pick },
+              },
+            });
           }
         } catch (error) {
           console.error(`Error processing bet ${bet.id}:`, error);
@@ -117,6 +144,7 @@ async function checkForUpdates(wss) {
     console.error("An unexpected error occurred in checkForUpdates:", error);
   }
 }
+
 
 // Initialize WebSocket server with noServer: true
 const init = (server) => {

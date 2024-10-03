@@ -87,7 +87,7 @@ export const areStepObjectivesComplete = (account: any) => {
   }
 
   // Check total loss
-  const totalLoss = accountValue - account.balance;
+  const totalLoss = account.totalLoss;
   if (totalLoss >= accountValue * ALL_STEP_CHALLENGES.maxLoss) {
     return false;
   }

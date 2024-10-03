@@ -211,8 +211,8 @@ const BetModal = () => {
                   </TableCell>
                 </TableRow>
               )}
-              {bets?.map((bet: any) => (
-                <TableRow className=" border-none">
+              {bets?.map((bet: any, index: number) => (
+                <TableRow className=" border-none" key={index}>
                   <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
                     {bet.id}
                   </TableCell>
@@ -261,7 +261,7 @@ const BetModal = () => {
                       <DialogTrigger className=" w-fit text-xs 2xl:text-sm text-nowrap rounded-xl inner-shadow px-4 py-3 inline-flex items-center gap-3">
                         <span className=" font-bold uppercase">Bet slip</span>{" "}
                       </DialogTrigger>
-                      <BetSlipDialogBody bet={bet} />
+                      <BetSlipDialogBody bet={bet} key={bet.id} />
                     </Dialog>
                   </TableCell>
                 </TableRow>
