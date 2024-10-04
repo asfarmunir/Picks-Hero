@@ -24,6 +24,8 @@ import BetHistory from "@/components/shared/BetHistory";
 import Objectives from "@/components/shared/Objectives";
 import UserAccount from "@/components/shared/UserAccount";
 import AccountGraph from "@/components/shared/AccountGraph";
+import { useGetAccountStats } from "@/app/hooks/useGetAccountStats";
+import { LoaderCircle } from "lucide-react";
 const page = () => {
   const [tab, setTab] = React.useState("stats");
 
@@ -193,17 +195,30 @@ const page = () => {
 export default page;
 
 const Stats = () => {
+  
+  const { data: accountStats, isPending } = useGetAccountStats({ accountId: "66f870324f9d0a9dc1b1dc62" });
+  
+  if(isPending) {
+    return (
+      <div className="w-full h-36 flex justify-center items-center bg-slate-900">
+        <LoaderCircle />
+      </div>
+    )
+  }
+  
   return (
     <div className=" w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 ">
-      {Array.from({ length: 9 }).map((_, index) => (
+      {accountStats.map((stat: any, index: number) => (
         <div
           key={index}
           className=" bg-[#181926] shadow-inner shadow-gray-700 font-bold rounded-lg text-white p-5 flex flex-col gap-2"
         >
-          <p className="text-[#848BAC] text-xs 2xl:text-sm font-bold">
-            Number of picks
+          <p className="uppercase text-[#848BAC] text-xs 2xl:text-sm font-bold">
+            {stat.title}
           </p>
-          <h2 className="text-2xl 2xl:text-3xl ">${index + 1}00</h2>
+          <h2 className="text-2xl 2xl:text-3xl ">
+            {stat.value}
+          </h2>
         </div>
       ))}
     </div>
