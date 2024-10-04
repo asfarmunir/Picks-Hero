@@ -200,7 +200,7 @@ const Stats = () => {
   
   if(isPending) {
     return (
-      <div className="w-full h-36 flex justify-center items-center bg-slate-900">
+      <div className="w-full h-36 flex justify-center items-center bg-[#181926] shadow-inner shadow-gray-700 rounded-lg">
         <LoaderCircle />
       </div>
     )

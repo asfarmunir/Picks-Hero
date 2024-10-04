@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useEffect } from "react";
 import {
   Table,
@@ -45,7 +45,7 @@ const formatDate = (date: string) => {
 };
 
 const BetHistory = () => {
-  const { data: bets, isPending, refetch } = useGetBets("PH4504514-22");
+  const { data: betsData, isPending, refetch } = useGetBets("PH4504514-22");
   const { data, refetch: checkAndUpgradeObjectives } = useUpgradeAccount();
 
   // const {
@@ -53,14 +53,101 @@ const BetHistory = () => {
   //   isPending: isPendingResults,
   //   isError: isErrorResults,
   // } = useGetResults("PH4504514-22");
-  
-  const results = [{}]
 
-  const [updates, setUpdates] = useState([{}]);
+  const results = [{}];
+
+  // Tab Switching
+  const [tab, setTab] = useState<"OPEN" | "CLOSE">("OPEN");
+  const changeTab = (tab: "OPEN" | "CLOSE") => {
+    setTab(tab);
+  };
+
+  // Bets Data
+  const [bets, setBets] = useState([{}]);
+  useEffect(() => {
+    if (isPending) return;
+
+    // Only Open Bets
+    if (tab === "OPEN") {
+      const openBets = betsData.filter(
+        (bet: any) => bet.betStatus === "OPENED"
+      );
+      setBets(openBets);
+    } else {
+      const closedBets = betsData.filter(
+        (bet: any) => bet.betStatus === "CLOSED"
+      );
+      setBets(closedBets);
+    }
+  }, [betsData, tab, isPending]);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [betsPerPage, setBetsPerPage] = useState(5);
+  const indexOfLastBet = currentPage * betsPerPage;
+  const indexOfFirstBet = indexOfLastBet - betsPerPage;
+
+  // Change page
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  const goToNextPage = () => {
+    if (currentPage === Math.ceil(bets.length / betsPerPage)) return;
+    setCurrentPage(currentPage + 1);
+  }
+  const goToPreviousPage = () => {
+    if (currentPage === 1) return;
+    setCurrentPage(currentPage - 1);
+  }
+  useEffect(() => {
+    const currentBets = bets.slice(indexOfFirstBet, indexOfLastBet);
+    setBets(currentBets);
+  }, [currentPage]);
+
+  
+  // Sorting by bet date
+  const [sortFilter, setSortFilter] = useState<"LAST_7_DAYS" | "LAST_14_DAYS" | "LAST_30_DAYS" >("LAST_7_DAYS")
+  const sortBets = (filter: "LAST_7_DAYS" | "LAST_14_DAYS" | "LAST_30_DAYS") => {
+    setSortFilter(filter);
+  };
 
   useEffect(() => {
+    if (isPending) return;
+
+    if (sortFilter === "LAST_7_DAYS") {
+      const last7Days = betsData.filter((bet: any) => {
+        const betDate = new Date(bet.betDate);
+        const currentDate = new Date();
+        const diffTime = Math.abs(currentDate.getTime() - betDate.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays <= 7;
+      });
+      setBets(last7Days);
+    } else if (sortFilter === "LAST_14_DAYS") {
+      const last14Days = betsData.filter((bet: any) => {
+        const betDate = new Date(bet.betDate);
+        const currentDate = new Date();
+        const diffTime = Math.abs(currentDate.getTime() - betDate.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays <= 14;
+      });
+      setBets(last14Days);
+    } else if (sortFilter === "LAST_30_DAYS") {
+      const last30Days = betsData.filter((bet: any) => {
+        const betDate = new Date(bet.betDate);
+        const currentDate = new Date();
+        const diffTime = Math.abs(currentDate.getTime() - betDate.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays <= 30;
+      });
+      setBets(last30Days);
+    }
+  }, [betsData, sortFilter, isPending]);
+  
+  
+  // Web Socket
+  const [updates, setUpdates] = useState([{}]);
+  useEffect(() => {
     const socket = new WebSocket("ws://localhost:443");
-    
+
     // When connection is established
     socket.onopen = () => {
       console.log("WebSocket connection established");
@@ -83,12 +170,12 @@ const BetHistory = () => {
     };
 
     socket.onmessage = (event) => {
-        const newUpdates = event.data;
-        console.log("NEW UPDATES FROM WS::: ", newUpdates)
-        if(Array.isArray(newUpdates)){
-          setUpdates(newUpdates);
-          checkAndUpgradeObjectives();
-        }
+      const newUpdates = event.data;
+      console.log("NEW UPDATES FROM WS::: ", newUpdates);
+      if (Array.isArray(newUpdates)) {
+        setUpdates(newUpdates);
+        checkAndUpgradeObjectives();
+      }
     };
 
     return () => {
@@ -107,22 +194,22 @@ const BetHistory = () => {
           <button
             className={`border  
              px-6 text-xs 2xl:text-lg py-2 flex w-full md:w-fit justify-center  items-center flex-grow md:flex-grow-0 rounded-full ${
-               true
+               tab === "OPEN"
                  ? "border-[#52FC18] bg-[#1A5B0B]"
                  : " border-gray-700 text-[#848BAC] border-2"
              } font-semibold uppercase`}
-            //   onClick={() => changeTab(curr.title)}
+            onClick={() => changeTab("OPEN")}
           >
             Open
           </button>
           <button
             className={`border  
              px-6 text-xs 2xl:text-lg py-2 flex w-full md:w-fit justify-center  items-center flex-grow md:flex-grow-0 rounded-full ${
-               true
-                 ? " border-gray-700 text-[#848BAC] border-2"
-                 : "border-[#52FC18] bg-[#1A5B0B]"
+               tab === "CLOSE"
+                 ? "border-[#52FC18] bg-[#1A5B0B]"
+                 : " border-gray-700 text-[#848BAC] border-2"
              } font-semibold uppercase`}
-            //   onClick={() => changeTab(curr.title)}
+            onClick={() => changeTab("CLOSE")}
           >
             Close
           </button>
@@ -138,16 +225,14 @@ const BetHistory = () => {
             />
             Sort
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-48 mr-12   bg-[#181926] text-white border-none  mt-1  p-3 rounded-lg shadow-gray-700 shadow-sm">
-            <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between ">
+          <DropdownMenuContent className="w-48 mr-12 bg-[#181926] text-white border-none  mt-1  p-3 rounded-lg shadow-gray-700 shadow-sm">
+            <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between " onClick={()=>sortBets("LAST_7_DAYS") } >
               <p>LAST 7 DAYS</p>
-              {/* <MdOutlineArrowUpward className="text-lg" /> */}
             </DropdownMenuItem>
-
-            <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between ">
+            <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between " onClick={()=>sortBets("LAST_14_DAYS") } >
               <p>LAST 14 DAYS</p>
             </DropdownMenuItem>
-            <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between ">
+            <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between " onClick={()=>sortBets("LAST_30_DAYS") } >
               <p>LAST 30 DAYS</p>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -198,77 +283,94 @@ const BetHistory = () => {
         <TableBody>
           {isPending && (
             <TableRow className=" border-none">
-              <TableCell className=" font-semibold max-w-[100px] uppercase text-xs 2xl:text-sm text-center truncate">
+              <TableCell colSpan={12} className=" font-semibold uppercase text-xs 2xl:text-sm text-center truncate">
                 Loading...
               </TableCell>
             </TableRow>
           )}
-          {bets?.map((bet: any, index: number) => (
-            <TableRow className=" border-none" key={index}>
-            <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-              {bet.id}
-            </TableCell>
-            <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-              {bet.sport.join(", ")}
-            </TableCell>
-            <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
-              {bet.event.join(", ")}
-            </TableCell>
-            <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-              {bet.league.map((league: string) =>
-                league?.split("_")[1].toUpperCase()
-              )}
-            </TableCell>
-            <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
-              {bet.team.join(", ")}
-            </TableCell>
-            <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-              {bet.odds}
-            </TableCell>
-            <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-              ${bet.pick}
-            </TableCell>
-            <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm flex items-center justify-center truncate">
-              <p
-                className={`px-2 py-1 border mt-2 rounded-full ${
-                  bet.betStatus === "OPENED"
-                    ? "bg-green-500/20 text-green-500 border-green-500"
-                    : "bg-red-500/20 text-red-500 border-red-500"
-                }`}
+          {bets.length === 0 && !isPending && (
+            <TableRow className=" border-none">
+              <TableCell
+                colSpan={12}
+                rowSpan={2}
+                className=" font-semibold uppercase text-xs 2xl:text-sm text-center truncate"
               >
-                {bet.betStatus}
-              </p>
-            </TableCell>
-            <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-              ${bet.winnings.toFixed(2)}
-            </TableCell>
-            <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center ">
-              {formatDate(bet.betDate)}
-            </TableCell>
-            <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center ">
-              {bet.gameDate.map((date: string) => `${formatDate(date)} `)}
-            </TableCell>
-            <TableCell className=" font-semibold  capitalize text-xs 2xl:text-sm text-center ">
-              <Dialog>
-                <DialogTrigger className=" w-fit text-xs 2xl:text-sm text-nowrap rounded-xl inner-shadow px-4 py-3 inline-flex items-center gap-3">
-                  <span className=" font-bold uppercase">Bet slip</span>{" "}
-                </DialogTrigger>
-                <BetSlipDialogBody bet={bet} key={bet.id} />
-              </Dialog>
-            </TableCell>
-          </TableRow>
-          ))}
+                No bets found
+              </TableCell>
+            </TableRow>
+          )}
+          {!isPending &&
+            bets.length > 0 &&
+            bets?.map((bet: any, index: number) => (
+              <TableRow className=" border-none" key={index}>
+                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                  {bet.id}
+                </TableCell>
+                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                  {bet.sport?.join(", ")}
+                </TableCell>
+                <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
+                  {bet.event?.join(", ")}
+                </TableCell>
+                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                  {bet.league?.map((league: string) =>
+                    league?.split("_")[1].toUpperCase()
+                  )}
+                </TableCell>
+                <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
+                  {bet.team?.join(", ")}
+                </TableCell>
+                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                  {bet.odds}
+                </TableCell>
+                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                  ${bet.pick}
+                </TableCell>
+                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm flex items-center justify-center truncate">
+                  <p
+                    className={`px-2 py-1 border mt-2 rounded-full ${
+                      bet.betStatus === "OPENED"
+                        ? "bg-green-500/20 text-green-500 border-green-500"
+                        : "bg-red-500/20 text-red-500 border-red-500"
+                    }`}
+                  >
+                    {bet.betStatus}
+                  </p>
+                </TableCell>
+                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                  ${bet.winnings?.toFixed(2)}
+                </TableCell>
+                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center ">
+                  {formatDate(bet.betDate)}
+                </TableCell>
+                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center ">
+                  {bet.gameDate?.map((date: string) => `${formatDate(date)} `)}
+                </TableCell>
+                <TableCell className=" font-semibold  capitalize text-xs 2xl:text-sm text-center ">
+                  <Dialog>
+                    <DialogTrigger className=" w-fit text-xs 2xl:text-sm text-nowrap rounded-xl inner-shadow px-4 py-3 inline-flex items-center gap-3">
+                      <span className=" font-bold uppercase">Bet slip</span>{" "}
+                    </DialogTrigger>
+                    <BetSlipDialogBody bet={bet} key={bet.id} />
+                  </Dialog>
+                </TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
       <div className="flex items-center justify-between p-5">
         <h4 className="text-[#848BAC] font-thin text-xs 2xl:text-base ">
-          PAGE 1-5
+          PAGE {currentPage} OF {Math.ceil(bets.length / betsPerPage)}
         </h4>
         <div className="flex gap-2 items-center">
-          <button className="text-[#848BAC] text-2xl">
+          <button className="text-[#848BAC] text-2xl"
+            onClick={goToPreviousPage}
+          >
             <TiArrowLeft />
           </button>
-          <button className="text-[white] text-2xl">
+          <button className="text-[white] text-2xl"
+            onClick={goToNextPage}
+          >
             <TiArrowRight />
           </button>
         </div>
@@ -286,7 +388,7 @@ const BetSlipDialogBody = ({ bet }: { bet: any }) => (
           <p className=" text-lg font-bold uppercase">
             1 PICK TO WIN
             <span className="text-primary-50 ml-1.5">
-              ${bet.winnings.toFixed(2)}
+              ${bet.winnings?.toFixed(2)}
             </span>
           </p>
           {bet.betStatus === "OPENED" && (
@@ -306,7 +408,7 @@ const BetSlipDialogBody = ({ bet }: { bet: any }) => (
           )}
         </div>
         <div className="flex flex-col max-h-44 2xl:max-h-56 mt-1 overflow-auto px-1 w-full gap-3 ">
-        {bet.event.length > 1 &&
+          {bet.event?.length > 1 &&
             bet.event.map((event: string, index: number) => (
               <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
                 <p className=" text-sm mb-2">{event}</p>
@@ -318,7 +420,7 @@ const BetSlipDialogBody = ({ bet }: { bet: any }) => (
                 </div>
               </div>
             ))}
-          {bet.event.length === 1 && (
+          {bet.event?.length === 1 && (
             <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
               <p className=" text-sm mb-2">{bet.event[0]}</p>
               <div className="flex items-center justify-between">
@@ -340,7 +442,7 @@ const BetSlipDialogBody = ({ bet }: { bet: any }) => (
         </div>
         <div className="flex items-center justify-between w-full border-b pb-3.5 border-slate-700">
           <p className="  font-bold text-primary-200">WINNIG</p>
-          <p className="  font-bold ">${bet.winnings.toFixed(2)}</p>
+          <p className="  font-bold ">${bet.winnings?.toFixed(2)}</p>
         </div>
         <div className="flex w-full px-4 py-2 items-center justify-between">
           <p className="text-white font-bold px-2 py-1.5 rounded-lg bg-[#737897]/20 border border-[#737897] text-xs 2xl:text-sm">
