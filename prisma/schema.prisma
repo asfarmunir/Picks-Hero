@@ -58,12 +58,12 @@ model User {
   address     String?
   dateOfBirth DateTime?
 
-  referralCode               String?
-  referredBy                 String?
-  referralBonus              Float   @default(0.0)
-  totalEarned                Float   @default(0.0)
-  totalReferrals             Int     @default(0)
-  totalReferPayout           Float   @default(0.0)
+  referralCode     String?
+  referredBy       String?
+  referralBonus    Float   @default(0.0)
+  totalEarned      Float   @default(0.0)
+  totalReferrals   Int     @default(0)
+  totalReferPayout Float   @default(0.0)
 
   accounts        Account[]
   PaymentCard     PaymentCard[]
@@ -91,6 +91,10 @@ model Account {
   minBetPeriod          DateTime // Store minimum bet period
   maxBetPeriod          DateTime // Store maximum bet period
   minBetPeriodCompleted Boolean  @default(false) // Store minimum bet period completed
+
+  totalFundedPayout Float @default(0.0)
+  totalFundedAmount Float
+  fundedPayoutTimer  DateTime?
 
   paymentMethod  String? // Store payment method details
   user           User?            @relation(fields: [userId], references: [id])

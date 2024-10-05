@@ -99,6 +99,10 @@ async function checkForUpdates(wss) {
 
           let betResult = allMatchesWon ? "WIN" : "LOSE";
 
+          const account = await prisma.account.findUnique({
+            where: { id: bet.accountId },
+          });
+          
           // Update the bet in the database
           await prisma.bets.update({
             where: { id: bet.id },
@@ -121,6 +125,9 @@ async function checkForUpdates(wss) {
                 picksWon: {
                   increment: 1,
                 },
+                totalFundedAmount: {
+                  increment: account.status === "FUNDED" ? bet.winnings : 0,
+                }
               },
             });
           } else {
@@ -130,6 +137,7 @@ async function checkForUpdates(wss) {
               },
               data: {
                 totalLoss: { increment: bet.pick },
+                dailyLoss: { increment: bet.pick },
               },
             });
           }

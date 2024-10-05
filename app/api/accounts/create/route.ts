@@ -138,6 +138,7 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
             userId: user.id,
             minBetPeriod: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
             maxBetPeriod: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+            totalFundedAmount: startingBalance,
           },
         });
 
