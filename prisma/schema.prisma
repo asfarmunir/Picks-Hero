@@ -58,16 +58,18 @@ model User {
   address     String?
   dateOfBirth DateTime?
 
-  referralCode  String?
-  referredBy    String?
-  referralBonus Float   @default(0.0)
-  totalEarned   Float   @default(0.0)
-  totalReferrals Int     @default(0)
+  referralCode               String?
+  referredBy                 String?
+  referralBonus              Float   @default(0.0)
+  totalEarned                Float   @default(0.0)
+  totalReferrals             Int     @default(0)
+  totalReferPayout           Float   @default(0.0)
 
   accounts        Account[]
   PaymentCard     PaymentCard[]
   AccountInvoices AccountInvoices[]
   Bets            Bets[]
+  PayoutRequests  ReferPayoutRequests[]
 
   @@map("users")
 }
@@ -81,14 +83,14 @@ model Account {
   status        AccountStatus // Challenge, Funded, Breached
   balance       Float // Store account balance
   accountNumber String // Store account number
-  phase        Int @default(1) // Store account phase
-  picks        Int @default(0) // Store account picks
+  phase         Int           @default(1) // Store account phase
+  picks         Int           @default(0) // Store account picks
 
-  totalLoss    Float? @default(0) // Store total loss
-  dailyLoss    Float? // Store daily loss limit
-  minBetPeriod DateTime // Store minimum bet period
-  maxBetPeriod DateTime // Store maximum bet period
-  minBetPeriodCompleted Boolean @default(false) // Store minimum bet period completed
+  totalLoss             Float?   @default(0) // Store total loss
+  dailyLoss             Float? // Store daily loss limit
+  minBetPeriod          DateTime // Store minimum bet period
+  maxBetPeriod          DateTime // Store maximum bet period
+  minBetPeriodCompleted Boolean  @default(false) // Store minimum bet period completed
 
   paymentMethod  String? // Store payment method details
   user           User?            @relation(fields: [userId], references: [id])
@@ -232,11 +234,13 @@ enum CronJobType {
   objectiveMax
   inactivity
 }
+
 enum CronJobStatus {
   PENDING
   COMPLETED
   FAILED
 }
+
 model CronJobs {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   accountId String @db.ObjectId
@@ -244,10 +248,38 @@ model CronJobs {
   jobName   String
   jobStatus CronJobStatus
   jobDate   String
-  type     CronJobType
+  type      CronJobType
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("cronjobs")
+}
+
+enum Currency {
+  USDT_ERC20
+  ETH_ERC20
+}
+
+enum PayoutStaus {
+  PAID
+  PENDING
+  DECLINED
+}
+
+model ReferPayoutRequests {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+
+  amount         Float
+  status         PayoutStaus
+  currency       Currency
+  networkAddress String
+
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("payoutrequests")
 }

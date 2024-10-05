@@ -1,7 +1,7 @@
 "use client";
 import Navbar from "@/components/shared/Navbar";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -20,11 +20,13 @@ import {
 } from "@/lib/constants";
 import { useGetUser } from "@/app/hooks/useGetUser";
 import { useGetReferHistory } from "@/app/hooks/useGetReferHistory";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import PayoutModal from "./payout-modal";
 
 const page = () => {
   const [toggle, setToggle] = useState(false);
   const [copySuccess, setCopySuccess] = useState(""); // To show copy success message
-  const { status, data: session } = useSession();
+  const currentUser: any = useSession().data?.user;
 
   const truncateString = (str: string, num: number) => {
     if (str.length <= num) {
@@ -33,7 +35,7 @@ const page = () => {
     return str.slice(0, num) + "...";
   };
 
-  let link = `/signup?referrerCode=${session?.user?.referralCode}`;
+  let link = `/signup?referrerCode=${currentUser.referralCode}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(link).then(
@@ -77,6 +79,34 @@ const page = () => {
     });
   };
 
+  // Payout Modal
+  const [payoutModalOpen, setPayoutModalOpen] = useState(false);
+  const openPayoutModal = () => setPayoutModalOpen(true);
+  const closePayoutModal = () => setPayoutModalOpen(false);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 5; // Adjust as needed
+
+  const totalPages = useMemo(
+    () => Math.ceil(referHistory?.length / rowsPerPage),
+    [referHistory?.length, rowsPerPage]
+  );
+
+  const currentHistoryPage = useMemo(() => {
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    return referHistory?.slice(start, end);
+  }, [referHistory, currentPage, rowsPerPage]);
+
+  // Change page
+  const goToNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+  const goToPreviousPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
   return (
     <>
       <div className="hidden md:block sticky top-0 z-50 w-full">
@@ -88,13 +118,14 @@ const page = () => {
           <Navbar />
         </div>
       </div>
+      <PayoutModal open={payoutModalOpen} onClose={closePayoutModal} />
       <div className="w-full flex text-white gap-4 mt-1 md:mt-9 p-5 md:p-8 pb-24 max-h-full overflow-auto">
         <div className="w-full md:w-[70%] h-full shadow-inner shadow-gray-800 flex flex-col gap-7 bg-[#181926] p-4 md:p-6 rounded-xl">
           <div className="w-full items-center flex justify-between">
             <h2 className="text-2xl 2xl:text-3xl font-bold uppercase text-white">
               refer & earn
             </h2>
-            <button className="hover:border hover:border-primary-200 text-white font-semibold uppercase text-sm bg-[#333547] px-4 py-2 rounded-lg inline-flex items-center gap-2">
+            <button className="hover:outline hover:outline-1 hover:outline-primary-200 text-white font-semibold uppercase text-sm bg-[#333547] px-4 py-2 rounded-lg inline-flex items-center gap-2">
               <Image src="/icons/info.png" alt="Edit" width={17} height={17} />
               Learn more
             </button>
@@ -108,7 +139,7 @@ const page = () => {
             </h2>
             <button
               onClick={handleCopyLink}
-              className="text-white inner-shadow font-semibold hover:border hover:border-primary-200 uppercase text-xs md:text-base 2xl:text-lg bg-[#333547] px-5 py-3 rounded-xl inline-flex items-center gap-3"
+              className="text-white inner-shadow font-semibold hover:outline hover:outline-1 hover:outline-primary-200 uppercase text-xs md:text-base 2xl:text-lg bg-[#333547] px-5 py-3 rounded-xl inline-flex items-center gap-3"
             >
               <Image src="/icons/copy.png" alt="Edit" width={18} height={18} />
               COPY LINK
@@ -126,7 +157,7 @@ const page = () => {
               </span>
             </h2>
             <Sheet>
-              <SheetTrigger className="text-white font-semibold hover:border hover:border-primary-200 uppercase text-xs md:text-base 2xl:text-lg bg-[#333547] px-5 py-3 rounded-lg shadow-inner shadow-gray-500 inline-flex items-center gap-3">
+              <SheetTrigger className="text-white font-semibold hover:outline hover:outline-1 hover:outline-primary-200 uppercase text-xs md:text-base 2xl:text-lg bg-[#333547] px-5 py-3 rounded-lg shadow-inner shadow-gray-500 inline-flex items-center gap-3">
                 <Image
                   src="/icons/trophy.png"
                   alt="Edit"
@@ -215,7 +246,7 @@ const page = () => {
             <div className="bg-[#272837] p-3 pb-8 md:p-7 rounded-2xl w-full flex items-start justify-between gap-1">
               <div className="flex flex-col gap-1">
                 <p className="text-[#AFB2CA] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-                  Total EARNED
+                  Total {toggle ? "Payout" : "Earned"}
                 </p>
                 <div className="flex items-center gap-4">
                   <Image
@@ -228,20 +259,27 @@ const page = () => {
                     $
                     {isPending
                       ? "Loading..."
+                      : toggle
+                      ? user.user.totalReferPayout.toFixed(2) || 0
                       : user.user.totalEarned.toFixed(2) || 0}
                   </p>
                 </div>
               </div>
-              <button className="text-white inner-shadow font-semibold hover:border hover:border-primary-200 uppercase text-[10px] text-nowrap md:text-base 2xl:text-lg bg-[#333547] px-5 py-3 rounded-xl inline-flex items-center gap-3">
-                <Image
-                  src="/icons/stack.png"
-                  alt="Edit"
-                  width={20}
-                  className="hidden md:block"
-                  height={20}
-                />
-                REQUEST PAYOUT
-              </button>
+              {toggle && (
+                <button
+                  className="text-white inner-shadow font-semibold hover:border hover:border-primary-200 uppercase text-[10px] text-nowrap md:text-base 2xl:text-lg bg-[#333547] px-5 py-3 rounded-xl inline-flex items-center gap-3"
+                  onClick={openPayoutModal}
+                >
+                  <Image
+                    src="/icons/stack.png"
+                    alt="Edit"
+                    width={20}
+                    className="hidden md:block"
+                    height={20}
+                  />
+                  REQUEST PAYOUT
+                </button>
+              )}
             </div>
             <div className="w-full border border-gray-700 rounded-xl flex flex-col">
               <div className="flex items-center justify-between w-full p-6">
@@ -269,15 +307,22 @@ const page = () => {
                 </TableHeader>
                 <TableBody>
                   {referHistoryPending ? (
-                    <div className="text-center w-full h-full flex justify-center items-center">
-                      Loading...
-                    </div>
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center h-24">
+                        Loading...
+                      </TableCell>
+                    </TableRow>
                   ) : referHistory.length === 0 ? (
-                    <div className="text-center w-full h-24 flex justify-center items-center">
-                      No referal history
-                    </div>
+                    <TableRow>
+                      <TableCell
+                        colSpan={5}
+                        className="text-center h-24 uppercase"
+                      >
+                        No referal history
+                      </TableCell>
+                    </TableRow>
                   ) : (
-                    referHistory.map((refer: any) => (
+                    currentHistoryPage.map((refer: any) => (
                       <TableRow className="border-none">
                         <TableCell className="font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
                           {formatDate(refer.createdAt)}
@@ -309,13 +354,19 @@ const page = () => {
               </Table>
               <div className="flex items-center justify-between p-5">
                 <h4 className="text-[#848BAC] font-thin text-xs 2xl:text-base">
-                  PAGE 1-5
+                  PAGE {currentPage} OF {totalPages}
                 </h4>
                 <div className="flex gap-2 items-center">
-                  <button className="text-[#848BAC] text-2xl">
+                  <button
+                    className="text-[#848BAC] text-2xl"
+                    onClick={goToPreviousPage}
+                  >
                     <TiArrowLeft />
                   </button>
-                  <button className="text-[white] text-2xl">
+                  <button
+                    className="text-[white] text-2xl"
+                    onClick={goToNextPage}
+                  >
                     <TiArrowRight />
                   </button>
                 </div>
