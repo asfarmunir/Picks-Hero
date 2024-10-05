@@ -179,7 +179,7 @@ const BetHistory = () => {
 
   useEffect(() => {
     refetch();
-  }, [updates]);
+  }, [updates, accountNumber]);
 
   return (
     <div className=" w-full border bg-primary-100 border-gray-700 rounded-xl  flex flex-col">

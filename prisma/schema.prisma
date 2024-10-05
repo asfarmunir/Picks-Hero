@@ -81,7 +81,7 @@ model Account {
   status        AccountStatus // Challenge, Funded, Breached
   balance       Float // Store account balance
   accountNumber String // Store account number
-  phase        Int @default(0) // Store account phase
+  phase        Int @default(1) // Store account phase
   picks        Int @default(0) // Store account picks
 
   totalLoss    Float? @default(0) // Store total loss

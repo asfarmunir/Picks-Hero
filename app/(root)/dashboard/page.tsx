@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect } from "react";
 // import { MdOutlineArrowUpward } from "react-icons/md";
 import { useGetAccountStats } from "@/app/hooks/useGetAccountStats";
 import AccountGraph from "@/components/shared/AccountGraph";
@@ -182,25 +182,33 @@ const page = () => {
 export default page;
 
 const Stats = () => {
-  
   const account = accountStore((state) => state.account);
-  const { data: accountStats, isPending, isError } = useGetAccountStats({ accountId: account.id });
+  const {
+    data: accountStats,
+    isPending,
+    isError,
+    refetch
+  } = useGetAccountStats({ accountId: account.id });
+
+  useEffect(()=> {
+    refetch()
+  }, [account])
   
-  if(isError) {
+  if (isError) {
     toast.error("Error fetching account stats");
     return (
       <div className="w-full h-36 flex justify-center items-center bg-[#181926] shadow-inner shadow-gray-700 rounded-lg">
         <p className="text-white">Error fetching account stats</p>
       </div>
-    )
-  }  
+    );
+  }
 
-  if(isPending) {
+  if (isPending) {
     return (
       <div className="w-full h-36 flex justify-center items-center bg-[#181926] shadow-inner shadow-gray-700 rounded-lg">
         <LoaderCircle className="animate-spin" />
       </div>
-    )
+    );
   }
 
   return (
@@ -213,9 +221,7 @@ const Stats = () => {
           <p className="uppercase text-[#848BAC] text-xs 2xl:text-sm font-bold">
             {stat.title}
           </p>
-          <h2 className="text-2xl 2xl:text-3xl ">
-            {stat.value}
-          </h2>
+          <h2 className="text-2xl 2xl:text-3xl ">{stat.value}</h2>
         </div>
       ))}
     </div>

@@ -11,12 +11,15 @@ import toast from "react-hot-toast";
 const Objectives = () => {
   const accountId = accountStore((state) => state.account.id);
   
-  const { data: account, isPending, isError } = useGetAccount(accountId);
+  const { data: account, isPending, isError, refetch } = useGetAccount(accountId);
+  useEffect(()=>{
+    refetch()
+  }, [accountId])
 
   // States to store the countdowns
   const [minBetCountdown, setMinBetCountdown] = useState("");
   const [maxBetCountdown, setMaxBetCountdown] = useState("");
-
+  
   useEffect(() => {
     if (!account) return;
 
@@ -157,7 +160,7 @@ const Objectives = () => {
             />
             <div className="  font-bold flex flex-col  gap-1">
               <p className=" text-base 2xl:text-lg ">
-                -${account.dailyLoss} / -$
+                -${account.dailyLoss || 0} / -$
                 {getOriginalAccountValue(account) *
                   ALL_STEP_CHALLENGES.maxDailyLoss}
               </p>
@@ -269,7 +272,7 @@ const Objectives = () => {
           </div>
           <div className=" hidden md:flex flex-col items-end gap-2">
             <p className=" text-green-600 font-thin text-sm">
-              {getPercentageTimePassed(new Date(account.createdAt), new Date(account.minBetPeriod))}%
+              {getPercentageTimePassed(new Date(account.createdAt), new Date(account.minBetPeriod)).toFixed(2)}%
             </p>
             <div className=" w-36 h-4 bg-[#393C53] rounded-sm border-gray-700">
               <div className="h-full bg-[#00B544] rounded-sm shadow-inner shadow-gray-700 "
