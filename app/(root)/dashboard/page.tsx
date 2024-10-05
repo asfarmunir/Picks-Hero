@@ -1,31 +1,18 @@
 "use client";
 import Image from "next/image";
 import React from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 // import { MdOutlineArrowUpward } from "react-icons/md";
-import Navbar from "@/components/shared/Navbar";
-import Link from "next/link";
-import { dashboardTabs } from "@/lib/constants";
+import { useGetAccountStats } from "@/app/hooks/useGetAccountStats";
+import AccountGraph from "@/components/shared/AccountGraph";
 import BetHistory from "@/components/shared/BetHistory";
+import Navbar from "@/components/shared/Navbar";
 import Objectives from "@/components/shared/Objectives";
 import UserAccount from "@/components/shared/UserAccount";
-import AccountGraph from "@/components/shared/AccountGraph";
-import { useGetAccountStats } from "@/app/hooks/useGetAccountStats";
+import { dashboardTabs } from "@/lib/constants";
 import { LoaderCircle } from "lucide-react";
+import Link from "next/link";
+import { accountStore } from "@/app/store/account";
+import toast from "react-hot-toast";
 const page = () => {
   const [tab, setTab] = React.useState("stats");
 
@@ -196,16 +183,26 @@ export default page;
 
 const Stats = () => {
   
-  const { data: accountStats, isPending } = useGetAccountStats({ accountId: "66f870324f9d0a9dc1b1dc62" });
+  const account = accountStore((state) => state.account);
+  const { data: accountStats, isPending, isError } = useGetAccountStats({ accountId: account.id });
   
+  if(isError) {
+    toast.error("Error fetching account stats");
+    return (
+      <div className="w-full h-36 flex justify-center items-center bg-[#181926] shadow-inner shadow-gray-700 rounded-lg">
+        <p className="text-white">Error fetching account stats</p>
+      </div>
+    )
+  }  
+
   if(isPending) {
     return (
       <div className="w-full h-36 flex justify-center items-center bg-[#181926] shadow-inner shadow-gray-700 rounded-lg">
-        <LoaderCircle />
+        <LoaderCircle className="animate-spin" />
       </div>
     )
   }
-  
+
   return (
     <div className=" w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 ">
       {accountStats.map((stat: any, index: number) => (

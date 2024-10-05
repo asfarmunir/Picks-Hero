@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { navlinks } from "@/lib/constants";
+import { useSession } from "next-auth/react";
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -12,6 +13,8 @@ const Sidebar = () => {
   const handleCollapseToggle = () => {
     setIsCollapsed(!isCollapsed);
   };
+
+  const user: any = useSession()?.data?.user;
 
   return (
     <>
@@ -44,7 +47,7 @@ const Sidebar = () => {
                 Welcome Back!
               </p>
               <h3 className="text-lg 2xl:text-2xl font-bold text-white">
-                Adrew Smith
+                {`${user?.firstName} ${user?.lastName}`}
               </h3>
             </div>
           </div>

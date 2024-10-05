@@ -8,6 +8,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { accountStore } from "../store/account";
+import { useGetAccounts } from "../hooks/useGetAccounts";
 
 const layout = ({ children }: { children: React.ReactNode }) => {
 
@@ -15,12 +17,25 @@ const layout = ({ children }: { children: React.ReactNode }) => {
   const { status, data: session } = useSession();
   console.log("this is the session : ", session, status);
 
+  
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/api/auth/signin');
     }
   }, [status, router]);
+  
+  // Account store
+  const updateAccount = accountStore((state) => state.setAccount);
+  
+  // User Account
+  const { data: accounts, isPending } = useGetAccounts();
 
+  useEffect(()=>{
+    if(accounts && !isPending){
+      updateAccount(accounts[0]);
+    }
+  }, [accounts, isPending])
+  
   return (
       <main className={`h-screen flex bg-primary`}>
         {status === "authenticated" && (

@@ -1,40 +1,34 @@
 "use client";
 import Navbar from "@/components/shared/Navbar";
-import { profileLevels, tabs } from "@/lib/constants";
-import Image from "next/image";
-import React, { useEffect, useMemo } from "react";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogTrigger
 } from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
+import { profileLevels, tabs } from "@/lib/constants";
+import Image from "next/image";
 
+import { useGetAccounts } from "@/app/hooks/useGetAccounts";
+import { useGetUser } from "@/app/hooks/useGetUser";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import Link from "next/link";
 import { useState } from "react";
 import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
-import { useGetAccounts } from "@/app/hooks/useGetAccounts";
-import { toast } from "react-toastify";
-import Link from "next/link";
-import { useGetUser } from "@/app/hooks/useGetUser";
-import { useSession } from "next-auth/react";
 
 interface Account {
   id: string;
@@ -72,23 +66,9 @@ const page = () => {
 
   // GET ACCOUNTS
   const {
-    mutate: fetchAccounts,
     data: userAccounts,
     isPending,
-    isError,
-  } = useGetAccounts({
-    onSuccess: (data) => {
-      // console.log(data);
-    },
-    onError: (error) => {
-      console.log(error);
-      toast.error("Failed to fetch accounts");
-    },
-  });
-
-  useEffect(() => {
-    fetchAccounts();
-  }, []);
+  } = useGetAccounts();
 
   return (
     <>

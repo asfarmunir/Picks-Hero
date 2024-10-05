@@ -1,14 +1,17 @@
 "use client"
 import { useGetAccount } from "@/app/hooks/useGetAccount";
+import { accountStore } from "@/app/store/account";
 import { ALL_STEP_CHALLENGES } from "@/lib/constants";
 import { getOriginalAccountValue, getPercentageTimePassed } from "@/lib/utils";
+import { LoaderCircle } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const Objectives = () => {
-  const { data: account, isPending } = useGetAccount(
-    "66f870324f9d0a9dc1b1dc62"
-  );
+  const accountId = accountStore((state) => state.account.id);
+  
+  const { data: account, isPending, isError } = useGetAccount(accountId);
 
   // States to store the countdowns
   const [minBetCountdown, setMinBetCountdown] = useState("");
@@ -42,12 +45,29 @@ const Objectives = () => {
     return () => clearInterval(interval);
   }, [account]);
   
-  if (isPending) {
-    return <div>Loading...</div>;
+  if(isError) {
+    toast.error("Error fetching account stats");
+    return (
+      <div className="w-full h-36 flex justify-center items-center bg-[#181926] shadow-inner shadow-gray-700 rounded-lg">
+        <p className="text-white">Error fetching account stats</p>
+      </div>
+    )
+  }  
+
+  if(isPending) {
+    return (
+      <div className="w-full h-36 flex justify-center items-center bg-[#181926] shadow-inner shadow-gray-700 rounded-lg">
+        <LoaderCircle className="animate-spin" />
+      </div>
+    )
   }
 
   if (!account) {
-    return <div>Account not found</div>;
+    return (
+      <div className="w-full h-36 flex justify-center items-center bg-[#181926] shadow-inner shadow-gray-700 rounded-lg">
+        <p className="text-white">Account not found</p>
+      </div>
+    )
   }
   
 

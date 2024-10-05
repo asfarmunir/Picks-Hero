@@ -1,24 +1,20 @@
 "use client";
-import Image from "next/image";
-import React, { useEffect } from "react";
+import Navbar from "@/components/shared/Navbar";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MdOutlineArrowUpward } from "react-icons/md";
-import Navbar from "@/components/shared/Navbar";
+import Image from "next/image";
 import Link from "next/link";
+import React from "react";
 import { useGetAccounts } from "../hooks/useGetAccounts";
 
 const ACCOUNT_STATUS_ICON_DICT = {
@@ -32,18 +28,7 @@ type accountTypes = "CHALLENGE" | "FUNDED" | "BREACHED";
 const page = () => {
   const [tab, setTab] = React.useState("hide");
 
-  const {
-    mutate: fetchAccounts,
-    data,
-    isPending,
-  } = useGetAccounts({
-    onSuccess: () => {},
-    onError: () => {},
-  });
-
-  useEffect(() => {
-    fetchAccounts();
-  }, []);
+  const { data, isPending } = useGetAccounts();
 
   return (
     <>
@@ -224,15 +209,13 @@ const page = () => {
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {
-              !isPending && data?.length === 0 ? (
-                <div className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative  rounded-2xl w-full  flex flex-col gap-1 ">
-                  <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-                    No accounts found
-                  </p>
-                </div>
-              ) : null
-            }
+            {!isPending && data?.length === 0 ? (
+              <div className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative  rounded-2xl w-full  flex flex-col gap-1 ">
+                <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
+                  No accounts found
+                </p>
+              </div>
+            ) : null}
             {isPending ? (
               <>Loading...</>
             ) : (
@@ -246,7 +229,9 @@ const page = () => {
                       ${account.accountSize.replace("K", "000")}
                     </p>
                     <Image
-                      src={`${ACCOUNT_STATUS_ICON_DICT[account.status as accountTypes]}`}
+                      src={`${
+                        ACCOUNT_STATUS_ICON_DICT[account.status as accountTypes]
+                      }`}
                       alt="Arrow Icon"
                       width={100}
                       height={100}

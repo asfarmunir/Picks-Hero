@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -32,6 +32,7 @@ import Image from "next/image";
 import { useGetBets } from "@/app/hooks/useGetBets";
 import { useGetResults } from "@/app/hooks/useGetResults";
 import { useUpgradeAccount } from "@/app/hooks/useUpgradeAccount";
+import { accountStore } from "@/app/store/account";
 
 const formatDate = (date: string) => {
   const dateObj = new Date(date);
@@ -45,104 +46,97 @@ const formatDate = (date: string) => {
 };
 
 const BetHistory = () => {
-  const { data: betsData, isPending, refetch } = useGetBets("PH4504514-22");
+  const accountNumber = accountStore((state) => state.account.accountNumber);
+  
+  const { data: betsData, isPending, refetch } = useGetBets(accountNumber);
   const { data, refetch: checkAndUpgradeObjectives } = useUpgradeAccount();
-
-  // const {
-  //   data: results,
-  //   isPending: isPendingResults,
-  //   isError: isErrorResults,
-  // } = useGetResults("PH4504514-22");
-
-  const results = [{}];
 
   // Tab Switching
   const [tab, setTab] = useState<"OPEN" | "CLOSE">("OPEN");
-  const changeTab = (tab: "OPEN" | "CLOSE") => {
-    setTab(tab);
+  const changeTab = (selectedTab: "OPEN" | "CLOSE") => {
+    setTab(selectedTab);
+    setCurrentPage(1); // Reset to first page on tab change
   };
 
-  // Bets Data
-  const [bets, setBets] = useState([{}]);
-  useEffect(() => {
-    if (isPending) return;
+  // Sorting by bet date
+  const [sortFilter, setSortFilter] = useState<
+    "LAST_7_DAYS" | "LAST_14_DAYS" | "LAST_30_DAYS"
+  >("LAST_7_DAYS");
+  const sortBets = (
+    filter: "LAST_7_DAYS" | "LAST_14_DAYS" | "LAST_30_DAYS"
+  ) => {
+    setSortFilter(filter);
+    setCurrentPage(1); // Reset to first page on sort change
+  };
 
-    // Only Open Bets
-    if (tab === "OPEN") {
-      const openBets = betsData.filter(
-        (bet: any) => bet.betStatus === "OPENED"
-      );
-      setBets(openBets);
-    } else {
-      const closedBets = betsData.filter(
-        (bet: any) => bet.betStatus === "CLOSED"
-      );
-      setBets(closedBets);
+  // Derived state: Filtered Bets based on Tab and Sort Filter
+  const filteredBets = useMemo(() => {
+    if(!betsData) return;
+    
+    let filtered = betsData.filter(
+      (bet: any) =>
+        tab === "OPEN"
+          ? bet.betStatus === "OPENED"
+          : bet.betStatus === "CLOSED"
+    );
+
+    const currentDate = new Date();
+
+    switch (sortFilter) {
+      case "LAST_7_DAYS":
+        filtered = filtered.filter((bet: any) => {
+          const betDate = new Date(bet.betDate);
+          const diffTime = currentDate.getTime() - betDate.getTime();
+          const diffDays = diffTime / (1000 * 60 * 60 * 24);
+          return diffDays <= 7;
+        });
+        break;
+      case "LAST_14_DAYS":
+        filtered = filtered.filter((bet: any) => {
+          const betDate = new Date(bet.betDate);
+          const diffTime = currentDate.getTime() - betDate.getTime();
+          const diffDays = diffTime / (1000 * 60 * 60 * 24);
+          return diffDays <= 14;
+        });
+        break;
+      case "LAST_30_DAYS":
+        filtered = filtered.filter((bet: any) => {
+          const betDate = new Date(bet.betDate);
+          const diffTime = currentDate.getTime() - betDate.getTime();
+          const diffDays = diffTime / (1000 * 60 * 60 * 24);
+          return diffDays <= 30;
+        });
+        break;
+      default:
+        break;
     }
-  }, [betsData, tab, isPending]);
+
+    return filtered;
+  }, [betsData, tab, sortFilter]);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const [betsPerPage, setBetsPerPage] = useState(5);
-  const indexOfLastBet = currentPage * betsPerPage;
-  const indexOfFirstBet = indexOfLastBet - betsPerPage;
+  const betsPerPage = 5; // Adjust as needed
+
+  const totalPages = useMemo(
+    () => Math.ceil(filteredBets?.length / betsPerPage),
+    [filteredBets?.length, betsPerPage]
+  );
+
+  const currentBets = useMemo(() => {
+    const start = (currentPage - 1) * betsPerPage;
+    const end = start + betsPerPage;
+    return filteredBets?.slice(start, end);
+  }, [filteredBets, currentPage, betsPerPage]);
 
   // Change page
-  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
   const goToNextPage = () => {
-    if (currentPage === Math.ceil(bets.length / betsPerPage)) return;
-    setCurrentPage(currentPage + 1);
-  }
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
   const goToPreviousPage = () => {
-    if (currentPage === 1) return;
-    setCurrentPage(currentPage - 1);
-  }
-  useEffect(() => {
-    const currentBets = bets.slice(indexOfFirstBet, indexOfLastBet);
-    setBets(currentBets);
-  }, [currentPage]);
-
-  
-  // Sorting by bet date
-  const [sortFilter, setSortFilter] = useState<"LAST_7_DAYS" | "LAST_14_DAYS" | "LAST_30_DAYS" >("LAST_7_DAYS")
-  const sortBets = (filter: "LAST_7_DAYS" | "LAST_14_DAYS" | "LAST_30_DAYS") => {
-    setSortFilter(filter);
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
-  useEffect(() => {
-    if (isPending) return;
-
-    if (sortFilter === "LAST_7_DAYS") {
-      const last7Days = betsData.filter((bet: any) => {
-        const betDate = new Date(bet.betDate);
-        const currentDate = new Date();
-        const diffTime = Math.abs(currentDate.getTime() - betDate.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays <= 7;
-      });
-      setBets(last7Days);
-    } else if (sortFilter === "LAST_14_DAYS") {
-      const last14Days = betsData.filter((bet: any) => {
-        const betDate = new Date(bet.betDate);
-        const currentDate = new Date();
-        const diffTime = Math.abs(currentDate.getTime() - betDate.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays <= 14;
-      });
-      setBets(last14Days);
-    } else if (sortFilter === "LAST_30_DAYS") {
-      const last30Days = betsData.filter((bet: any) => {
-        const betDate = new Date(bet.betDate);
-        const currentDate = new Date();
-        const diffTime = Math.abs(currentDate.getTime() - betDate.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays <= 30;
-      });
-      setBets(last30Days);
-    }
-  }, [betsData, sortFilter, isPending]);
-  
-  
   // Web Socket
   const [updates, setUpdates] = useState([{}]);
   useEffect(() => {
@@ -288,20 +282,20 @@ const BetHistory = () => {
               </TableCell>
             </TableRow>
           )}
-          {bets.length === 0 && !isPending && (
+          {(!isPending && currentBets.length === 0) && (
             <TableRow className=" border-none">
               <TableCell
                 colSpan={12}
                 rowSpan={2}
                 className=" font-semibold uppercase text-xs 2xl:text-sm text-center truncate"
               >
-                No bets found
+                No {tab} bets found
               </TableCell>
             </TableRow>
           )}
           {!isPending &&
-            bets.length > 0 &&
-            bets?.map((bet: any, index: number) => (
+            currentBets.length > 0 &&
+            currentBets?.map((bet: any, index: number) => (
               <TableRow className=" border-none" key={index}>
                 <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
                   {bet.id}
@@ -360,7 +354,7 @@ const BetHistory = () => {
       </Table>
       <div className="flex items-center justify-between p-5">
         <h4 className="text-[#848BAC] font-thin text-xs 2xl:text-base ">
-          PAGE {currentPage} OF {Math.ceil(bets.length / betsPerPage)}
+          PAGE {currentPage} OF {Math.ceil(filteredBets?.length / betsPerPage)}
         </h4>
         <div className="flex gap-2 items-center">
           <button className="text-[#848BAC] text-2xl"
