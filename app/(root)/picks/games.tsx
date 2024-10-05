@@ -22,6 +22,7 @@ interface GetGamesParams {
   setFeaturedMatch: (match: any) => void;
   account: any;
   tab: string;
+  setBets: (bets: Bet[]) => void;
 }
 
 interface Bet {
@@ -39,7 +40,7 @@ interface Bet {
   league: string;
 }
 
-const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch, account, tab }: GetGamesParams) => {
+const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setBets, setFeaturedMatch, account, tab }: GetGamesParams) => {
   // GAMES DATA
   const {
     data: games,
@@ -86,6 +87,17 @@ const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch, acco
   
   const addGameToBetSlip = ({ game, home }: { game: any; home: boolean }) => {
     // e.preventDefault();
+    let gameAlreadyInBetSlip = false;
+    bets.forEach((bet) => {
+      if (bet.id === game.id) {
+        gameAlreadyInBetSlip = true;
+      }
+    });
+
+    // if game exists, remove it
+    if (gameAlreadyInBetSlip) {
+      setBets(bets.filter((bet) => bet.id !== game.id));
+    }
 
     const odds = home
     ? game.bookmakers[0]?.markets[0]?.outcomes[0].price

@@ -21,7 +21,13 @@ import { MdOutlineArrowUpward } from "react-icons/md";
 import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
 import BetSlip from "./bet-slip";
 import GamesTable from "./games";
-import { americanToDecimalOdds, calculateToWin } from "@/lib/utils";
+import {
+  americanToDecimalOdds,
+  calculateToWin,
+  getOriginalAccountValue,
+} from "@/lib/utils";
+import { accountStore } from "@/app/store/account";
+import { ALL_STEP_CHALLENGES } from "@/lib/constants";
 
 type oddsType = "american" | "decimal";
 
@@ -42,9 +48,7 @@ interface Bet {
 
 const page = () => {
   // ACCOUNT
-  const { data: account, isPending: loadingAccount } = useGetAccount(
-    "66f870324f9d0a9dc1b1dc62"
-  );
+  const account = accountStore((state) => state.account);
 
   // BET SLIP DATA
   const [selectedBets, setSelectedBets] = React.useState<Bet[]>([]);
@@ -111,9 +115,9 @@ const page = () => {
     setSelectedBets(updatedBets);
   };
 
-  useEffect(()=>{
-  setToCollect(calculateToCollect());
-  }, [selectedBets])
+  useEffect(() => {
+    setToCollect(calculateToCollect());
+  }, [selectedBets]);
 
   // TABS MECHANISM
   const [tab, setTab] = React.useState("football");
@@ -130,13 +134,58 @@ const page = () => {
   };
 
   // ODDS FORMAT
-  const [oddsFormat, setOddsFormat] = React.useState<oddsType>("american");
+  const [oddsFormat, setOddsFormat] = React.useState<oddsType>("decimal");
   const changeOddsFormat = (format: oddsType) => {
     setOddsFormat(format);
   };
 
   // FEATURED MATCH
   const [featuredMatch, setFeaturedMatch] = React.useState<any>(null);
+  const addGameToBetSlip = ({ game, home }: { game: any; home: boolean }) => {
+
+    let gameAlreadyInBetSlip = false;
+    selectedBets.forEach((bet) => {
+      if (bet.id === game.id) {
+        gameAlreadyInBetSlip = true;
+      }
+    });
+
+    // if game exists, remove it
+    if (gameAlreadyInBetSlip) {
+      setSelectedBets(selectedBets.filter((bet) => bet.id !== game.id));
+    }
+    
+    const odds = home
+      ? game.bookmakers[0]?.markets[0]?.outcomes[0].price
+      : game.bookmakers[0]?.markets[0]?.outcomes[1].price;
+
+    const initialPick =
+      getOriginalAccountValue(account) * ALL_STEP_CHALLENGES.minPickAmount;
+    const bet: Bet = {
+      id: game.id,
+      team: home ? game.home_team : game.away_team,
+      odds: Number(odds),
+      pick: initialPick,
+      toWin:
+        oddsFormat === "decimal"
+          ? initialPick * (Number(odds) - 1)
+          : initialPick * (americanToDecimalOdds(Number(odds)) - 1),
+      oddsFormat: oddsFormat,
+      home_team: game.home_team,
+      away_team: game.away_team,
+      gameDate: game.commence_time,
+      sport: tab,
+      league: leagueTab,
+      event: `${game.home_team} vs ${game.away_team}`,
+    };
+
+    // if bet id is already there, skip
+    if (selectedBets.find((b) => b.id === bet.id)) {
+      return;
+    }
+
+    addBet(bet);
+  };
 
   // SPORTS DATA
   const { data, isPending, isError } = useGetSports();
@@ -162,6 +211,10 @@ const page = () => {
       changeLeagueTab(leaguesArray[0].key);
     }
   }, [data]);
+
+  const findTeamInBets = (team: string, id: number) => {
+    return selectedBets.find((bet) => bet.team === team && bet.id === id);
+  };
 
   // PLACE BETS
   const { mutate: placeBet, isPending: placingBet } = useCreateBet({
@@ -233,7 +286,7 @@ const page = () => {
 
     placeBet({
       bet: alteredBet,
-      accountNumber: "PH4504514-22",
+      accountNumber: account.accountNumber,
     });
   };
 
@@ -280,16 +333,39 @@ const page = () => {
             </p>
           </div>
           <div className="flex w-full md:w-fit items-center gap-2 flex-col md:flex-row">
-            <button className="flex justify-center items-center gap-2 p-4 text-sm w-full md:w-fit 2xl:text-lg  bg-[#272837] shadow-inner shadow-gray-600 rounded-lg">
+            <button
+              className={`flex justify-center items-center gap-2 p-4 text-sm w-full md:w-fit 2xl:text-lg  bg-[#272837] shadow-inner shadow-gray-600 rounded-lg ${
+                findTeamInBets(featuredMatch?.home_team, featuredMatch?.id)
+                  ? " border border-primary-50/80 shadow shadow-green-700"
+                  : ""
+              }`}
+              onClick={
+                () => addGameToBetSlip({ game: featuredMatch, home: true })
+              }
+            >
               {featuredMatch?.home_team}
             </button>
             <p className=" p-1.5 text-sm px-2 rounded-full font-bold -mx-4 -my-4 z-30 text-primary-50 bg-green-700/30 border-green-700/40 border-2">
               vs
             </p>
-            <button className="flex justify-center items-center gap-2 p-4 text-sm w-full md:w-fit 2xl:text-lg  bg-[#272837] shadow-inner shadow-gray-600 rounded-lg">
+            <button
+              className={`flex justify-center items-center gap-2 p-4 text-sm w-full md:w-fit 2xl:text-lg  bg-[#272837] shadow-inner shadow-gray-600 rounded-lg ${
+                findTeamInBets(featuredMatch?.away_team, featuredMatch?.id)
+                  ? " border border-primary-50/80 shadow shadow-green-700"
+                  : ""
+              }`}
+              onClick={() =>
+                addGameToBetSlip({ game: featuredMatch, home: false })
+              }
+            >
               {featuredMatch?.away_team}
             </button>
-            <button className="flex justify-center uppercase items-center gap-2 p-4 text-sm w-full md:w-fit 2xl:text-base font-bold bg-[#333547] inner-shadow rounded-lg">
+            <button
+              className="flex justify-center uppercase items-center gap-2 p-4 text-sm w-full md:w-fit 2xl:text-base font-bold bg-[#333547] inner-shadow rounded-lg"
+              onClick={() =>
+                addGameToBetSlip({ game: featuredMatch, home: true })
+              }
+            >
               BET NOW
             </button>
           </div>
@@ -372,6 +448,7 @@ const page = () => {
                 oddsFormat={oddsFormat}
                 addBet={addBet}
                 bets={selectedBets}
+                setBets={setSelectedBets}
                 setFeaturedMatch={setFeaturedMatch}
                 account={account}
               />
