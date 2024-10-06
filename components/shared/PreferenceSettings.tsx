@@ -90,7 +90,7 @@ const PreferenceSettings = ({
           }}
         />
       </div>
-      <div className=" w-full flex justify-between py-4 pb-8 border-b border-gray-700">
+      <div className=" w-full flex justify-between py-4 pb-8">
         <div className="flex flex-col gap-1">
           <h3 className=" text-lg uppercase font-bold">Email Notifications</h3>
 
@@ -108,7 +108,7 @@ const PreferenceSettings = ({
           }}
         />
       </div>
-      <div className=" w-full flex justify-between py-4  ">
+      {/* <div className=" w-full flex justify-between py-4  ">
         <div className="flex flex-col gap-1">
           <h3 className=" text-lg uppercase font-bold">ODDS DISPLAY</h3>
 
@@ -141,7 +141,7 @@ const PreferenceSettings = ({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>{" "}
-      </div>
+      </div> */}
     </div>
   );
 };
