@@ -419,12 +419,20 @@ const PayoutsSection = () => {
   const account = accountStore((state) => state.account);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [shouldRefetch, setShouldRefetch] = useState(false); // State to trigger refetch
+
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
+  // Function to trigger refetch when payout is successful
+  const handlePayoutSuccess = () => {
+    setShouldRefetch(true);
+    setTimeout(() => setShouldRefetch(false), 500); // Reset refetch flag after triggering
+  };
+
   return (
     <>
-      <PayoutModal open={isModalOpen} onClose={closeModal} />
+      <PayoutModal open={isModalOpen} onClose={closeModal} handlePayoutSuccess={handlePayoutSuccess} />
       <div className=" w-full space-y-5 bg-primary-100 py-6  md:p-3  rounded-2xl 2xl:p-5 mb-8">
         <div className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative min-h-32 2xl:min-h-44 rounded-2xl w-full  flex flex-col gap-1 ">
           <div className=" text-[#AFB2CA] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold flex justify-between items-center">
@@ -455,7 +463,7 @@ const PayoutsSection = () => {
             </p>
           </div>
         </div>
-        <FundedPayoutRequestsTable />
+        <FundedPayoutRequestsTable shouldRefetch={shouldRefetch} />
       </div>
     </>
   );

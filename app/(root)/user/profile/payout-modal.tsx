@@ -37,9 +37,11 @@ type PayoutFormInputs = z.infer<typeof payoutSchema>;
 export default function PayoutModal({
   open,
   onClose,
+  handlePayoutSuccess,
 }: {
   open: boolean;
   onClose: () => void;
+  handlePayoutSuccess: () => void;
 }) {
   const [selectedCurrency, setSelectedCurrency] = useState<Currency | null>(
     null
@@ -58,6 +60,7 @@ export default function PayoutModal({
   const { mutate: requestPayout, isPending } = usePostFundedPayoutReq({
     onSuccess: () => {
       toast.success("Payout request submitted successfully");
+      handlePayoutSuccess();
       onClose();
     },
     onError: (error: any) => {

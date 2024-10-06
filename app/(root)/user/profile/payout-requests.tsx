@@ -1,3 +1,4 @@
+"use client";
 import { useGetFundedPayout } from "@/app/hooks/useGetFundedPayout";
 import { accountStore } from "@/app/store/account";
 import {
@@ -17,12 +18,101 @@ import {
 import { FundedPayoutRequests } from "@prisma/client";
 import { LoaderCircle } from "lucide-react";
 import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
 import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
 
-export default function FundedPayoutRequestsTable() {
+export default function FundedPayoutRequestsTable({
+  shouldRefetch,
+}: {
+  shouldRefetch: boolean;
+}) {
   const account = accountStore((state) => state.account);
 
-  const { data: payoutHistoryData, isPending } = useGetFundedPayout(account.id);
+  const {
+    data: payoutHistoryData,
+    isPending,
+    refetch,
+  } = useGetFundedPayout(account.id);
+
+  useEffect(() => {
+    if (shouldRefetch) {
+      refetch();
+    }
+  }, [shouldRefetch]);
+
+  // Sorting by bet date
+  const [sortFilter, setSortFilter] = useState<
+    "LAST_7_DAYS" | "LAST_14_DAYS" | "LAST_30_DAYS"
+  >("LAST_7_DAYS");
+  const sortHistory = (
+    filter: "LAST_7_DAYS" | "LAST_14_DAYS" | "LAST_30_DAYS"
+  ) => {
+    setSortFilter(filter);
+    setCurrentPage(1); // Reset to first page on sort change
+  };
+
+  // Derived state: Filtered Bets based on Tab and Sort Filter
+  const filteredHistory = useMemo(() => {
+    if (!payoutHistoryData) return;
+
+    let filtered = payoutHistoryData;
+
+    const currentDate = new Date();
+
+    switch (sortFilter) {
+      case "LAST_7_DAYS":
+        filtered = payoutHistoryData.filter((payout: FundedPayoutRequests) => {
+          const requestDate = new Date(payout.createdAt);
+          const diffTime = currentDate.getTime() - requestDate.getTime();
+          const diffDays = diffTime / (1000 * 60 * 60 * 24);
+          return diffDays <= 7;
+        });
+        break;
+      case "LAST_14_DAYS":
+        filtered = payoutHistoryData.filter((payout: FundedPayoutRequests) => {
+          const requestDate = new Date(payout.createdAt);
+          const diffTime = currentDate.getTime() - requestDate.getTime();
+          const diffDays = diffTime / (1000 * 60 * 60 * 24);
+          return diffDays <= 14;
+        });
+        break;
+      case "LAST_30_DAYS":
+        filtered = payoutHistoryData.filter((payout: FundedPayoutRequests) => {
+          const requestDate = new Date(payout.createdAt);
+          const diffTime = currentDate.getTime() - requestDate.getTime();
+          const diffDays = diffTime / (1000 * 60 * 60 * 24);
+          return diffDays <= 30;
+        });
+        break;
+      default:
+        break;
+    }
+
+    return filtered;
+  }, [payoutHistoryData, sortFilter]);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 5; // Adjust as needed
+
+  const totalPages = useMemo(
+    () => Math.ceil(filteredHistory?.length / rowsPerPage),
+    [filteredHistory?.length, rowsPerPage]
+  );
+
+  const currentHistory = useMemo(() => {
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    return filteredHistory?.slice(start, end);
+  }, [filteredHistory, currentPage, rowsPerPage]);
+
+  // Change page
+  const goToNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+  const goToPreviousPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
 
   return (
     <div className=" w-full border border-gray-700 rounded-xl  flex flex-col">
@@ -39,15 +129,24 @@ export default function FundedPayoutRequestsTable() {
             FILTER
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-48  bg-[#181926] text-white border-none  mt-1  p-3 rounded-lg shadow-sm">
-            <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between ">
+            <DropdownMenuItem
+              className="flex text-xs 2xl:text-base items-center justify-between "
+              onClick={() => sortHistory("LAST_7_DAYS")}
+            >
               <p>LAST 7 DAYS</p>
               {/* <MdOutlineArrowUpward className="text-lg" /> */}
             </DropdownMenuItem>
 
-            <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between ">
+            <DropdownMenuItem
+              className="flex text-xs 2xl:text-base items-center justify-between "
+              onClick={() => sortHistory("LAST_14_DAYS")}
+            >
               <p>LAST 14 DAYS</p>
             </DropdownMenuItem>
-            <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between ">
+            <DropdownMenuItem
+              className="flex text-xs 2xl:text-base items-center justify-between "
+              onClick={() => sortHistory("LAST_30_DAYS")}
+            >
               <p>LAST 30 DAYS</p>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -77,14 +176,10 @@ export default function FundedPayoutRequestsTable() {
         <TableBody>
           {isPending && (
             <TableRow>
-              <TableCell
-                colSpan={5}
-                className="text-center"
-                align="center"
-              >
+              <TableCell colSpan={5} className="text-center" align="center">
                 <div className="flex justify-center items-center gap-2">
-                    <LoaderCircle className="animate-spin" />
-                    <span>Loading...</span>
+                  <LoaderCircle className="animate-spin" />
+                  <span>Loading...</span>
                 </div>
               </TableCell>
             </TableRow>
@@ -98,59 +193,62 @@ export default function FundedPayoutRequestsTable() {
             </TableRow>
           )}
 
-          {!isPending && payoutHistoryData.map((payout: FundedPayoutRequests) => (
-            <TableRow className=" border-none">
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
-                {new Date(payout.createdAt).toUTCString()}
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
-                {payout.id}
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
-                ${payout.amount}
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base flex items-center justify-center truncate">
-                {payout.status === "PENDING" && (
-                  <p className="uppercase px-2 py-1 bg-yellow-500/20 text-yellow-500 border border-yellow-500 rounded-full">
-                    pending
+          {!isPending &&
+            currentHistory.map((payout: FundedPayoutRequests) => (
+              <TableRow className=" border-none">
+                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
+                  {new Date(payout.createdAt).toUTCString()}
+                </TableCell>
+                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
+                  {payout.id}
+                </TableCell>
+                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
+                  ${payout.amount}
+                </TableCell>
+                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base flex items-center justify-center truncate">
+                  {payout.status === "PENDING" && (
+                    <p className="uppercase px-2 py-1 bg-yellow-500/20 text-yellow-500 border border-yellow-500 rounded-full">
+                      pending
+                    </p>
+                  )}
+                  {payout.status === "PAID" && (
+                    <p className="uppercase px-2 py-1 bg-green-500/20 text-green-500 border border-green-500 rounded-full">
+                      paid
+                    </p>
+                  )}
+                  {payout.status === "DECLINED" && (
+                    <p className="uppercase px-2 py-1 bg-red-500/20 text-red-500 border border-red-500 rounded-full">
+                      rejected
+                    </p>
+                  )}
+                </TableCell>
+                <TableCell className=" font-semibold max-w-[120px]  capitalize text-xs 2xl:text-base  justify-center ">
+                  <p className="flex items-center gap-1 text-xs  text-green-400 font-semibold ">
+                    <Image
+                      src="/icons/download.png"
+                      alt="Coin Icon"
+                      width={14}
+                      height={14}
+                    />
+                    <span className=" ">DOWNLOAD</span>
                   </p>
-                )}
-                {payout.status === "PAID" && (
-                  <p className="uppercase px-2 py-1 bg-green-500/20 text-green-500 border border-green-500 rounded-full">
-                    paid
-                  </p>
-                )}
-                {payout.status === "DECLINED" && (
-                  <p className="uppercase px-2 py-1 bg-red-500/20 text-red-500 border border-red-500 rounded-full">
-                    rejected
-                  </p>
-                )}
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[120px]  capitalize text-xs 2xl:text-base  justify-center ">
-                <p className="flex items-center gap-1 text-xs  text-green-400 font-semibold ">
-                  <Image
-                    src="/icons/download.png"
-                    alt="Coin Icon"
-                    width={14}
-                    height={14}
-                  />
-                  <span className=" ">DOWNLOAD</span>
-                </p>
-              </TableCell>
-            </TableRow>
-          ))}
-
+                </TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
       <div className="flex items-center justify-between p-5">
         <h4 className="text-[#848BAC] font-thin text-xs 2xl:text-base ">
-          PAGE 1-5
+          PAGE {currentPage} OF {totalPages}
         </h4>
         <div className="flex gap-2 items-center">
-          <button className="text-[#848BAC] text-2xl">
+          <button
+            className="text-[#848BAC] text-2xl"
+            onClick={goToPreviousPage}
+          >
             <TiArrowLeft />
           </button>
-          <button className="text-[white] text-2xl">
+          <button className="text-[white] text-2xl" onClick={goToNextPage}>
             <TiArrowRight />
           </button>
         </div>
