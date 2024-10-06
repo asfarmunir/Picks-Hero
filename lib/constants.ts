@@ -204,7 +204,7 @@ export const profileLevels = {
     target: 10,
   },
   "BRONZE" : {
-    icon: "/icons/level2.svg",
+    icon: "/icons/level2.png",
     target: 50,
   },
   "SILVER" : {
