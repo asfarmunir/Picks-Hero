@@ -77,6 +77,16 @@ export async function POST(req:NextRequest) {
             }
         });
 
+        await prisma.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                // 14 days from now
+                referPayoutTimer: new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000)
+            }
+        });
+
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 400 });
     }

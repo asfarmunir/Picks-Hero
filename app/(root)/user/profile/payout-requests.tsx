@@ -1,0 +1,160 @@
+import { useGetFundedPayout } from "@/app/hooks/useGetFundedPayout";
+import { accountStore } from "@/app/store/account";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { FundedPayoutRequests } from "@prisma/client";
+import { LoaderCircle } from "lucide-react";
+import Image from "next/image";
+import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
+
+export default function FundedPayoutRequestsTable() {
+  const account = accountStore((state) => state.account);
+
+  const { data: payoutHistoryData, isPending } = useGetFundedPayout(account.id);
+
+  return (
+    <div className=" w-full border border-gray-700 rounded-xl  flex flex-col">
+      <div className="flex items-center justify-between w-full p-6 ">
+        <h3 className=" font-bold">PAYOUT HISTORY</h3>
+        <DropdownMenu>
+          <DropdownMenuTrigger className=" bg-[#272837] shadow-inner shadow-gray-700   justify-center  md:w-fit  text-xs 2xl:text-sm px-3.5 py-2 rounded-xl inline-flex items-center gap-2">
+            <Image
+              src="/icons/filter.svg"
+              alt="Arrow Icon"
+              width={13}
+              height={13}
+            />
+            FILTER
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-48  bg-[#181926] text-white border-none  mt-1  p-3 rounded-lg shadow-sm">
+            <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between ">
+              <p>LAST 7 DAYS</p>
+              {/* <MdOutlineArrowUpward className="text-lg" /> */}
+            </DropdownMenuItem>
+
+            <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between ">
+              <p>LAST 14 DAYS</p>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between ">
+              <p>LAST 30 DAYS</p>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+      <Table>
+        {/* <TableCaption>A list of your recent invoices.</TableCaption> */}
+        <TableHeader className=" bg-[#333547] text-[#848BAC] border-none">
+          <TableRow className=" border-none">
+            <TableHead className="uppercase  font-bold text-center">
+              Date
+            </TableHead>
+            <TableHead className="uppercase font-bold text-center">
+              INVOICE NUMBER
+            </TableHead>
+            <TableHead className="uppercase font-bold text-center">
+              invoice
+            </TableHead>
+            <TableHead className="uppercase font-bold text-center">
+              STATUS
+            </TableHead>
+            <TableHead className="uppercase font-bold text-center">
+              amount
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {isPending && (
+            <TableRow>
+              <TableCell
+                colSpan={5}
+                className="text-center"
+                align="center"
+              >
+                <div className="flex justify-center items-center gap-2">
+                    <LoaderCircle className="animate-spin" />
+                    <span>Loading...</span>
+                </div>
+              </TableCell>
+            </TableRow>
+          )}
+
+          {payoutHistoryData?.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={5} className="text-center">
+                No payout history found.
+              </TableCell>
+            </TableRow>
+          )}
+
+          {!isPending && payoutHistoryData.map((payout: FundedPayoutRequests) => (
+            <TableRow className=" border-none">
+              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
+                {new Date(payout.createdAt).toUTCString()}
+              </TableCell>
+              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
+                {payout.id}
+              </TableCell>
+              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
+                ${payout.amount}
+              </TableCell>
+              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base flex items-center justify-center truncate">
+                {payout.status === "PENDING" && (
+                  <p className="uppercase px-2 py-1 bg-yellow-500/20 text-yellow-500 border border-yellow-500 rounded-full">
+                    pending
+                  </p>
+                )}
+                {payout.status === "PAID" && (
+                  <p className="uppercase px-2 py-1 bg-green-500/20 text-green-500 border border-green-500 rounded-full">
+                    paid
+                  </p>
+                )}
+                {payout.status === "DECLINED" && (
+                  <p className="uppercase px-2 py-1 bg-red-500/20 text-red-500 border border-red-500 rounded-full">
+                    rejected
+                  </p>
+                )}
+              </TableCell>
+              <TableCell className=" font-semibold max-w-[120px]  capitalize text-xs 2xl:text-base  justify-center ">
+                <p className="flex items-center gap-1 text-xs  text-green-400 font-semibold ">
+                  <Image
+                    src="/icons/download.png"
+                    alt="Coin Icon"
+                    width={14}
+                    height={14}
+                  />
+                  <span className=" ">DOWNLOAD</span>
+                </p>
+              </TableCell>
+            </TableRow>
+          ))}
+
+        </TableBody>
+      </Table>
+      <div className="flex items-center justify-between p-5">
+        <h4 className="text-[#848BAC] font-thin text-xs 2xl:text-base ">
+          PAGE 1-5
+        </h4>
+        <div className="flex gap-2 items-center">
+          <button className="text-[#848BAC] text-2xl">
+            <TiArrowLeft />
+          </button>
+          <button className="text-[white] text-2xl">
+            <TiArrowRight />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

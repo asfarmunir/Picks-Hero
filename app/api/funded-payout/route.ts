@@ -95,6 +95,15 @@ export async function POST(req: NextRequest) {
             }
         });
 
+        await prisma.account.update({
+            where: {
+                id: account.id
+            },
+            data: {
+                fundedPayoutTimer: new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000)
+            }
+        });
+
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 400 });
     }
