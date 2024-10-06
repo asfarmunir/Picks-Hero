@@ -8,20 +8,33 @@ const {
 } = require("./utils");
 const prisma = new PrismaClient();
 
-
 const scheduleOldCronJobs = async () => {
-    try {
-        const cronJobs = await prisma.cronJobs.findMany({
-            where: {
-                jobStatus: "PENDING",
-            }
-        });
-        for (const job of cronJobs) {
-            addCronJob(job.jobName, job.jobDate, job.type, job.accountId, true);
-        }
-    } catch (error) {
-        throw new Error(error);
+  try {
+    const breachedAccounts = await prisma.account.findMany({
+      where: {
+        status: "BREACHED",
+      },
+      select: { id: true }, // Only select the IDs, no need to fetch full objects
+    });
+
+    const breachedAccountIds = new Set(
+      breachedAccounts.map((account) => account.id)
+    ); // Store breached account IDs in a Set
+    const cronJobs = await prisma.cronJobs.findMany({
+      where: {
+        jobStatus: "PENDING",
+      },
+    });
+    for (const job of cronJobs) {
+      // Skip the job if it belongs to a breached account
+      if (breachedAccountIds.has(job.accountId)) {
+        continue;
+      }
+      addCronJob(job.jobName, job.jobDate, job.type, job.accountId, true);
     }
+  } catch (error) {
+    throw new Error(error);
+  }
 };
 
 // Initialize CRON jobs
@@ -138,24 +151,30 @@ const markAccountAsInactive = async (accountId) => {
 const cronJobs = {};
 
 // Function to add a new cron job
-const addCronJob = async (jobName, time, type, accountId, alreadyExists=false) => {
+const addCronJob = async (
+  jobName,
+  time,
+  type,
+  accountId,
+  alreadyExists = false
+) => {
   if (cronJobs[jobName]) {
     throw new Error("Job name already exists");
   }
 
-  if(!alreadyExists) {
+  if (!alreadyExists) {
     try {
-        await prisma.cronJobs.create({
-            data: {
-                jobName,
-                jobDate: time,
-                jobStatus: "PENDING",
-                type,
-                accountId: accountId,
-            },
-        });
+      await prisma.cronJobs.create({
+        data: {
+          jobName,
+          jobDate: time,
+          jobStatus: "PENDING",
+          type,
+          accountId: accountId,
+        },
+      });
     } catch (error) {
-        throw new Error(error);
+      throw new Error(error);
     }
   }
 
@@ -164,7 +183,6 @@ const addCronJob = async (jobName, time, type, accountId, alreadyExists=false) =
     async () => {
       console.log(`Executing job: ${jobName} at ${new Date()}`);
       try {
-
         if (type === "objectiveMin") {
           await markMinObjectiveAsFulfilled(accountId);
         } else if (type === "objectiveMax") {
@@ -174,18 +192,18 @@ const addCronJob = async (jobName, time, type, accountId, alreadyExists=false) =
         }
 
         const cronJob = await prisma.cronJobs.findFirst({
-            where: { jobName },
+          where: { jobName },
         });
 
         if (!cronJob) {
-            throw new Error("Job not found");
-        } 
-        
+          throw new Error("Job not found");
+        }
+
         await prisma.cronJobs.update({
-            where: { id: cronJob.id },
-            data: {
-                jobStatus: "COMPLETED",
-            },
+          where: { id: cronJob.id },
+          data: {
+            jobStatus: "COMPLETED",
+          },
         });
 
         console.log(`Job ${jobName} executed successfully`);
@@ -237,11 +255,16 @@ const deleteCronJob = async (jobName) => {
     // delete from db
     await prisma.cronJobs.delete({
       where: { jobName },
-    }); 
-    
+    });
   } else {
     throw new Error("Job not found");
   }
 };
 
-module.exports = { init, addCronJob, editCronJob, deleteCronJob, scheduleOldCronJobs };
+module.exports = {
+  init,
+  addCronJob,
+  editCronJob,
+  deleteCronJob,
+  scheduleOldCronJobs,
+};

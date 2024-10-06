@@ -60,17 +60,18 @@ model User {
 
   referralCode     String?
   referredBy       String?
-  referralBonus    Float   @default(0.0)
-  totalEarned      Float   @default(0.0)
-  totalReferrals   Int     @default(0)
-  totalReferPayout Float   @default(0.0)
+  referralBonus    Float     @default(0.0)
+  totalEarned      Float     @default(0.0)
+  totalReferrals   Int       @default(0)
+  totalReferPayout Float     @default(0.0)
   referPayoutTimer DateTime?
 
-  accounts        Account[]
-  PaymentCard     PaymentCard[]
-  AccountInvoices AccountInvoices[]
-  Bets            Bets[]
-  PayoutRequests  ReferPayoutRequests[]
+  accounts             Account[]
+  PaymentCard          PaymentCard[]
+  AccountInvoices      AccountInvoices[]
+  Bets                 Bets[]
+  PayoutRequests       ReferPayoutRequests[]
+  FundedPayoutRequests FundedPayoutRequests[]
 
   @@map("users")
 }
@@ -93,19 +94,20 @@ model Account {
   maxBetPeriod          DateTime // Store maximum bet period
   minBetPeriodCompleted Boolean  @default(false) // Store minimum bet period completed
 
-  totalFundedPayout Float @default(0.0)
+  totalFundedPayout Float     @default(0.0)
   totalFundedAmount Float
-  fundedPayoutTimer  DateTime?
+  fundedPayoutTimer DateTime?
 
   paymentMethod  String? // Store payment method details
   user           User?            @relation(fields: [userId], references: [id])
   billingAddress BillingAddress[]
   paymentCard    PaymentCard[]
 
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  AccountInvoices AccountInvoices[]
-  Bets            Bets[]
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  AccountInvoices      AccountInvoices[]
+  Bets                 Bets[]
+  FundedPayoutRequests FundedPayoutRequests[]
 
   @@map("accounts")
 }
@@ -287,4 +289,23 @@ model ReferPayoutRequests {
   updatedAt DateTime @updatedAt
 
   @@map("payoutrequests")
+}
+
+model FundedPayoutRequests {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String @db.ObjectId
+  accountId String @db.ObjectId
+
+  amount         Float
+  status         PayoutStaus
+  currency       Currency
+  networkAddress String
+
+  user    User    @relation(fields: [userId], references: [id])
+  account Account @relation(fields: [accountId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("fundedpayoutrequests")
 }

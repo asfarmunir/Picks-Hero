@@ -1,5 +1,6 @@
 const WebSocket = require("ws");
 const { PrismaClient } = require("../node_modules/@prisma/client");
+const { getOriginalBalance } = require("./utils");
 
 const prisma = new PrismaClient();
 
@@ -10,6 +11,22 @@ function broadcast(data, wss) {
       client.send(JSON.stringify(data));
     }
   });
+}
+
+function getNewUserLevel(picksWon) {
+  if (picksWon < 10) {
+    return "NEWBIE";
+  } else if (picksWon < 50) {
+    return "BRONZE";
+  } else if (picksWon < 100) {
+    return "SILVER";
+  } else if (picksWon < 200) {
+    return "GOLD";
+  } else if (picksWon < 350) {
+    return "PLATINUM";
+  } else {
+    return "HERO";
+  }
 }
 
 // Function to check for match updates and send to clients
@@ -86,7 +103,8 @@ async function checkForUpdates(wss) {
               let isHomeTeam = bet.team[i] === game.home_team;
               let matchWon =
                 (isHomeTeam &&
-                  Number(game.scores[0].score) > Number(game.scores[1].score)) ||
+                  Number(game.scores[0].score) >
+                    Number(game.scores[1].score)) ||
                 (!isHomeTeam &&
                   Number(game.scores[0].score) < Number(game.scores[1].score));
 
@@ -102,7 +120,7 @@ async function checkForUpdates(wss) {
           const account = await prisma.account.findUnique({
             where: { id: bet.accountId },
           });
-          
+
           // Update the bet in the database
           await prisma.bets.update({
             where: { id: bet.id },
@@ -115,6 +133,9 @@ async function checkForUpdates(wss) {
               where: { id: bet.accountId },
               data: {
                 balance: { increment: bet.pick + bet.winnings },
+                totalFundedAmount: {
+                  increment: account.status === "FUNDED" ? bet.winnings : 0,
+                },
               },
             });
             await prisma.user.update({
@@ -125,9 +146,9 @@ async function checkForUpdates(wss) {
                 picksWon: {
                   increment: 1,
                 },
-                totalFundedAmount: {
-                  increment: account.status === "FUNDED" ? bet.winnings : 0,
-                }
+                profileLevel: {
+                  set: getNewUserLevel(account.picksWon + 1),
+                },
               },
             });
           } else {
@@ -138,8 +159,37 @@ async function checkForUpdates(wss) {
               data: {
                 totalLoss: { increment: bet.pick },
                 dailyLoss: { increment: bet.pick },
+                totalFundedAmount: {
+                  decrement: account.status === "FUNDED" ? bet.pick : 0,
+                },
               },
             });
+            if (
+              account.dailyLoss + bet.pick >=
+              getOriginalBalance(account) * 0.15
+            ) {
+              await prisma.account.update({
+                where: {
+                  id: bet.accountId,
+                },
+                data: {
+                  status: "BREACHED",
+                },
+              });
+            }
+            if (
+              account.totalLoss + bet.pick >=
+              getOriginalBalance(account) * 0.2
+            ) {
+              await prisma.account.update({
+                where: {
+                  id: bet.accountId,
+                },
+                data: {
+                  status: "BREACHED",
+                },
+              });
+            }
           }
         } catch (error) {
           console.error(`Error processing bet ${bet.id}:`, error);
@@ -152,7 +202,6 @@ async function checkForUpdates(wss) {
     console.error("An unexpected error occurred in checkForUpdates:", error);
   }
 }
-
 
 // Initialize WebSocket server with noServer: true
 const init = (server) => {
