@@ -1,4 +1,5 @@
 import { connectToDatabase } from "@/lib/database";
+import { getDaysDifference } from "@/lib/utils";
 import prisma from "@/prisma/client";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
@@ -54,10 +55,16 @@ export async function POST(req:NextRequest) {
                 status: "PENDING"
             }
         });
+        
+        const remainingCountdown = getDaysDifference({ date1: user.referPayoutTimer || new Date(), date2: new Date()});
+        if(parseInt(remainingCountdown) > 0) {
+            return NextResponse.json({ error: `You can request payout after ${remainingCountdown} days` }, { status: 400 });
+        }
 
         if(pendingRequests && pendingRequests.amount === user.totalEarned ) {
             return NextResponse.json({ error: "You have already requested for payout" }, { status: 400 });
         }
+
         
         // create payout request
         await prisma.referPayoutRequests.create({

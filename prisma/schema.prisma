@@ -64,6 +64,7 @@ model User {
   totalEarned      Float   @default(0.0)
   totalReferrals   Int     @default(0)
   totalReferPayout Float   @default(0.0)
+  referPayoutTimer DateTime?
 
   accounts        Account[]
   PaymentCard     PaymentCard[]

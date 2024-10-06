@@ -18,6 +18,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const getDaysDifference = ({ date1, date2 }:{ date1: Date; date2: Date }) => {
+  const betDate = new Date(date1);
+  const diffTime = date2.getTime() - betDate.getTime();
+  const diffDays = diffTime / (1000 * 60 * 60 * 24);
+  return Math.abs(diffDays).toPrecision(2);
+};
+
 export function dateToFullCronString(date: Date) {
   const minutes = date.getUTCMinutes(); // Get minutes in UTC
   const hours = date.getUTCHours(); // Get hours in UTC
@@ -225,6 +232,9 @@ export const checkObjectivesAndUpgrade = async (prisma: any, account: any) => {
           minBetCompleted: false,
           // 30 days from now
           maxBetPeriod: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          totalFundedAmount: goFunded ? getOriginalAccountValue(account) : 0,
+          totalLoss: 0,
+          fundedPayoutTimer: goFunded ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) : null,
         },
       });
 
