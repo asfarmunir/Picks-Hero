@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -19,9 +19,32 @@ import {
 import { MdOutlineArrowUpward } from "react-icons/md";
 import Navbar from "@/components/shared/Navbar";
 import Link from "next/link";
+import { useGetAccounts } from "../hooks/useGetAccounts";
+
+const ACCOUNT_STATUS_ICON_DICT = {
+  CHALLENGE: "/icons/challenge.svg",
+  FUNDED: "/icons/fund.svg",
+  BREACHED: "/icons/breach.svg",
+};
+
+type accountTypes = "CHALLENGE" | "FUNDED" | "BREACHED";
 
 const page = () => {
   const [tab, setTab] = React.useState("hide");
+
+  const {
+    mutate: fetchAccounts,
+    data,
+    isPending,
+  } = useGetAccounts({
+    onSuccess: () => {},
+    onError: () => {},
+  });
+
+  useEffect(() => {
+    fetchAccounts();
+  }, []);
+
   return (
     <>
       <div
@@ -200,127 +223,45 @@ const page = () => {
               </Link>
             </div>
           </div>
-          <div className="flex flex-col md:flex-row items-center gap-4">
-            <div className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative  rounded-2xl w-full  flex flex-col gap-1 ">
-              <div className=" w-full flex items-center justify-between">
-                <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-                  $1000
-                </p>
-                <Image
-                  src="/icons/challenge.svg"
-                  alt="Arrow Icon"
-                  width={120}
-                  height={140}
-                />
-              </div>
-              <div className=" w-full flex items-center justify-between">
-                <p className=" text-[#AFB2CA] text-sm mb-3 mt-4 md:mt-1 2xl:text-lg ">
-                  ACCOUNT BALANCE
-                </p>
-                <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-                  $19,343.39
-                </p>
-              </div>
-              <div className=" w-full flex items-center justify-between">
-                <p className=" text-[#AFB2CA] text-sm mb-3 mt-4 md:mt-1 2xl:text-lg ">
-                  ACCOUNT NUMBER
-                </p>
-                <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-                  #PH8823232-22
-                </p>
-              </div>
-            </div>
-            <div className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative  rounded-2xl w-full  flex flex-col gap-1 ">
-              <div className=" w-full flex items-center justify-between">
-                <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-                  $1000
-                </p>
-                <Image
-                  src="/icons/fund.svg"
-                  alt="Arrow Icon"
-                  width={100}
-                  height={90}
-                  className="
-                  "
-                />
-              </div>
-              <div className=" w-full flex items-center justify-between">
-                <p className=" text-[#AFB2CA] text-sm mb-3 mt-4 md:mt-1 2xl:text-lg ">
-                  ACCOUNT BALANCE
-                </p>
-                <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-                  $19,343.39
-                </p>
-              </div>
-              <div className=" w-full flex items-center justify-between">
-                <p className=" text-[#AFB2CA] text-sm mb-3 mt-4 md:mt-1 2xl:text-lg ">
-                  ACCOUNT NUMBER
-                </p>
-                <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-                  #PH8823232-22
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col md:flex-row-reverse items-center gap-4">
-            <div className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative min-h-32 2xl:min-h-44 rounded-2xl w-full  flex flex-col gap-1 ">
-              <div className=" w-full flex items-center justify-between">
-                <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-                  $1000
-                </p>
-                <Image
-                  src="/icons/challenge.svg"
-                  alt="Arrow Icon"
-                  width={120}
-                  height={140}
-                />
-              </div>
-              <div className=" w-full flex items-center justify-between">
-                <p className=" text-[#AFB2CA] text-sm mb-3 mt-4 md:mt-1 2xl:text-lg ">
-                  ACCOUNT BALANCE
-                </p>
-                <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-                  $19,343.39
-                </p>
-              </div>
-              <div className=" w-full flex items-center justify-between">
-                <p className=" text-[#AFB2CA] text-sm mb-3 mt-4 md:mt-1 2xl:text-lg ">
-                  ACCOUNT NUMBER
-                </p>
-                <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-                  #PH8823232-22
-                </p>
-              </div>
-            </div>
-            <div className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative min-h-32 2xl:min-h-44 rounded-2xl w-full  flex flex-col gap-1 ">
-              <div className=" w-full flex items-center justify-between">
-                <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-                  $1000
-                </p>
-                <Image
-                  src="/icons/fund.svg"
-                  alt="Arrow Icon"
-                  width={100}
-                  height={90}
-                />
-              </div>
-              <div className=" w-full flex items-center justify-between">
-                <p className=" text-[#AFB2CA] text-sm mb-3 mt-4 md:mt-1 2xl:text-lg ">
-                  ACCOUNT BALANCE
-                </p>
-                <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-                  $19,343.39
-                </p>
-              </div>
-              <div className=" w-full flex items-center justify-between">
-                <p className=" text-[#AFB2CA] text-sm mb-3 mt-4 md:mt-1 2xl:text-lg ">
-                  ACCOUNT NUMBER
-                </p>
-                <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-                  #PH8823232-22
-                </p>
-              </div>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {isPending ? (
+              <>Loading...</>
+            ) : (
+              data?.map((account: any, index: number) => (
+                <div
+                  key={index}
+                  className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative  rounded-2xl w-full  flex flex-col gap-1 "
+                >
+                  <div className=" w-full flex items-center justify-between">
+                    <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
+                      ${account.accountSize.replace("K", "000")}
+                    </p>
+                    <Image
+                      src={`${ACCOUNT_STATUS_ICON_DICT[account.status as accountTypes]}`}
+                      alt="Arrow Icon"
+                      width={100}
+                      height={100}
+                    />
+                  </div>
+                  <div className=" w-full flex items-center justify-between">
+                    <p className=" text-xs md:text-sm text-[#AFB2CA]  mb-3 mt-4 md:mt-1 2xl:text-lg ">
+                      ACCOUNT BALANCE
+                    </p>
+                    <p className=" text-white mb-3 mt-4 text-xs  md:mt-0 2xl:text-lg font-semibold">
+                      ${account.balance}
+                    </p>
+                  </div>
+                  <div className=" w-full flex items-center justify-between">
+                    <p className=" text-[#AFB2CA] text-xs md:text-sm mb-3 mt-4 md:mt-1 2xl:text-lg ">
+                      ACCOUNT NUMBER
+                    </p>
+                    <p className=" text-white mb-3 mt-4 text-xs md:text-sm md:mt-0 2xl:text-lg font-semibold">
+                      #{account.accountNumber}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
         <div className=" w-full  bg-primary-100 py-6 px-2 md:p-8 flex flex-col gap-2 items-center justify-center min-h-48  rounded-2xl 2xl:p-6">

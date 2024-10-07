@@ -18,6 +18,18 @@ enum AccountStatus {
   BREACHED
 }
 
+<<<<<<< HEAD
+=======
+enum ProfileLevels {
+  NEWBIE
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+  HERO
+}
+
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
 model User {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   firstName String
@@ -28,12 +40,25 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+<<<<<<< HEAD
   twoFactorCode    String?
   twoFactorSecret  String?
   ascii            String?
   otpUrl           String?
   twoFactorExpires DateTime?
 
+=======
+  profileLevel ProfileLevels @default(NEWBIE)
+  picksWon     Int           @default(0)
+  kycVerified  Boolean       @default(false)
+
+  twoFactorCode    String?
+  twoFactorSecret  String?
+  ascii            String?
+  otpUrl           String?
+  twoFactorExpires DateTime?
+
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
   resetToken       String?
   resetTokenExpiry DateTime?
 
@@ -50,7 +75,14 @@ model User {
   referralBonus Float   @default(0.0)
   totalEarned   Float   @default(0.0)
 
+<<<<<<< HEAD
   accounts Account[]
+=======
+  accounts        Account[]
+  PaymentCard     PaymentCard[]
+  AccountInvoices AccountInvoices[]
+  Bets            Bets[]
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
 
   @@map("users")
 }
@@ -59,17 +91,32 @@ model Account {
   id     String @id @default(auto()) @map("_id") @db.ObjectId
   userId String @db.ObjectId
 
+<<<<<<< HEAD
   accountType AccountType  // 2 step, 3 step
   accountSize String // 1k, 5k, 10k, 50k, 100k
   status      AccountStatus // Challenge, Funded, Breached
+=======
+  accountType   AccountType // 2 step, 3 step
+  accountSize   String // 1k, 5k, 10k, 50k, 100k
+  status        AccountStatus // Challenge, Funded, Breached
+  balance       Float // Store account balance
+  accountNumber String // Store account number
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
 
   paymentMethod  String? // Store payment method details
   user           User?            @relation(fields: [userId], references: [id])
   billingAddress BillingAddress[]
   paymentCard    PaymentCard[]
 
+<<<<<<< HEAD
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+=======
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  AccountInvoices AccountInvoices[]
+  Bets            Bets[]
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
 
   @@map("accounts")
 }
@@ -113,6 +160,10 @@ model BillingAddress {
 model PaymentCard {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   accountId String @db.ObjectId
+<<<<<<< HEAD
+=======
+  userId    String @db.ObjectId
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
 
   cardNumber String // Store encrypted card number
   cardExpiry String
@@ -121,9 +172,84 @@ model PaymentCard {
   cardCvv    String // Store encrypted cvv
 
   account Account @relation(fields: [accountId], references: [id])
+<<<<<<< HEAD
+=======
+  user    User    @relation(fields: [userId], references: [id])
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("paymentcard")
 }
+<<<<<<< HEAD
+=======
+
+model AccountInvoices {
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  accountId     String @db.ObjectId
+  userId        String @db.ObjectId
+  paymentCardId String @db.ObjectId
+
+  invoiceNumber String
+  amount        Float
+  status        String
+  paymentMethod String
+  paymentDate   DateTime
+
+  account Account @relation(fields: [accountId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("accountinvoices")
+}
+
+enum BetResult {
+  WIN
+  LOSE
+  DRAW
+}
+
+enum BetStatus {
+  OPENED
+  CLOSED
+}
+
+enum OddsFormat {
+  DECIMAL
+  AMERICAN
+}
+
+model Bets {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String @db.ObjectId
+  accountId String @db.ObjectId
+
+  sportKey String
+  sport    String
+  eventId  String
+  event    String // home vs away teams
+  league   String
+
+  team     String
+  odds     Float
+  pick     Float
+  winnings Float
+
+  oddsFormat OddsFormat
+  betStatus  BetStatus
+  betResult  BetResult?
+  betDate    DateTime
+  gameDate   DateTime
+
+  user    User    @relation(fields: [userId], references: [id])
+  account Account @relation(fields: [accountId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("bets")
+}
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6

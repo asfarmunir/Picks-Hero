@@ -9,10 +9,10 @@ export async function PATCH(req: NextRequest) {
       id,
       firstName,
       lastName,
-      email,
+      // email,
       phone,
       address,
-      dateOfBirth,
+      // dateOfBirth,
       password,
     } = body;
 
@@ -20,10 +20,10 @@ export async function PATCH(req: NextRequest) {
       !id ||
       !firstName ||
       !lastName ||
-      !email ||
+      // !email ||
       !phone ||
-      !address ||
-      !dateOfBirth
+      !address 
+      // !dateOfBirth
     ) {
       return NextResponse.json(
         { message: "Missing required fields" },
@@ -31,13 +31,13 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const parsedDateOfBirth = new Date(dateOfBirth);
-    if (isNaN(parsedDateOfBirth.getTime())) {
-      return NextResponse.json(
-        { message: "Invalid Date of Birth format" },
-        { status: 400 }
-      );
-    }
+    // const parsedDateOfBirth = new Date(dateOfBirth);
+    // if (isNaN(parsedDateOfBirth.getTime())) {
+    //   return NextResponse.json(
+    //     { message: "Invalid Date of Birth format" },
+    //     { status: 400 }
+    //   );
+    // }
 
     const hashedPassword = password
       ? await bcrypt.hash(password, 10)
@@ -48,10 +48,14 @@ export async function PATCH(req: NextRequest) {
       data: {
         firstName,
         lastName,
+<<<<<<< HEAD
         email,
+=======
+        // email,
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
         phoneNumber : phone,
         address,
-        dateOfBirth: parsedDateOfBirth,
+        // dateOfBirth: parsedDateOfBirth,
         ...(password && { password: hashedPassword }),
       },
     });

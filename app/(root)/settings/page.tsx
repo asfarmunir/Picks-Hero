@@ -2,7 +2,7 @@
 import Navbar from "@/components/shared/Navbar";
 import { settingTabs } from "@/lib/constants";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect } from "react";
 
 import {
   DropdownMenu,
@@ -19,6 +19,8 @@ import PreferenceSettings from "@/components/shared/PreferenceSettings";
 import BillingSettings from "@/components/shared/BillingSettings";
 import Verification from "@/components/shared/Verification";
 import { useSession } from "next-auth/react";
+import { useGetPreferences } from "@/app/hooks/useGetPreferences";
+import KYCVerification from "./kyc-verfication";
 
 const page = () => {
   const [tab, setTab] = useState<string>("general");
@@ -26,6 +28,23 @@ const page = () => {
   const changeTab = (tab: string) => {
     setTab(tab);
   };
+
+  // GET PREFERENCES
+  const { mutate: fetchPreferences, data: preferences } = useGetPreferences({
+    onSuccess: (data) => {
+      // console.log(data);
+    },
+    onError: (error) => {
+      // console.log(error);
+    },
+  });
+
+  useEffect(() => {
+    if (session) {
+      fetchPreferences();
+    }
+  }, [session]);
+
   return (
     <>
       <div
@@ -72,7 +91,7 @@ const page = () => {
                 key={index}
                 className={`border  
              px-5 text-xs 2xl:text-lg py-2 flex-grow md:flex-grow-0 text-nowrap rounded-full ${
-               tab === curr.name
+               tab === curr.tab
                  ? "border-[#52FC18] bg-[#1A5B0B]"
                  : " border-gray-700 text-[#848BAC] border-2"
              } font-semibold uppercase`}
@@ -85,9 +104,15 @@ const page = () => {
           {
             {
               general: <GeneralSettings />,
-              preferences: <PreferenceSettings />,
+              preferences: (
+                <PreferenceSettings
+                  preferences={preferences}
+                  fetchPreferences={fetchPreferences}
+                />
+              ),
               billing: <BillingSettings />,
               verification: <Verification />,
+              kyc: <KYCVerification />,
             }[tab]
           }
         </div>

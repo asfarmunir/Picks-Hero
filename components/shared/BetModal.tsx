@@ -25,7 +25,22 @@ import {
 } from "@/components/ui/dialog";
 import Image from "next/image";
 import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
+import { useGetBets } from "@/app/hooks/useGetBets";
+
+const formatDate = (date: string) => {
+  const dateObj = new Date(date);
+  // format in the form "May 29, 23:26"
+  return dateObj.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 const BetModal = () => {
+  const { data: bets, isPending, isError } = useGetBets("PH3537349-22");
+
   return (
     <Dialog>
       <DialogTrigger
@@ -41,7 +56,7 @@ const BetModal = () => {
         />
         BET HISTORY{" "}
       </DialogTrigger>
-      <DialogContent className=" bg-primary-100 gap-1 p-5 text-white border-none  md:max-w-[1300px] 2xl:min-w-[1400px] flex flex-col ">
+      <DialogContent className=" bg-primary-100 gap-1 p-5 text-white border-none  md:max-w-[1300px] 2xl:min-w-[1400px] flex flex-col !max-h-[80vh] overflow-y-auto">
         <h2 className=" text-3xl font-bold mt-2 mb-5">BET HISTORY</h2>
 
         <div className=" w-full border bg-primary-100 border-gray-700 rounded-xl  flex flex-col">
@@ -139,622 +154,66 @@ const BetModal = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow className=" border-none">
-                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                  29523
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                  BASKETBALL
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
-                  Minnesota Timeberwolves vs Daalas Mavericks
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                  NBA
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
-                  POINT SPREAD DALLAS MAVERICKS +4.5
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                  -110
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                  1000
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm flex items-center justify-center truncate">
-                  <p className=" px-2 py-1 bg-green-500/20 text-green-500 border mt-2 border-green-500 rounded-full">
-                    paid
-                  </p>
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                  $12000
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center ">
-                  MAY 29, 01:36PM
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center ">
-                  MAY 29, 01:36PM
-                </TableCell>
-                <TableCell className=" font-semibold  capitalize text-xs 2xl:text-sm text-center ">
-                  <Dialog>
-                    <DialogTrigger className=" w-fit text-xs 2xl:text-sm text-nowrap rounded-xl inner-shadow px-4 py-3 inline-flex items-center gap-3">
-                      <span className=" font-bold uppercase">Bet slip</span>{" "}
-                    </DialogTrigger>
-                    <DialogContent className=" bg-primary-100 gap-1 p-5 text-white border-none  md:max-w-[1200px] 2xl:min-w-[1300px] flex flex-col ">
-                      <h2 className=" text-3xl font-bold mb-5">BET SLIP</h2>
-                      <div className="flex items-start justify-center gap-5 2xl:mb-6 w-full">
-                        <div className="flex flex-col space-y-3 items-center bg-[#272837] shadow-inner shadow-slate-700 rounded-xl px-3.5 py-5">
-                          <div className=" w-full flex items-center justify-between gap-6">
-                            <p className=" text-lg font-bold uppercase">
-                              2 PICKS TO WIN
-                              <span className="text-primary-50 ml-1.5">
-                                $500.00
-                              </span>
-                            </p>
-                            <p className="text-white font-bold px-2 py-1.5 rounded-lg bg-[#C02FF5]/20 border border-[#C02FF5] text-xs 2xl:text-sm">
-                              IN PROGRESS
-                            </p>
-                          </div>
-                          <div className="flex flex-col max-h-44 2xl:max-h-56 mt-1 overflow-auto px-1 w-full gap-3 ">
-                            <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
-                              <p className=" text-sm mb-2">
-                                Baltimore Ravens{" "}
-                                <span className=" font-thin">VS</span> Kansas
-                                City Chiefs
-                              </p>
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1.5">
-                                  <Image
-                                    src="/icons/kansas.png"
-                                    width={20}
-                                    alt="Kansas City Chiefs"
-                                    height={20}
-                                  />
-                                  <p className="text-sm">Kansas City Chiefs</p>
-                                </div>
-                                <p className="font-bold">2.23</p>
-                              </div>
-                            </div>
-                            <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
-                              <p className=" text-sm mb-2">
-                                Baltimore Ravens{" "}
-                                <span className=" font-thin">VS</span> Kansas
-                                City Chiefs
-                              </p>
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1.5">
-                                  <Image
-                                    src="/icons/kansas.png"
-                                    width={20}
-                                    alt="Kansas City Chiefs"
-                                    height={20}
-                                  />
-                                  <p className="text-sm">Kansas City Chiefs</p>
-                                </div>
-                                <p className="font-bold">2.23</p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between w-full pt-2">
-                            <p className="  font-bold text-primary-200">ODDS</p>
-                            <p className="  font-bold ">2.32</p>
-                          </div>
-                          <div className="flex items-center justify-between w-full">
-                            <p className="  font-bold text-primary-200">
-                              STAKE
-                            </p>
-                            <p className="  font-bold ">$10,000</p>
-                          </div>
-                          <div className="flex items-center justify-between w-full border-b pb-3.5 border-slate-700">
-                            <p className="  font-bold text-primary-200">
-                              WINNIG
-                            </p>
-                            <p className="  font-bold ">$26,600</p>
-                          </div>
-                          <div className="flex w-full px-4 py-2 items-center justify-between">
-                            <p className="text-white font-bold px-2 py-1.5 rounded-lg bg-[#737897]/20 border border-[#737897] text-xs 2xl:text-sm">
-                              20-03-2024
-                            </p>
-                            <Image
-                              src="/images/logo.svg"
-                              width={150}
-                              alt="QR Code"
-                              height={150}
-                            />
-                          </div>
-                        </div>
-                        <div className="flex flex-col space-y-3 items-center bg-[#272837] shadow-inner shadow-slate-700 rounded-xl px-3.5 py-5">
-                          <div className=" w-full flex items-center justify-between gap-6">
-                            <p className=" text-lg font-bold uppercase">
-                              2 PICKS TO WIN
-                              <span className="text-primary-50 ml-1.5">
-                                $500.00
-                              </span>
-                            </p>
-                            <p className="text-white font-bold px-2 py-1.5 rounded-lg bg-[#F74418]/20 border border-[#F74418] text-xs 2xl:text-sm">
-                              LOSS{" "}
-                            </p>
-                          </div>
-                          <div className="flex flex-col max-h-44 2xl:max-h-64 mt-1 overflow-auto px-1 w-full gap-3 ">
-                            <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
-                              <p className=" text-sm mb-2">
-                                Baltimore Ravens{" "}
-                                <span className=" font-thin">VS</span> Kansas
-                                City Chiefs
-                              </p>
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1.5">
-                                  <Image
-                                    src="/icons/kansas.png"
-                                    width={20}
-                                    alt="Kansas City Chiefs"
-                                    height={20}
-                                  />
-                                  <p className="text-sm">Kansas City Chiefs</p>
-                                </div>
-                                <p className="font-bold">2.23</p>
-                              </div>
-                            </div>
-                            <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
-                              <p className=" text-sm mb-2">
-                                Baltimore Ravens{" "}
-                                <span className=" font-thin">VS</span> Kansas
-                                City Chiefs
-                              </p>
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1.5">
-                                  <Image
-                                    src="/icons/kansas.png"
-                                    width={20}
-                                    alt="Kansas City Chiefs"
-                                    height={20}
-                                  />
-                                  <p className="text-sm">Kansas City Chiefs</p>
-                                </div>
-                                <p className="font-bold">2.23</p>
-                              </div>
-                            </div>
-                            <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
-                              <p className=" text-sm mb-2">
-                                Baltimore Ravens{" "}
-                                <span className=" font-thin">VS</span> Kansas
-                                City Chiefs
-                              </p>
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1.5">
-                                  <Image
-                                    src="/icons/kansas.png"
-                                    width={20}
-                                    alt="Kansas City Chiefs"
-                                    height={20}
-                                  />
-                                  <p className="text-sm">Kansas City Chiefs</p>
-                                </div>
-                                <p className="font-bold">2.23</p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between w-full pt-2">
-                            <p className="  font-bold text-primary-200">ODDS</p>
-                            <p className="  font-bold ">2.32</p>
-                          </div>
-                          <div className="flex items-center justify-between w-full">
-                            <p className="  font-bold text-primary-200">
-                              STAKE
-                            </p>
-                            <p className="  font-bold ">$10,000</p>
-                          </div>
-                          <div className="flex items-center justify-between w-full border-b pb-3.5 border-slate-700">
-                            <p className="  font-bold text-primary-200">
-                              WINNIG
-                            </p>
-                            <p className="  font-bold ">$26,600</p>
-                          </div>
-                          <div className="flex w-full px-4 py-2 items-center justify-between">
-                            <p className="text-white font-bold px-2 py-1.5 rounded-lg bg-[#737897]/20 border border-[#737897] text-xs 2xl:text-sm">
-                              20-03-2024
-                            </p>
-                            <Image
-                              src="/images/logo.svg"
-                              width={150}
-                              alt="QR Code"
-                              height={150}
-                            />
-                          </div>
-                        </div>
-                        <div className="flex flex-col space-y-3 items-center bg-[#272837] shadow-inner shadow-slate-700 rounded-xl px-3.5 py-5">
-                          <div className=" w-full flex items-center justify-between gap-6">
-                            <p className=" text-lg font-bold uppercase">
-                              2 PICKS
-                              <span className="text-primary-50 ml-1.5">
-                                +$500.00
-                              </span>
-                            </p>
-                            <p className="text-white font-bold px-2 py-1.5 rounded-lg bg-[#52FC18]/20 border border-[#52FC18] text-xs 2xl:text-sm">
-                              WIN
-                            </p>
-                          </div>
-                          <div className="flex flex-col max-h-44 2xl:max-h-56 mt-1 overflow-auto px-1 w-full gap-3 ">
-                            <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
-                              <p className=" text-sm mb-2">
-                                Baltimore Ravens{" "}
-                                <span className=" font-thin">VS</span> Kansas
-                                City Chiefs
-                              </p>
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1.5">
-                                  <Image
-                                    src="/icons/kansas.png"
-                                    width={20}
-                                    alt="Kansas City Chiefs"
-                                    height={20}
-                                  />
-                                  <p className="text-sm">Kansas City Chiefs</p>
-                                </div>
-                                <p className="font-bold">2.23</p>
-                              </div>
-                            </div>
-                            <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
-                              <p className=" text-sm mb-2">
-                                Baltimore Ravens{" "}
-                                <span className=" font-thin">VS</span> Kansas
-                                City Chiefs
-                              </p>
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1.5">
-                                  <Image
-                                    src="/icons/kansas.png"
-                                    width={20}
-                                    alt="Kansas City Chiefs"
-                                    height={20}
-                                  />
-                                  <p className="text-sm">Kansas City Chiefs</p>
-                                </div>
-                                <p className="font-bold">2.23</p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between w-full pt-2">
-                            <p className="  font-bold text-primary-200">ODDS</p>
-                            <p className="  font-bold ">2.32</p>
-                          </div>
-                          <div className="flex items-center justify-between w-full">
-                            <p className="  font-bold text-primary-200">
-                              STAKE
-                            </p>
-                            <p className="  font-bold ">$10,000</p>
-                          </div>
-                          <div className="flex items-center justify-between w-full border-b pb-3.5 border-slate-700">
-                            <p className="  font-bold text-primary-200">
-                              WINNIG
-                            </p>
-                            <p className="  font-bold ">$26,600</p>
-                          </div>
-                          <div className="flex w-full px-4 py-2 items-center justify-between">
-                            <p className="text-white font-bold px-2 py-1.5 rounded-lg bg-[#737897]/20 border border-[#737897] text-xs 2xl:text-sm">
-                              20-03-2024
-                            </p>
-                            <Image
-                              src="/images/logo.svg"
-                              width={150}
-                              alt="QR Code"
-                              height={150}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </TableCell>
-              </TableRow>
-              <TableRow className=" border-none">
-                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                  29523
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                  BASKETBALL
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
-                  Minnesota Timeberwolves vs Daalas Mavericks
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                  NBA
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
-                  POINT SPREAD DALLAS MAVERICKS +4.5
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                  -110
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                  1000
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm flex items-center justify-center truncate">
-                  <p className=" px-2 py-1 bg-green-500/20 text-green-500 border mt-2 border-green-500 rounded-full">
-                    paid
-                  </p>
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                  $12000
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center ">
-                  MAY 29, 01:36PM
-                </TableCell>
-                <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center ">
-                  MAY 29, 01:36PM
-                </TableCell>
-                <TableCell className=" font-semibold  capitalize text-xs 2xl:text-sm text-center ">
-                  <Dialog>
-                    <DialogTrigger className=" w-fit text-xs 2xl:text-sm text-nowrap rounded-xl inner-shadow px-4 py-3 inline-flex items-center gap-3">
-                      <span className=" font-bold uppercase">Bet slip</span>{" "}
-                    </DialogTrigger>
-                    <DialogContent className=" bg-primary-100 gap-1 p-5 text-white border-none  md:max-w-[1200px] 2xl:min-w-[1300px] flex flex-col ">
-                      <h2 className=" text-3xl font-bold mb-5">BET SLIP</h2>
-                      <div className="flex items-start justify-center gap-5 2xl:mb-6 w-full">
-                        <div className="flex flex-col space-y-3 items-center bg-[#272837] shadow-inner shadow-slate-700 rounded-xl px-3.5 py-5">
-                          <div className=" w-full flex items-center justify-between gap-6">
-                            <p className=" text-lg font-bold uppercase">
-                              2 PICKS TO WIN
-                              <span className="text-primary-50 ml-1.5">
-                                $500.00
-                              </span>
-                            </p>
-                            <p className="text-white font-bold px-2 py-1.5 rounded-lg bg-[#C02FF5]/20 border border-[#C02FF5] text-xs 2xl:text-sm">
-                              IN PROGRESS
-                            </p>
-                          </div>
-                          <div className="flex flex-col max-h-44 2xl:max-h-56 mt-1 overflow-auto px-1 w-full gap-3 ">
-                            <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
-                              <p className=" text-sm mb-2">
-                                Baltimore Ravens{" "}
-                                <span className=" font-thin">VS</span> Kansas
-                                City Chiefs
-                              </p>
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1.5">
-                                  <Image
-                                    src="/icons/kansas.png"
-                                    width={20}
-                                    alt="Kansas City Chiefs"
-                                    height={20}
-                                  />
-                                  <p className="text-sm">Kansas City Chiefs</p>
-                                </div>
-                                <p className="font-bold">2.23</p>
-                              </div>
-                            </div>
-                            <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
-                              <p className=" text-sm mb-2">
-                                Baltimore Ravens{" "}
-                                <span className=" font-thin">VS</span> Kansas
-                                City Chiefs
-                              </p>
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1.5">
-                                  <Image
-                                    src="/icons/kansas.png"
-                                    width={20}
-                                    alt="Kansas City Chiefs"
-                                    height={20}
-                                  />
-                                  <p className="text-sm">Kansas City Chiefs</p>
-                                </div>
-                                <p className="font-bold">2.23</p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between w-full pt-2">
-                            <p className="  font-bold text-primary-200">ODDS</p>
-                            <p className="  font-bold ">2.32</p>
-                          </div>
-                          <div className="flex items-center justify-between w-full">
-                            <p className="  font-bold text-primary-200">
-                              STAKE
-                            </p>
-                            <p className="  font-bold ">$10,000</p>
-                          </div>
-                          <div className="flex items-center justify-between w-full border-b pb-3.5 border-slate-700">
-                            <p className="  font-bold text-primary-200">
-                              WINNIG
-                            </p>
-                            <p className="  font-bold ">$26,600</p>
-                          </div>
-                          <div className="flex w-full px-4 py-2 items-center justify-between">
-                            <p className="text-white font-bold px-2 py-1.5 rounded-lg bg-[#737897]/20 border border-[#737897] text-xs 2xl:text-sm">
-                              20-03-2024
-                            </p>
-                            <Image
-                              src="/images/logo.svg"
-                              width={150}
-                              alt="QR Code"
-                              height={150}
-                            />
-                          </div>
-                        </div>
-                        <div className="flex flex-col space-y-3 items-center bg-[#272837] shadow-inner shadow-slate-700 rounded-xl px-3.5 py-5">
-                          <div className=" w-full flex items-center justify-between gap-6">
-                            <p className=" text-lg font-bold uppercase">
-                              2 PICKS TO WIN
-                              <span className="text-primary-50 ml-1.5">
-                                $500.00
-                              </span>
-                            </p>
-                            <p className="text-white font-bold px-2 py-1.5 rounded-lg bg-[#F74418]/20 border border-[#F74418] text-xs 2xl:text-sm">
-                              LOSS{" "}
-                            </p>
-                          </div>
-                          <div className="flex flex-col max-h-44 2xl:max-h-64 mt-1 overflow-auto px-1 w-full gap-3 ">
-                            <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
-                              <p className=" text-sm mb-2">
-                                Baltimore Ravens{" "}
-                                <span className=" font-thin">VS</span> Kansas
-                                City Chiefs
-                              </p>
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1.5">
-                                  <Image
-                                    src="/icons/kansas.png"
-                                    width={20}
-                                    alt="Kansas City Chiefs"
-                                    height={20}
-                                  />
-                                  <p className="text-sm">Kansas City Chiefs</p>
-                                </div>
-                                <p className="font-bold">2.23</p>
-                              </div>
-                            </div>
-                            <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
-                              <p className=" text-sm mb-2">
-                                Baltimore Ravens{" "}
-                                <span className=" font-thin">VS</span> Kansas
-                                City Chiefs
-                              </p>
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1.5">
-                                  <Image
-                                    src="/icons/kansas.png"
-                                    width={20}
-                                    alt="Kansas City Chiefs"
-                                    height={20}
-                                  />
-                                  <p className="text-sm">Kansas City Chiefs</p>
-                                </div>
-                                <p className="font-bold">2.23</p>
-                              </div>
-                            </div>
-                            <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
-                              <p className=" text-sm mb-2">
-                                Baltimore Ravens{" "}
-                                <span className=" font-thin">VS</span> Kansas
-                                City Chiefs
-                              </p>
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1.5">
-                                  <Image
-                                    src="/icons/kansas.png"
-                                    width={20}
-                                    alt="Kansas City Chiefs"
-                                    height={20}
-                                  />
-                                  <p className="text-sm">Kansas City Chiefs</p>
-                                </div>
-                                <p className="font-bold">2.23</p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between w-full pt-2">
-                            <p className="  font-bold text-primary-200">ODDS</p>
-                            <p className="  font-bold ">2.32</p>
-                          </div>
-                          <div className="flex items-center justify-between w-full">
-                            <p className="  font-bold text-primary-200">
-                              STAKE
-                            </p>
-                            <p className="  font-bold ">$10,000</p>
-                          </div>
-                          <div className="flex items-center justify-between w-full border-b pb-3.5 border-slate-700">
-                            <p className="  font-bold text-primary-200">
-                              WINNIG
-                            </p>
-                            <p className="  font-bold ">$26,600</p>
-                          </div>
-                          <div className="flex w-full px-4 py-2 items-center justify-between">
-                            <p className="text-white font-bold px-2 py-1.5 rounded-lg bg-[#737897]/20 border border-[#737897] text-xs 2xl:text-sm">
-                              20-03-2024
-                            </p>
-                            <Image
-                              src="/images/logo.svg"
-                              width={150}
-                              alt="QR Code"
-                              height={150}
-                            />
-                          </div>
-                        </div>
-                        <div className="flex flex-col space-y-3 items-center bg-[#272837] shadow-inner shadow-slate-700 rounded-xl px-3.5 py-5">
-                          <div className=" w-full flex items-center justify-between gap-6">
-                            <p className=" text-lg font-bold uppercase">
-                              2 PICKS
-                              <span className="text-primary-50 ml-1.5">
-                                +$500.00
-                              </span>
-                            </p>
-                            <p className="text-white font-bold px-2 py-1.5 rounded-lg bg-[#52FC18]/20 border border-[#52FC18] text-xs 2xl:text-sm">
-                              WIN
-                            </p>
-                          </div>
-                          <div className="flex flex-col max-h-44 2xl:max-h-56 mt-1 overflow-auto px-1 w-full gap-3 ">
-                            <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
-                              <p className=" text-sm mb-2">
-                                Baltimore Ravens{" "}
-                                <span className=" font-thin">VS</span> Kansas
-                                City Chiefs
-                              </p>
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1.5">
-                                  <Image
-                                    src="/icons/kansas.png"
-                                    width={20}
-                                    alt="Kansas City Chiefs"
-                                    height={20}
-                                  />
-                                  <p className="text-sm">Kansas City Chiefs</p>
-                                </div>
-                                <p className="font-bold">2.23</p>
-                              </div>
-                            </div>
-                            <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
-                              <p className=" text-sm mb-2">
-                                Baltimore Ravens{" "}
-                                <span className=" font-thin">VS</span> Kansas
-                                City Chiefs
-                              </p>
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1.5">
-                                  <Image
-                                    src="/icons/kansas.png"
-                                    width={20}
-                                    alt="Kansas City Chiefs"
-                                    height={20}
-                                  />
-                                  <p className="text-sm">Kansas City Chiefs</p>
-                                </div>
-                                <p className="font-bold">2.23</p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between w-full pt-2">
-                            <p className="  font-bold text-primary-200">ODDS</p>
-                            <p className="  font-bold ">2.32</p>
-                          </div>
-                          <div className="flex items-center justify-between w-full">
-                            <p className="  font-bold text-primary-200">
-                              STAKE
-                            </p>
-                            <p className="  font-bold ">$10,000</p>
-                          </div>
-                          <div className="flex items-center justify-between w-full border-b pb-3.5 border-slate-700">
-                            <p className="  font-bold text-primary-200">
-                              WINNIG
-                            </p>
-                            <p className="  font-bold ">$26,600</p>
-                          </div>
-                          <div className="flex w-full px-4 py-2 items-center justify-between">
-                            <p className="text-white font-bold px-2 py-1.5 rounded-lg bg-[#737897]/20 border border-[#737897] text-xs 2xl:text-sm">
-                              20-03-2024
-                            </p>
-                            <Image
-                              src="/images/logo.svg"
-                              width={150}
-                              alt="QR Code"
-                              height={150}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </TableCell>
-              </TableRow>
+              {isPending && (
+                <TableRow className=" border-none">
+                  <TableCell className=" font-semibold max-w-[100px] uppercase text-xs 2xl:text-sm text-center truncate">
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              )}
+              {bets?.map((bet: any) => (
+                <TableRow className=" border-none">
+                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                    {bet.id}
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                    {bet.sport}
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
+                    {bet.event}
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                    {bet.league.split("_")[1].toUpperCase()}
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
+                    {bet.team}
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                    {bet.odds}
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                    ${bet.pick}
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm flex items-center justify-center truncate">
+                    <p
+                      className={`px-2 py-1 border mt-2 rounded-full ${
+                        bet.betStatus === "OPENED"
+                          ? "bg-green-500/20 text-green-500 border-green-500"
+                          : "bg-red-500/20 text-red-500 border-red-500"
+                      }`}
+                    >
+                      {bet.betStatus}
+                    </p>
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                    ${bet.winnings.toFixed(2)}
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center ">
+                    {formatDate(bet.betDate)}
+                  </TableCell>
+                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center ">
+                    {formatDate(bet.gameDate)}
+                  </TableCell>
+                  <TableCell className=" font-semibold  capitalize text-xs 2xl:text-sm text-center ">
+                    <Dialog>
+                      <DialogTrigger className=" w-fit text-xs 2xl:text-sm text-nowrap rounded-xl inner-shadow px-4 py-3 inline-flex items-center gap-3">
+                        <span className=" font-bold uppercase">Bet slip</span>{" "}
+                      </DialogTrigger>
+                      <BetSlipDialogBody bet={bet} />
+                    </Dialog>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
           <div className="flex items-center justify-between p-5 border-t border-gray-700">
@@ -775,5 +234,72 @@ const BetModal = () => {
     </Dialog>
   );
 };
+
+const BetSlipDialogBody = ({ bet }: { bet: any }) => (
+  <DialogContent className=" bg-primary-100 gap-1 p-5 text-white border-none  md:max-w-[1200px] 2xl:min-w-[1300px] flex flex-col ">
+    <h2 className=" text-3xl font-bold mb-5">BET SLIP</h2>
+    <div className="flex items-start justify-center gap-5 2xl:mb-6 w-full">
+      <div className="flex flex-col space-y-3 items-center bg-[#272837] shadow-inner shadow-slate-700 rounded-xl px-3.5 py-5">
+        <div className=" w-full flex items-center justify-between gap-6">
+          <p className=" text-lg font-bold uppercase">
+            1 PICK TO WIN
+            <span className="text-primary-50 ml-1.5">
+              ${bet.winnings.toFixed(2)}
+            </span>
+          </p>
+          {bet.betStatus === "OPENED" && (
+            <p className="text-white font-bold px-2 py-1.5 rounded-lg bg-[#C02FF5]/20 border border-[#C02FF5] text-xs 2xl:text-sm">
+              IN PROGRESS
+            </p>
+          )}
+          {bet.betResult === "LOSE" && (
+            <p className="text-white font-bold px-2 py-1.5 rounded-lg bg-[#F74418]/20 border border-[#F74418] text-xs 2xl:text-sm">
+              LOSS{" "}
+            </p>
+          )}
+          {bet.betResult === "WIN" && (
+            <p className="text-white font-bold px-2 py-1.5 rounded-lg bg-[#52FC18]/20 border border-[#52FC18] text-xs 2xl:text-sm">
+              WIN
+            </p>
+          )}
+        </div>
+        <div className="flex flex-col max-h-44 2xl:max-h-56 mt-1 overflow-auto px-1 w-full gap-3 ">
+          <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
+            <p className=" text-sm mb-2">{bet.event}</p>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <p className="text-sm">{bet.team}</p>
+              </div>
+              <p className="font-bold">{bet.odds}</p>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center justify-between w-full pt-2">
+          <p className="  font-bold text-primary-200">ODDS</p>
+          <p className="  font-bold ">{bet.odds}</p>
+        </div>
+        <div className="flex items-center justify-between w-full">
+          <p className="  font-bold text-primary-200">STAKE</p>
+          <p className="  font-bold ">${bet.pick}</p>
+        </div>
+        <div className="flex items-center justify-between w-full border-b pb-3.5 border-slate-700">
+          <p className="  font-bold text-primary-200">WINNIG</p>
+          <p className="  font-bold ">${bet.winnings.toFixed(2)}</p>
+        </div>
+        <div className="flex w-full px-4 py-2 items-center justify-between">
+          <p className="text-white font-bold px-2 py-1.5 rounded-lg bg-[#737897]/20 border border-[#737897] text-xs 2xl:text-sm">
+            {formatDate(bet.betDate)}
+          </p>
+          <Image
+            src="/images/logo.svg"
+            width={150}
+            alt="QR Code"
+            height={150}
+          />
+        </div>
+      </div>
+    </div>
+  </DialogContent>
+);
 
 export default BetModal;

@@ -28,72 +28,98 @@ import {
 import { ServerSession } from "mongodb";
 
 const formSchema = z.object({
-  firstName: z.string().min(2, {
-    message: "First name should be atleast 2 characters",
-  }).optional(),
-  lastName: z.string().min(2, {
-    message: "Last name should be atleast 2 characters",
-  }).optional(),
-  email: z.string().email({
-    message: "Please enter a valid email address",
-  }).optional(),
+  firstName: z
+    .string()
+    .min(2, {
+      message: "First name should be atleast 2 characters",
+    })
+    .optional(),
+  lastName: z
+    .string()
+    .min(2, {
+      message: "Last name should be atleast 2 characters",
+    })
+    .optional(),
+  email: z
+    .string()
+    .email({
+      message: "Please enter a valid email address",
+    })
+    .optional(),
 
-  phone: z.string().min(10, {
-    message: "Please enter a valid phone number",
-  }).optional(),
-  password: z.string().min(8, {
-    message: "Password should be atleast 8 characters",
-  }).optional(),
-  confirmPassword: z.string().min(8, {
-    message: "Please enter password again",
-  }).optional(),
+  phone: z
+    .string()
+    .min(10, {
+      message: "Please enter a valid phone number",
+    })
+    .optional(),
+  password: z
+    .string()
+    .min(8, {
+      message: "Password should be atleast 8 characters",
+    })
+    .optional(),
+  confirmPassword: z
+    .string()
+    .min(8, {
+      message: "Please enter password again",
+    })
+    .optional(),
 
-  address: z.string().min(4, {
-    message: "Please enter a valid address",
-  }).optional(),
-  dateOfBirth: z.string().min(2, {
-    message: "Please enter a valid date of birth",
-  }).optional(),
+  address: z
+    .string()
+    .min(4, {
+      message: "Please enter a valid address",
+    })
+    .optional(),
+  dateOfBirth: z
+    .string()
+    .min(2, {
+      message: "Please enter a valid date of birth",
+    })
+    .optional(),
 });
 
-
 const GeneralSettings = () => {
-  const { status, data: session } : any = useSession();
-console.log('this is the user in the settings' , session)
+  const { status, data: session }: any = useSession();
+  console.log("this is the user in the settings", session);
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: session?.user?.email || '',
-      firstName: session?.user?.firstName || '',
-      lastName: session?.user?.lastName || '',
-      phone: session?.user?.phoneNumber || '',
-      address: session?.user?.address || '',
-      dateOfBirth: session?.user?.dateOfBirth || '',
+      email: session?.user?.email || "",
+      firstName: session?.user?.firstName || "",
+      lastName: session?.user?.lastName || "",
+      phone: session?.user?.phoneNumber || "",
+      address: session?.user?.address || "",
+      dateOfBirth: session?.user?.dateOfBirth || "",
       password: "password",
       confirmPassword: "confirm password",
     },
   });
 
-  async function onSubmit(values : any) {
+  async function onSubmit(values: any) {
     try {
-      const formattedDate = new Date(values.dateOfBirth).toISOString().split('T')[0];
+      const formattedDate = new Date(values.dateOfBirth)
+        .toISOString()
+        .split("T")[0];
 
-      console.log('Submitting form values:', values);
-  
-  
+      console.log("Submitting form values:", values);
+
       const userData = {
-        id: session?.user?.id, 
+        id: session?.user?.id,
         firstName: values.firstName,
         lastName: values.lastName,
-        email: values.email,
+        // email: values.email,
         phone: values.phone,
         address: values.address,
-        dateOfBirth: formattedDate,
+        // dateOfBirth: formattedDate,
         password: values.password !== "password" ? values.password : undefined,
       };
-  
-      const response = await axios.patch(`http://localhost:3000/api/general-setting`, userData);
-  
+
+      const response = await axios.patch(
+        `http://localhost:3000/api/general-setting`,
+        userData
+      );
 
       if (response.status === 200) {
         console.log("User updated successfully:", response.data);
@@ -160,7 +186,7 @@ console.log('this is the user in the settings' , session)
               />
             </div>
             <div className="flex flex-col md:flex-row items-center justify-between w-full gap-2 md:gap-4">
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="email"
                 render={({ field }) => (
@@ -178,7 +204,7 @@ console.log('this is the user in the settings' , session)
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
               <FormField
                 control={form.control}
                 name="phone"
@@ -199,7 +225,7 @@ console.log('this is the user in the settings' , session)
                 )}
               />
             </div>
-            <div className="flex border-b border-gray-700 pb-6 mb-8  flex-col md:flex-row items-center justify-between w-full gap-2 md:gap-4">
+            <div className="flex flex-col md:flex-row items-center justify-between w-full gap-2 md:gap-4">
               <FormField
                 control={form.control}
                 name="address"
@@ -239,6 +265,13 @@ console.log('this is the user in the settings' , session)
                 )}
               />
             </div>
+            <Button
+              type="submit"
+              className="bg-[#333547] inner-shadow border w-full md:w-fit border-[#28B601]  rounded-xl hover:bg-slate-600 mt-4 text-white font-semibold p-6  2xl:text-lg   focus:outline-none focus:shadow-outline"
+            >
+              <span className=" capitalize">Save Changes</span>
+            </Button>
+            <hr className="border-gray-700 my-6" />
             <div className="flex flex-col md:flex-row items-center justify-between w-full gap-2 md:gap-4">
               <FormField
                 control={form.control}

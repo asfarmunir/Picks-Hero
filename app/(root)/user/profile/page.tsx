@@ -1,8 +1,8 @@
 "use client";
 import Navbar from "@/components/shared/Navbar";
-import { tabs } from "@/lib/constants";
+import { profileLevels, tabs } from "@/lib/constants";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -29,8 +29,39 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
-import { MdOutlineArrowUpward } from "react-icons/md";
 import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
+import { useGetAccounts } from "@/app/hooks/useGetAccounts";
+import { toast } from "react-toastify";
+import Link from "next/link";
+import { useGetUser } from "@/app/hooks/useGetUser";
+import { useSession } from "next-auth/react";
+
+interface Account {
+  id: string;
+  userId: string;
+  accountType: "TWO_STEP" | "THREE_STEP"; // If there are other types, you can add them here
+  accountSize: string; // If there are other sizes, you can add them here
+  status: "CHALLENGE" | "FUNDED" | "BREACHED"; // Add other possible statuses if needed
+  balance: number;
+  accountNumber: string;
+  paymentMethod: string | null;
+  createdAt: string; // Alternatively, use `Date` if parsing to Date object is needed
+  updatedAt: string; // Same as above, use `Date` if necessary
+}
+
+const ACCOUNT_STATUS_ICON_DICT = {
+  CHALLENGE: "/icons/challenge.svg",
+  FUNDED: "/icons/fund.svg",
+  BREACHED: "/icons/breach.svg",
+};
+
+type ProfileLevel =
+  | "NEWBIE"
+  | "BRONZE"
+  | "SILVER"
+  | "GOLD"
+  | "PLATINUM"
+  | "HERO";
 
 const page = () => {
   const [tab, setTab] = useState<string>("profile");
@@ -38,6 +69,27 @@ const page = () => {
   const changeTab = (tab: string) => {
     setTab(tab);
   };
+
+  // GET ACCOUNTS
+  const {
+    mutate: fetchAccounts,
+    data: userAccounts,
+    isPending,
+    isError,
+  } = useGetAccounts({
+    onSuccess: (data) => {
+      // console.log(data);
+    },
+    onError: (error) => {
+      console.log(error);
+      toast.error("Failed to fetch accounts");
+    },
+  });
+
+  useEffect(() => {
+    fetchAccounts();
+  }, []);
+
   return (
     <>
       <div
@@ -92,7 +144,7 @@ const page = () => {
             ))}
           </div>
           {tab === "profile" && <ProfileSection />}
-          {tab === "accounts" && <AccountsSection />}
+          {tab === "accounts" && <AccountsSection accounts={userAccounts} />}
           {tab === "payouts" && <PayoutsSection />}
           {tab === "certificates" && <CertificaeSection />}
         </div>
@@ -117,6 +169,8 @@ const page = () => {
 export default page;
 
 const ProfileSection = () => {
+  const { data, isPending } = useGetUser();
+
   return (
     <>
       <div className=" p-4 shadow-inner shadow-gray-700 rounded-xl flex items-start justify-between bg-[#272837]">
@@ -136,12 +190,19 @@ const ProfileSection = () => {
       </div>
       <div className=" p-4 shadow-inner shadow-gray-700 rounded-xl flex items-start justify-between bg-[#272837]">
         <div className="flex gap-3 items-center">
-          <Image src="/images/plan.png" alt="User" width={50} height={50} />
+          <Image
+            src={profileLevels[data?.user?.profileLevel as ProfileLevel]?.icon}
+            alt="User"
+            width={50}
+            height={50}
+          />
           <div className="flex flex-col">
             <p className=" text-sm font-bold text-[#848BAC] uppercase">
               PROFILE LEVEL
             </p>
-            <h3 className="font-bold text-xl">SILVER</h3>
+            <h3 className="font-bold text-xl">
+              {isPending ? "Loading..." : data.user?.profileLevel}
+            </h3>
           </div>
         </div>
       </div>
@@ -155,17 +216,26 @@ const ProfileSection = () => {
         </p>
         <div className="flex items-center justify-between mt-4">
           <h4 className="2xl:text-lg font-bold">PROGRESS TO NEXT LEVEL</h4>
-          <h4 className="2xl:text-lg font-bold">33/100 PICKS WON</h4>
+          <h4 className="2xl:text-lg font-bold">
+            {data?.user?.picksWon}/{profileLevels[data?.user?.profileLevel as ProfileLevel]?.target} PICKS WON
+          </h4>
         </div>
         <div className=" w-full h-5 bg-[#393C53] rounded-md">
           <div className="bg-[#00B544] shadow-inner rounded-md shadow-gray-500 w-[33%] h-full"></div>
         </div>
       </div>
       <div className=" p-4 w-[60%] mx-auto shadow-inner shadow-gray-700 rounded-xl flex items-center flex-col gap-3 py-6  bg-[#272837]">
-        <Image src="/images/plan.png" alt="User" width={50} height={50} />
-        <h3 className="font-bold text-xl 2xl:text-2xl">SILVER</h3>
+        <Image
+          src={profileLevels[data?.user?.profileLevel as ProfileLevel]?.icon}
+          alt="User"
+          width={50}
+          height={50}
+        />
+        <h3 className="font-bold text-xl 2xl:text-2xl">
+          {isPending ? "Loading..." : data.user?.profileLevel}
+        </h3>
         <p className=" font-bold text-xs uppercase">
-          Win 150 Picks across all of your Accounts
+          Win {profileLevels[data?.user?.profileLevel as ProfileLevel]?.target} Picks across all of your Accounts
         </p>
         <div className=" my-4 bg-[#181926] p-5 space-y-2 rounded-xl shadow-inner w-[90%]">
           <div className="flex items-center gap-2">
@@ -251,7 +321,7 @@ const ProfileSection = () => {
   );
 };
 
-const AccountsSection = () => {
+const AccountsSection = ({ accounts }: { accounts: Account[] }) => {
   return (
     <div className=" w-full space-y-5 bg-primary-100 py-6 px-2 md:p-3  rounded-2xl 2xl:p-5 mb-8">
       <div className=" w-full flex flex-col gap-3 md:flex-row items-center  justify-between">
@@ -289,7 +359,10 @@ const AccountsSection = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <button className="  shadow-green-400 font-bold   justify-center w-full md:w-fit inner-shadow text-sm px-3.5 py-2 rounded-xl inline-flex items-center gap-2">
+          <Link
+            href="/create-account"
+            className="shadow-green-400 font-bold   justify-center w-full md:w-fit inner-shadow text-sm px-3.5 py-2 rounded-xl inline-flex items-center gap-2"
+          >
             <Image
               src="/icons/add.png"
               alt="Arrow Icon"
@@ -297,128 +370,47 @@ const AccountsSection = () => {
               height={18}
             />
             ADD ACCOUNT
-          </button>
+          </Link>
         </div>
       </div>
       <div className="flex flex-col  items-center gap-4">
-        <div className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative  rounded-2xl w-full  flex flex-col gap-1 ">
-          <div className=" w-full flex items-center justify-between">
-            <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-              $1000
-            </p>
-            <Image
-              src="/icons/challenge.svg"
-              alt="Arrow Icon"
-              width={100}
-              height={100}
-            />
+        {accounts?.length === 0 && (
+          <p className="text-white text-center">No accounts found</p>
+        )}
+        {accounts?.map((account, index) => (
+          <div
+            key={index}
+            className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative  rounded-2xl w-full  flex flex-col gap-1 "
+          >
+            <div className=" w-full flex items-center justify-between">
+              <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
+                ${account.accountSize.replace("K", "000")}
+              </p>
+              <Image
+                src={`${ACCOUNT_STATUS_ICON_DICT[account.status]}`}
+                alt="Arrow Icon"
+                width={100}
+                height={100}
+              />
+            </div>
+            <div className=" w-full flex items-center justify-between">
+              <p className=" text-xs md:text-sm text-[#AFB2CA]  mb-3 mt-4 md:mt-1 2xl:text-lg ">
+                ACCOUNT BALANCE
+              </p>
+              <p className=" text-white mb-3 mt-4 text-xs  md:mt-0 2xl:text-lg font-semibold">
+                ${account.balance}
+              </p>
+            </div>
+            <div className=" w-full flex items-center justify-between">
+              <p className=" text-[#AFB2CA] text-xs md:text-sm mb-3 mt-4 md:mt-1 2xl:text-lg ">
+                ACCOUNT NUMBER
+              </p>
+              <p className=" text-white mb-3 mt-4 text-xs md:text-sm md:mt-0 2xl:text-lg font-semibold">
+                #{account.accountNumber}
+              </p>
+            </div>
           </div>
-          <div className=" w-full flex items-center justify-between">
-            <p className=" text-xs md:text-sm text-[#AFB2CA]  mb-3 mt-4 md:mt-1 2xl:text-lg ">
-              ACCOUNT BALANCE
-            </p>
-            <p className=" text-white mb-3 mt-4 text-xs  md:mt-0 2xl:text-lg font-semibold">
-              $19,343.39
-            </p>
-          </div>
-          <div className=" w-full flex items-center justify-between">
-            <p className=" text-[#AFB2CA] text-xs md:text-sm mb-3 mt-4 md:mt-1 2xl:text-lg ">
-              ACCOUNT NUMBER
-            </p>
-            <p className=" text-white mb-3 mt-4 text-xs md:text-sm md:mt-0 2xl:text-lg font-semibold">
-              #PH8823232-22
-            </p>
-          </div>
-        </div>
-        <div className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative  rounded-2xl w-full  flex flex-col gap-1 ">
-          <div className=" w-full flex items-center justify-between">
-            <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-              $1000
-            </p>
-            <Image
-              src="/icons/fund.svg"
-              alt="Arrow Icon"
-              width={100}
-              height={100}
-            />
-          </div>
-          <div className=" w-full flex items-center justify-between">
-            <p className=" text-[#AFB2CA] text-xs md:text-sm mb-3 mt-4 md:mt-1 2xl:text-lg ">
-              ACCOUNT BALANCE
-            </p>
-            <p className=" text-white text-xs md:text-sm mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-              $19,343.39
-            </p>
-          </div>
-          <div className=" w-full flex items-center justify-between">
-            <p className=" text-[#AFB2CA] text-xs md:text-sm mb-3 mt-4 md:mt-1 2xl:text-lg ">
-              ACCOUNT NUMBER
-            </p>
-            <p className=" text-white text-xs md:text-sm mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-              #PH8823232-22
-            </p>
-          </div>
-        </div>
-      </div>
-      <div className="flex flex-col  items-center gap-4">
-        <div className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative min-h-32 2xl:min-h-44 rounded-2xl w-full  flex flex-col gap-1 ">
-          <div className=" w-full flex items-center justify-between">
-            <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-              $1000
-            </p>
-            <Image
-              src="/icons/challenge.svg"
-              alt="Arrow Icon"
-              width={100}
-              height={100}
-            />
-          </div>
-          <div className=" w-full flex items-center justify-between">
-            <p className=" text-[#AFB2CA] text-sm mb-3 mt-4 md:mt-1 2xl:text-lg ">
-              ACCOUNT BALANCE
-            </p>
-            <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-              $19,343.39
-            </p>
-          </div>
-          <div className=" w-full flex items-center justify-between">
-            <p className=" text-[#AFB2CA] text-sm mb-3 mt-4 md:mt-1 2xl:text-lg ">
-              ACCOUNT NUMBER
-            </p>
-            <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-              #PH8823232-22
-            </p>
-          </div>
-        </div>
-        <div className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative min-h-32 2xl:min-h-44 rounded-2xl w-full  flex flex-col gap-1 ">
-          <div className=" w-full flex items-center justify-between">
-            <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-              $1000
-            </p>
-            <Image
-              src="/icons/fund.svg"
-              alt="Arrow Icon"
-              width={100}
-              height={100}
-            />
-          </div>
-          <div className=" w-full flex items-center justify-between">
-            <p className=" text-[#AFB2CA] text-sm mb-3 mt-4 md:mt-1 2xl:text-lg ">
-              ACCOUNT BALANCE
-            </p>
-            <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-              $19,343.39
-            </p>
-          </div>
-          <div className=" w-full flex items-center justify-between">
-            <p className=" text-[#AFB2CA] text-sm mb-3 mt-4 md:mt-1 2xl:text-lg ">
-              ACCOUNT NUMBER
-            </p>
-            <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-              #PH8823232-22
-            </p>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

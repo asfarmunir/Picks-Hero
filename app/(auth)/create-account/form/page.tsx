@@ -172,6 +172,7 @@ const page = () => {
             ? "THREE_STEP"
             : "",
         status: "CHALLENGE",
+        accountPrice: accountPrice,
       },
       billingDetails: billing,
       card: values,

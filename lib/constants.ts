@@ -197,3 +197,30 @@ export const picksTabs = [{
   ]
 },
 ];
+
+export const profileLevels = {
+  "NEWBIE" : {
+    icon: "/icons/newbie.svg",
+    target: 10,
+  },
+  "BRONZE" : {
+    icon: "/icons/level2.svg",
+    target: 50,
+  },
+  "SILVER" : {
+    icon: "/images/plan.png",
+    target: 100,
+  },
+  "GOLD" : {
+    icon: "/icons/gold.svg",
+    target: 200,
+  },
+  "PLATINUM" : {
+    icon: "/icons/level3.png",
+    target: 350,
+  },
+  "HERO" : {
+    icon: "/icons/level1.png",
+    target: 351,
+  }
+}

@@ -1,0 +1,59 @@
+import Image from "next/image";
+import React from "react";
+
+interface Bet {
+  id: number;
+  team: string;
+  odds: number;
+  pick: number;
+  toWin: number;
+  oddsFormat: "decimal" | "american";
+  home_team: string;
+  away_team: string;
+}
+
+const BetSlip = ({
+  bet,
+  removeBet,
+}: {
+  bet: Bet;
+  removeBet: (id: number) => void;
+}) => {
+  return (
+    <div className="py-4">
+      <div className=" w-full mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <p className="uppercase  text-sm">{bet.team}{" "}
+            <span className="text-white text-opacity-40">{"("}{bet.oddsFormat}{" format )"}</span>
+          </p>
+        </div>
+        <button onClick={() => removeBet(bet.id)}>
+          <Image
+            src="/icons/discard.png"
+            alt="Arrow Icon"
+            width={23}
+            height={23}
+          />
+        </button>
+      </div>
+      <div className=" w-full mb-4  rounded-xl text-primary-50 bg-[#52FC18]/20 p-3 flex items-center justify-between">
+        <p className="text-sm font-thin capitalize">money line</p>
+        <p className="font-bold">+105</p>
+      </div>
+      <div className="w-full flex items-center gap-3">
+        <div className="bg-[#272837] rounded-xl p-3.5 flex flex-col gap-2.5 flex-grow">
+          <p className=" text-xs font-thin text-primary-200">Pick</p>
+          <h2 className=" font-bold">
+            {bet.pick.toFixed(2)}$
+          </h2>
+        </div>
+        <div className="bg-[#272837] rounded-xl p-3.5 flex flex-col gap-2.5 flex-grow">
+          <p className=" text-xs font-thin text-primary-200">To Win</p>
+          <h2 className=" font-bold">{bet.toWin.toFixed(2)}$</h2>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default BetSlip;
