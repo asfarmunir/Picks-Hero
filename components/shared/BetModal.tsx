@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -26,6 +27,7 @@ import {
 import Image from "next/image";
 import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
 import { useGetBets } from "@/app/hooks/useGetBets";
+import { useUpgradeAccount } from "@/app/hooks/useUpgradeAccount";
 
 const formatDate = (date: string) => {
   const dateObj = new Date(date);
@@ -39,7 +41,54 @@ const formatDate = (date: string) => {
 };
 
 const BetModal = () => {
-  const { data: bets, isPending, isError } = useGetBets("PH3537349-22");
+  const { data: bets, isPending, refetch } = useGetBets("PH4504514-22");
+  const { data, refetch: checkAndUpgradeObjectives } = useUpgradeAccount();
+
+  const results = [{}];
+
+  const [updates, setUpdates] = useState([{}]);
+
+  useEffect(() => {
+    const socket = new WebSocket("ws://localhost:443");
+
+    // When connection is established
+    socket.onopen = () => {
+      console.log("WebSocket connection established");
+      socket.send("Hello from the client!");
+    };
+
+    // When a message is received
+    socket.onmessage = (event) => {
+      console.log("Received message:", event.data);
+    };
+
+    // When connection is closed
+    socket.onclose = () => {
+      console.log("WebSocket connection closed");
+    };
+
+    // When there's an error
+    socket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    socket.onmessage = (event) => {
+      const newUpdates = event.data;
+      console.log("NEW UPDATES FROM WS::: ", newUpdates);
+      if (Array.isArray(newUpdates)) {
+        setUpdates(newUpdates);
+        checkAndUpgradeObjectives();
+      }
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, []);
+
+  useEffect(() => {
+    refetch();
+  }, [updates]);
 
   return (
     <Dialog>
@@ -56,6 +105,7 @@ const BetModal = () => {
         />
         BET HISTORY{" "}
       </DialogTrigger>
+      <DialogTitle className="invisible">Bets</DialogTitle>
       <DialogContent className=" bg-primary-100 gap-1 p-5 text-white border-none  md:max-w-[1300px] 2xl:min-w-[1400px] flex flex-col !max-h-[80vh] overflow-y-auto">
         <h2 className=" text-3xl font-bold mt-2 mb-5">BET HISTORY</h2>
 
@@ -161,22 +211,24 @@ const BetModal = () => {
                   </TableCell>
                 </TableRow>
               )}
-              {bets?.map((bet: any) => (
-                <TableRow className=" border-none">
+              {bets?.map((bet: any, index: number) => (
+                <TableRow className=" border-none" key={index}>
                   <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
                     {bet.id}
                   </TableCell>
                   <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                    {bet.sport}
+                    {bet.sport.join(", ")}
                   </TableCell>
                   <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
-                    {bet.event}
+                    {bet.event.join(", ")}
                   </TableCell>
                   <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                    {bet.league.split("_")[1].toUpperCase()}
+                    {bet.league.map((league: string) =>
+                      league?.split("_")[1].toUpperCase()
+                    )}
                   </TableCell>
                   <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
-                    {bet.team}
+                    {bet.team.join(", ")}
                   </TableCell>
                   <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
                     {bet.odds}
@@ -202,14 +254,14 @@ const BetModal = () => {
                     {formatDate(bet.betDate)}
                   </TableCell>
                   <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center ">
-                    {formatDate(bet.gameDate)}
+                    {bet.gameDate.map((date: string) => `${formatDate(date)} `)}
                   </TableCell>
                   <TableCell className=" font-semibold  capitalize text-xs 2xl:text-sm text-center ">
                     <Dialog>
                       <DialogTrigger className=" w-fit text-xs 2xl:text-sm text-nowrap rounded-xl inner-shadow px-4 py-3 inline-flex items-center gap-3">
                         <span className=" font-bold uppercase">Bet slip</span>{" "}
                       </DialogTrigger>
-                      <BetSlipDialogBody bet={bet} />
+                      <BetSlipDialogBody bet={bet} key={bet.id} />
                     </Dialog>
                   </TableCell>
                 </TableRow>
@@ -264,15 +316,29 @@ const BetSlipDialogBody = ({ bet }: { bet: any }) => (
           )}
         </div>
         <div className="flex flex-col max-h-44 2xl:max-h-56 mt-1 overflow-auto px-1 w-full gap-3 ">
-          <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
-            <p className=" text-sm mb-2">{bet.event}</p>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <p className="text-sm">{bet.team}</p>
+          {bet.event.length > 1 &&
+            bet.event.map((event: string, index: number) => (
+              <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
+                <p className=" text-sm mb-2">{event}</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-sm">{bet.team[index]}</p>
+                  </div>
+                  {/* <p className="font-bold">{bet.odds}</p> */}
+                </div>
               </div>
-              <p className="font-bold">{bet.odds}</p>
+            ))}
+          {bet.event.length === 1 && (
+            <div className="bg-[#333547]  shadow-inner w-full shadow-gray-700 p-3 rounded-lg ">
+              <p className=" text-sm mb-2">{bet.event[0]}</p>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <p className="text-sm">{bet.team[0]}</p>
+                </div>
+                <p className="font-bold">{bet.odds}</p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
         <div className="flex items-center justify-between w-full pt-2">
           <p className="  font-bold text-primary-200">ODDS</p>
@@ -283,7 +349,7 @@ const BetSlipDialogBody = ({ bet }: { bet: any }) => (
           <p className="  font-bold ">${bet.pick}</p>
         </div>
         <div className="flex items-center justify-between w-full border-b pb-3.5 border-slate-700">
-          <p className="  font-bold text-primary-200">WINNIG</p>
+          <p className="  font-bold text-primary-200">WINNING</p>
           <p className="  font-bold ">${bet.winnings.toFixed(2)}</p>
         </div>
         <div className="flex w-full px-4 py-2 items-center justify-between">

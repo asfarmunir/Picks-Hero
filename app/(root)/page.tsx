@@ -1,25 +1,22 @@
 "use client";
-import Image from "next/image";
-import React, { useEffect } from "react";
+import Navbar from "@/components/shared/Navbar";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MdOutlineArrowUpward } from "react-icons/md";
-import Navbar from "@/components/shared/Navbar";
+import Image from "next/image";
 import Link from "next/link";
+import React, { useMemo } from "react";
 import { useGetAccounts } from "../hooks/useGetAccounts";
+import { accountStore } from "../store/account";
 
 const ACCOUNT_STATUS_ICON_DICT = {
   CHALLENGE: "/icons/challenge.svg",
@@ -28,23 +25,43 @@ const ACCOUNT_STATUS_ICON_DICT = {
 };
 
 type accountTypes = "CHALLENGE" | "FUNDED" | "BREACHED";
-
+type sortFilterType = "ALL" | "FUNDED" | "BREACHED";
 const page = () => {
   const [tab, setTab] = React.useState("hide");
+  const [sortFilter, setSortFilter] = React.useState<sortFilterType>("ALL");
 
-  const {
-    mutate: fetchAccounts,
-    data,
-    isPending,
-  } = useGetAccounts({
-    onSuccess: () => {},
-    onError: () => {},
-  });
+  const { data, isPending } = useGetAccounts();
 
-  useEffect(() => {
-    fetchAccounts();
-  }, []);
+  const account = accountStore((state) => state.account);
 
+  // Sort Filter
+  const changeSortFilter = (sortFilter: sortFilterType) => {
+    setSortFilter(sortFilter);
+  };
+  
+  // Filter
+  const filteredData = useMemo(() => {
+    // Tab Filer
+    const filteredData = data?.filter((account: any) => {
+      if (tab === "show") {
+        return account.status === "BREACHED" || account.status === "FUNDED" || account.status === "CHALLENGE";
+      } else if (tab === "hide") {
+        return account.status !== "BREACHED";
+      }
+      return true;
+    });
+
+    // Sort Filter
+    if (sortFilter === "FUNDED") {
+      return filteredData?.filter((account: any) => account.status === "FUNDED");
+    } else if (sortFilter === "BREACHED") {
+      return filteredData?.filter((account: any) => account.status === "BREACHED");
+    } else {
+      return filteredData;
+    }
+  }, [tab, data, sortFilter]);
+  
+  
   return (
     <>
       <div
@@ -125,7 +142,13 @@ const page = () => {
                 width={45}
                 height={45}
               />
-              <p className="   md:mt-0  text-4xl font-bold">$45,865.55</p>
+              <p className="   md:mt-0  text-4xl font-bold">
+                $
+                {(account.status === "FUNDED"
+                  ? account.totalFundedAmount
+                  : 0
+                )?.toFixed(2)}
+              </p>
             </div>
           </div>
           <div className=" p-3 pb-8 md:p-8 md:pb-8 overflow-hidden relative min-h-32 2xl:min-h-44 rounded-2xl w-full bg-primary-100 flex flex-col gap-1 ">
@@ -150,7 +173,9 @@ const page = () => {
                 width={45}
                 height={45}
               />
-              <p className="   md:mt-0  text-4xl font-bold">$45,865.55</p>
+              <p className="   md:mt-0  text-4xl font-bold">
+                ${account.totalFundedPayout?.toFixed(2)}
+              </p>
             </div>
           </div>
         </div>
@@ -197,14 +222,14 @@ const page = () => {
                   SORT
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-48  bg-[#181926] text-white border-none  mt-1  p-3 rounded-lg shadow-sm">
-                  <DropdownMenuItem className="flex items-center justify-between ">
+                  <DropdownMenuItem className="flex items-center justify-between " onClick={()=>changeSortFilter("ALL")} >
                     <p>All</p>
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem className="flex items-center justify-between ">
+                  <DropdownMenuItem className="flex items-center justify-between " onClick={()=>changeSortFilter("FUNDED")}>
                     <p>FUNDED</p>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="flex items-center justify-between ">
+                  <DropdownMenuItem className="flex items-center justify-between " onClick={()=>changeSortFilter("BREACHED")}>
                     <p>BREACHED</p>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -224,10 +249,26 @@ const page = () => {
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {!isPending && data?.length === 0 ? (
+              <div className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative  rounded-2xl w-full  flex flex-col gap-1 ">
+                <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
+                  No accounts found
+                </p>
+              </div>
+            ) : null}
             {isPending ? (
               <>Loading...</>
-            ) : (
-              data?.map((account: any, index: number) => (
+            ) :
+              filteredData.length === 0 ? (
+                <>
+                  <div className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative  rounded-2xl w-full  flex flex-col gap-1 ">
+                    <p className=" text-white mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
+                      No {sortFilter.toLowerCase()} accounts found. Make sure you have set filters properly.
+                    </p>
+                  </div>
+                </>
+              ):(
+              filteredData?.map((account: any, index: number) => (
                 <div
                   key={index}
                   className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative  rounded-2xl w-full  flex flex-col gap-1 "
@@ -237,7 +278,9 @@ const page = () => {
                       ${account.accountSize.replace("K", "000")}
                     </p>
                     <Image
-                      src={`${ACCOUNT_STATUS_ICON_DICT[account.status as accountTypes]}`}
+                      src={`${
+                        ACCOUNT_STATUS_ICON_DICT[account.status as accountTypes]
+                      }`}
                       alt="Arrow Icon"
                       width={100}
                       height={100}

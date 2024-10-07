@@ -70,11 +70,15 @@ model User {
   address     String?
   dateOfBirth DateTime?
 
-  referralCode  String?
-  referredBy    String?
-  referralBonus Float   @default(0.0)
-  totalEarned   Float   @default(0.0)
+  referralCode     String?
+  referredBy       String?
+  referralBonus    Float     @default(0.0)
+  totalEarned      Float     @default(0.0)
+  totalReferrals   Int       @default(0)
+  totalReferPayout Float     @default(0.0)
+  referPayoutTimer DateTime?
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   accounts Account[]
 =======
@@ -83,6 +87,14 @@ model User {
   AccountInvoices AccountInvoices[]
   Bets            Bets[]
 >>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
+=======
+  accounts             Account[]
+  PaymentCard          PaymentCard[]
+  AccountInvoices      AccountInvoices[]
+  Bets                 Bets[]
+  PayoutRequests       ReferPayoutRequests[]
+  FundedPayoutRequests FundedPayoutRequests[]
+>>>>>>> 4f5390111600bf6378ce21f74e6ed261d87d0c33
 
   @@map("users")
 }
@@ -101,13 +113,29 @@ model Account {
   status        AccountStatus // Challenge, Funded, Breached
   balance       Float // Store account balance
   accountNumber String // Store account number
+<<<<<<< HEAD
 >>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
+=======
+  phase         Int           @default(1) // Store account phase
+  picks         Int           @default(0) // Store account picks
+
+  totalLoss             Float?   @default(0) // Store total loss
+  dailyLoss             Float? // Store daily loss limit
+  minBetPeriod          DateTime // Store minimum bet period
+  maxBetPeriod          DateTime // Store maximum bet period
+  minBetPeriodCompleted Boolean  @default(false) // Store minimum bet period completed
+
+  totalFundedPayout Float     @default(0.0)
+  totalFundedAmount Float
+  fundedPayoutTimer DateTime?
+>>>>>>> 4f5390111600bf6378ce21f74e6ed261d87d0c33
 
   paymentMethod  String? // Store payment method details
   user           User?            @relation(fields: [userId], references: [id])
   billingAddress BillingAddress[]
   paymentCard    PaymentCard[]
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -117,6 +145,13 @@ model Account {
   AccountInvoices AccountInvoices[]
   Bets            Bets[]
 >>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
+=======
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  AccountInvoices      AccountInvoices[]
+  Bets                 Bets[]
+  FundedPayoutRequests FundedPayoutRequests[]
+>>>>>>> 4f5390111600bf6378ce21f74e6ed261d87d0c33
 
   @@map("accounts")
 }
@@ -227,13 +262,13 @@ model Bets {
   userId    String @db.ObjectId
   accountId String @db.ObjectId
 
-  sportKey String
-  sport    String
-  eventId  String
-  event    String // home vs away teams
-  league   String
+  sportKey String[]
+  sport    String[]
+  eventId  String[]
+  event    String[] // home vs away teams
+  league   String[]
 
-  team     String
+  team     String[]
   odds     Float
   pick     Float
   winnings Float
@@ -242,7 +277,7 @@ model Bets {
   betStatus  BetStatus
   betResult  BetResult?
   betDate    DateTime
-  gameDate   DateTime
+  gameDate   DateTime[]
 
   user    User    @relation(fields: [userId], references: [id])
   account Account @relation(fields: [accountId], references: [id])
@@ -252,4 +287,81 @@ model Bets {
 
   @@map("bets")
 }
+<<<<<<< HEAD
 >>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
+=======
+
+enum CronJobType {
+  objectiveMin
+  objectiveMax
+  inactivity
+}
+
+enum CronJobStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model CronJobs {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  accountId String @db.ObjectId
+
+  jobName   String
+  jobStatus CronJobStatus
+  jobDate   String
+  type      CronJobType
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cronjobs")
+}
+
+enum Currency {
+  USDT_ERC20
+  ETH_ERC20
+}
+
+enum PayoutStaus {
+  PAID
+  PENDING
+  DECLINED
+}
+
+model ReferPayoutRequests {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+
+  amount         Float
+  status         PayoutStaus
+  currency       Currency
+  networkAddress String
+
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("payoutrequests")
+}
+
+model FundedPayoutRequests {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String @db.ObjectId
+  accountId String @db.ObjectId
+
+  amount         Float
+  status         PayoutStaus
+  currency       Currency
+  networkAddress String
+
+  user    User    @relation(fields: [userId], references: [id])
+  account Account @relation(fields: [accountId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("fundedpayoutrequests")
+}
+>>>>>>> 4f5390111600bf6378ce21f74e6ed261d87d0c33

@@ -10,11 +10,11 @@ export async function PATCH(req: NextRequest) {
     if (!session) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
- 
-    const { field, value } = await req.json(); 
+
+    const { field, value } = await req.json();
 
     const user = await prisma.user.update({
-      where: { email : session.user?.email || '' },
+      where: { email: session.user?.email || "" },
       data: {
         [field]: value,
       },
@@ -22,7 +22,10 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({ user }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to update preferences" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update preferences" },
+      { status: 500 }
+    );
   }
 }
 
@@ -35,18 +38,21 @@ export async function GET(req: NextRequest) {
     }
 
     const user = await prisma.user.findUnique({
-      where: { email: session.user?.email || '' },
+      where: { email: session.user?.email || "" },
     });
-    
+
     const preferences = {
       displayStatsLive: user?.displayStatsLive,
       phoneNotification: user?.phoneNotification,
       emailNotification: user?.emailNotification,
-    }
+    };
 
     return NextResponse.json({ ...preferences }, { status: 200 });
   } catch (error) {
     // console.log(error)
-    return NextResponse.json({ error: "Failed to fetch preferences" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch preferences" },
+      { status: 500 }
+    );
   }
 }

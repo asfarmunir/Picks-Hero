@@ -1,31 +1,17 @@
-import Image from "next/image";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { CheckIcon } from "lucide-react";
 
 const Verification = () => {
   return (
     <div className=" w-full flex flex-col space-y-5  py-6  md:p-3 text-white rounded-2xl 2xl:p-5  mb-8 ">
       <div className=" bg-[#272837] shadow-inner shadow-gray-700 p-3 pb-8 md:p-7  rounded-2xl w-full  flex flex-col gap-3 ">
         <div className=" flex items-center gap-4 md:gap-2 p-2 md:p-0">
-          <Image
-            src="/icons/info.svg"
-            alt="Arrow Icon"
-            width={20}
-            height={20}
-            className=" mt-1"
-          />
+          <CheckIcon />
           <p className=" uppercase text-sm  2xl:text-lg  font-bold">
-            YOUR ACCOUNT IS NOT SETUP WITH 2-FACTOR AUTHENTICATION
+            YOUR ACCOUNT IS ALREADY 2-STEP VERIFIED.
           </p>
         </div>
 
-        <Dialog>
+        {/* <Dialog>
           <DialogTrigger className=" flex items-center px-4 py-2 mt-4 text-sm w-full  justify-center md:w-fit  inner-shadow rounded-lg gap-1 text-white font-semibold 2xl:text-lg ">
             SETUP NOW
           </DialogTrigger>
@@ -67,7 +53,7 @@ const Verification = () => {
               </button>{" "}
             </div>
           </DialogContent>
-        </Dialog>
+        </Dialog> */}
       </div>
     </div>
   );

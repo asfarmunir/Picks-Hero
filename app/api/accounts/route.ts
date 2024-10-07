@@ -16,7 +16,7 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
   }
   
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
       where: {
         email: authorized.user?.email || ""
       }

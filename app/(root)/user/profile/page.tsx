@@ -1,40 +1,40 @@
 "use client";
 import Navbar from "@/components/shared/Navbar";
-import { profileLevels, tabs } from "@/lib/constants";
-import Image from "next/image";
-import React, { useEffect, useMemo } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { profileLevels, tabs } from "@/lib/constants";
+import Image from "next/image";
 
+import { useGetAccounts } from "@/app/hooks/useGetAccounts";
+import { useGetUser } from "@/app/hooks/useGetUser";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Link from "next/link";
 import { useState } from "react";
 import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
-import { useGetAccounts } from "@/app/hooks/useGetAccounts";
-import { toast } from "react-toastify";
-import Link from "next/link";
-import { useGetUser } from "@/app/hooks/useGetUser";
+import { accountStore } from "@/app/store/account";
+import { getOriginalAccountValue } from "@/lib/utils";
+import PayoutModal from "./payout-modal";
 import { useSession } from "next-auth/react";
+import { User } from "@prisma/client";
+import FundedPayoutRequestsTable from "./payout-requests";
 
 interface Account {
   id: string;
@@ -71,24 +71,7 @@ const page = () => {
   };
 
   // GET ACCOUNTS
-  const {
-    mutate: fetchAccounts,
-    data: userAccounts,
-    isPending,
-    isError,
-  } = useGetAccounts({
-    onSuccess: (data) => {
-      // console.log(data);
-    },
-    onError: (error) => {
-      console.log(error);
-      toast.error("Failed to fetch accounts");
-    },
-  });
-
-  useEffect(() => {
-    fetchAccounts();
-  }, []);
+  const { data: userAccounts, isPending } = useGetAccounts();
 
   return (
     <>
@@ -170,6 +153,7 @@ export default page;
 
 const ProfileSection = () => {
   const { data, isPending } = useGetUser();
+  const user: any = useSession().data?.user;
 
   return (
     <>
@@ -180,7 +164,9 @@ const ProfileSection = () => {
             <p className=" text-sm font-bold text-[#848BAC] uppercase">
               Username
             </p>
-            <h3 className="font-bold text-xl">Luke Kilos</h3>
+            <h3 className="font-bold text-xl">
+              {`${user?.firstName} ${user?.lastName}`}
+            </h3>
           </div>
         </div>
         <button className=" inline-flex uppercase text-xs text-[#52FC18] items-center gap-2">
@@ -217,11 +203,23 @@ const ProfileSection = () => {
         <div className="flex items-center justify-between mt-4">
           <h4 className="2xl:text-lg font-bold">PROGRESS TO NEXT LEVEL</h4>
           <h4 className="2xl:text-lg font-bold">
-            {data?.user?.picksWon}/{profileLevels[data?.user?.profileLevel as ProfileLevel]?.target} PICKS WON
+            {data?.user?.picksWon}/
+            {profileLevels[data?.user?.profileLevel as ProfileLevel]?.target}{" "}
+            PICKS WON
           </h4>
         </div>
         <div className=" w-full h-5 bg-[#393C53] rounded-md">
-          <div className="bg-[#00B544] shadow-inner rounded-md shadow-gray-500 w-[33%] h-full"></div>
+          <div
+            className="bg-[#00B544] shadow-inner rounded-md shadow-gray-500 h-full"
+            style={{
+              width: `${
+                (data?.user?.picksWon /
+                  profileLevels[data?.user?.profileLevel as ProfileLevel]
+                    ?.target) *
+                100
+              }%`,
+            }}
+          ></div>
         </div>
       </div>
       <div className=" p-4 w-[60%] mx-auto shadow-inner shadow-gray-700 rounded-xl flex items-center flex-col gap-3 py-6  bg-[#272837]">
@@ -235,7 +233,8 @@ const ProfileSection = () => {
           {isPending ? "Loading..." : data.user?.profileLevel}
         </h3>
         <p className=" font-bold text-xs uppercase">
-          Win {profileLevels[data?.user?.profileLevel as ProfileLevel]?.target} Picks across all of your Accounts
+          Win {profileLevels[data?.user?.profileLevel as ProfileLevel]?.target}{" "}
+          Picks across all of your Accounts
         </p>
         <div className=" my-4 bg-[#181926] p-5 space-y-2 rounded-xl shadow-inner w-[90%]">
           <div className="flex items-center gap-2">
@@ -417,145 +416,56 @@ const AccountsSection = ({ accounts }: { accounts: Account[] }) => {
 };
 
 const PayoutsSection = () => {
-  return (
-    <div className=" w-full space-y-5 bg-primary-100 py-6  md:p-3  rounded-2xl 2xl:p-5 mb-8">
-      <div className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative min-h-32 2xl:min-h-44 rounded-2xl w-full  flex flex-col gap-1 ">
-        <p className=" text-[#AFB2CA] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-          Total Payout Amount
-        </p>
-        <div className=" flex items-center gap-4">
-          <Image
-            src="/icons/payout.svg"
-            alt="Arrow Icon"
-            width={45}
-            height={45}
-          />
-          <p className="   md:mt-0 text-3xl  2xl:text-4xl font-semibold">
-            $45,865.55
-          </p>
-        </div>
-      </div>
-      <div className=" w-full border border-gray-700 rounded-xl  flex flex-col">
-        <div className="flex items-center justify-between w-full p-6 ">
-          <h3 className=" font-bold">PAYOUT HISTORY</h3>
-          <DropdownMenu>
-            <DropdownMenuTrigger className=" bg-[#272837] shadow-inner shadow-gray-700   justify-center  md:w-fit  text-xs 2xl:text-sm px-3.5 py-2 rounded-xl inline-flex items-center gap-2">
-              <Image
-                src="/icons/filter.svg"
-                alt="Arrow Icon"
-                width={13}
-                height={13}
-              />
-              FILTER
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-48  bg-[#181926] text-white border-none  mt-1  p-3 rounded-lg shadow-sm">
-              <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between ">
-                <p>LAST 7 DAYS</p>
-                {/* <MdOutlineArrowUpward className="text-lg" /> */}
-              </DropdownMenuItem>
+  const account = accountStore((state) => state.account);
 
-              <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between ">
-                <p>LAST 14 DAYS</p>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between ">
-                <p>LAST 30 DAYS</p>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <Table>
-          {/* <TableCaption>A list of your recent invoices.</TableCaption> */}
-          <TableHeader className=" bg-[#333547] text-[#848BAC] border-none">
-            <TableRow className=" border-none">
-              <TableHead className="uppercase  font-bold text-center">
-                Date
-              </TableHead>
-              <TableHead className="uppercase font-bold text-center">
-                INVOICE NUMBER
-              </TableHead>
-              <TableHead className="uppercase font-bold text-center">
-                invoice
-              </TableHead>
-              <TableHead className="uppercase font-bold text-center">
-                STATUS
-              </TableHead>
-              <TableHead className="uppercase font-bold text-center">
-                amount
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow className=" border-none">
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
-                07 jul 2024 at 34:23pm
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
-                123456789123456789
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
-                €10.00
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base flex items-center justify-center truncate">
-                <p className=" px-2 py-1 bg-green-500/20 text-green-500 border border-green-500 rounded-full">
-                  paid
-                </p>
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[120px]  capitalize text-xs 2xl:text-base  justify-center ">
-                <p className="flex items-center gap-1 text-xs  text-green-400 font-semibold ">
-                  <Image
-                    src="/icons/download.png"
-                    alt="Coin Icon"
-                    width={14}
-                    height={14}
-                  />
-                  <span className=" ">DOWNLOAD</span>
-                </p>
-              </TableCell>
-            </TableRow>
-            <TableRow className=" border-none">
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
-                07 jul 2024 at 34:23pm
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
-                123456789123456789
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">
-                €10.00
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base flex items-center justify-center truncate">
-                <p className=" px-2 py-1 bg-red-500/20 text-red-500 border border-red-500 rounded-full">
-                  rejected
-                </p>
-              </TableCell>
-              <TableCell className=" font-semibold max-w-[120px]  capitalize text-xs 2xl:text-base  justify-center ">
-                <p className="flex items-center gap-1 text-xs  text-green-400 font-semibold ">
-                  <Image
-                    src="/icons/download.png"
-                    alt="Coin Icon"
-                    width={14}
-                    height={14}
-                  />
-                  <span className=" ">DOWNLOAD</span>
-                </p>
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-        <div className="flex items-center justify-between p-5">
-          <h4 className="text-[#848BAC] font-thin text-xs 2xl:text-base ">
-            PAGE 1-5
-          </h4>
-          <div className="flex gap-2 items-center">
-            <button className="text-[#848BAC] text-2xl">
-              <TiArrowLeft />
-            </button>
-            <button className="text-[white] text-2xl">
-              <TiArrowRight />
-            </button>
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [shouldRefetch, setShouldRefetch] = useState(false); // State to trigger refetch
+
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  // Function to trigger refetch when payout is successful
+  const handlePayoutSuccess = () => {
+    setShouldRefetch(true);
+    setTimeout(() => setShouldRefetch(false), 500); // Reset refetch flag after triggering
+  };
+
+  return (
+    <>
+      <PayoutModal open={isModalOpen} onClose={closeModal} handlePayoutSuccess={handlePayoutSuccess} />
+      <div className=" w-full space-y-5 bg-primary-100 py-6  md:p-3  rounded-2xl 2xl:p-5 mb-8">
+        <div className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative min-h-32 2xl:min-h-44 rounded-2xl w-full  flex flex-col gap-1 ">
+          <div className=" text-[#AFB2CA] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold flex justify-between items-center">
+            Total Payout Amount
+            {account.status === "FUNDED" && (
+              <button
+                type="submit"
+                className="p-3.5 shadow-green-400 font-bold justify-center uppercase w-full md:w-fit inner-shadow text-sm rounded-xl inline-flex items-center gap-2 text-white disabled:opacity-20 hover:outline hover:outline-green-400/40"
+                onClick={openModal}
+              >
+                {"Request Payout"}
+              </button>
+            )}
+          </div>
+          <div className=" flex items-center gap-4">
+            <Image
+              src="/icons/payout.svg"
+              alt="Arrow Icon"
+              width={45}
+              height={45}
+            />
+            <p className="   md:mt-0 text-3xl  2xl:text-4xl font-semibold">
+              $
+              {account.status === "FUNDED"
+                ? account.totalFundedAmount -
+                    getOriginalAccountValue(account) || 0
+                : 0}
+            </p>
           </div>
         </div>
+        <FundedPayoutRequestsTable shouldRefetch={shouldRefetch} />
       </div>
-    </div>
+    </>
   );
 };
 

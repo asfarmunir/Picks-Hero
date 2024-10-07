@@ -1,8 +1,5 @@
 "use client";
 import { useGetGames } from "@/app/hooks/useGetGames";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -11,8 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ALL_STEP_CHALLENGES } from "@/lib/constants";
+import { americanToDecimalOdds, calculateToWin, getOriginalAccountValue } from "@/lib/utils";
 import { LoaderCircle } from "lucide-react";
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 interface GetGamesParams {
@@ -21,6 +20,9 @@ interface GetGamesParams {
   addBet: (bet: Bet) => void;
   bets: Bet[];
   setFeaturedMatch: (match: any) => void;
+  account: any;
+  tab: string;
+  setBets: (bets: Bet[]) => void;
 }
 
 interface Bet {
@@ -33,9 +35,12 @@ interface Bet {
   home_team: string;
   away_team: string;
   gameDate: string;
+  sport: string;
+  event: string;
+  league: string;
 }
 
-const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch }: GetGamesParams) => {
+const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setBets, setFeaturedMatch, account, tab }: GetGamesParams) => {
   // GAMES DATA
   const {
     data: games,
@@ -59,7 +64,7 @@ const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch }: Ge
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [selectedGame, setSelectedGame] = useState<any | null>(null);
   const [home, setHome] = useState(true);
-  const [pick, setPick] = useState(1);
+  // const [pick, setPick] = useState(1);
 
   const openPickModal = ({ game, home }: { game: any; home: boolean }) => {
     // if bet id is already there, skip
@@ -79,29 +84,39 @@ const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch }: Ge
     setSelectedTeam(null);
     setSelectedGame(null);
   };
+  
+  const addGameToBetSlip = ({ game, home }: { game: any; home: boolean }) => {
+    // e.preventDefault();
+    let gameAlreadyInBetSlip = false;
+    bets.forEach((bet) => {
+      if (bet.id === game.id) {
+        gameAlreadyInBetSlip = true;
+      }
+    });
 
-  const addGameToBetSlip = (e: FormEvent) => {
-    e.preventDefault();
-
-    if (!pick || pick === 0) {
-      toast.error("Please enter a valid bet amount.");
-      return;
+    // if game exists, remove it
+    if (gameAlreadyInBetSlip) {
+      setBets(bets.filter((bet) => bet.id !== game.id));
     }
-    
+
     const odds = home
-    ? selectedGame.bookmakers[0]?.markets[0]?.outcomes[0].price
-    : selectedGame.bookmakers[0]?.markets[0]?.outcomes[1].price
+    ? game.bookmakers[0]?.markets[0]?.outcomes[0].price
+    : game.bookmakers[0]?.markets[0]?.outcomes[1].price
     
+    const initialPick = getOriginalAccountValue(account) * ALL_STEP_CHALLENGES.minPickAmount;
     const bet: Bet = {
-      id: selectedGame.id,
-      team: selectedTeam || selectedGame.home_team,
+      id: game.id,
+      team: home ? game.home_team : game.away_team,
       odds: Number(odds),
-      pick: Number(pick) * Number(odds),
-      toWin: (Number(pick) * Number(odds)) - Number(pick),
+      pick: initialPick,
+      toWin: oddsFormat === "decimal" ? initialPick * (Number(odds) - 1) : initialPick * (americanToDecimalOdds(Number(odds)) - 1),
       oddsFormat: oddsFormat,
-      home_team: selectedGame.home_team,
-      away_team: selectedGame.away_team,
-      gameDate: selectedGame.commence_time,
+      home_team: game.home_team,
+      away_team: game.away_team,
+      gameDate: game.commence_time,
+      sport: tab,
+      league: sportKey,
+      event: `${game.home_team} vs ${game.away_team}`,
     };
 
     
@@ -164,7 +179,7 @@ const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch }: Ge
                   className={`flex w-full cursor-pointer items-center gap-2`}
                 >
                   <div
-                    onClick={() => openPickModal({ game, home: true })}
+                    onClick={() => addGameToBetSlip({ game, home: true })}
                     className={`  ${
                       findTeamInBets(game.home_team, game.id)
                         ? " border border-primary-50/80 shadow shadow-green-700"
@@ -187,7 +202,7 @@ const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch }: Ge
                     vs
                   </p>
                   <div
-                    onClick={() => openPickModal({ game, home: false })}
+                    onClick={() => addGameToBetSlip({ game, home: false })}
                     className={`${
                       findTeamInBets(game.away_team, game.id)
                         ? " border border-primary-50/80 shadow shadow-green-700"
@@ -210,9 +225,9 @@ const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch }: Ge
           ))}
         </TableBody>
       </Table>
-      <Dialog open={oepnPickModal} onOpenChange={onClose}>
+      {/* <Dialog open={oepnPickModal} onOpenChange={onClose}>
         <DialogContent className=" bg-primary-100 gap-1 p-5 text-white border-none">
-          <form className="space-y-4" onSubmit={addGameToBetSlip}>
+          <form className="space-y-4" >
             <p>Bet on {selectedTeam}</p>
             <div>
               <label htmlFor="pick" className="text-sm">
@@ -234,7 +249,7 @@ const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setFeaturedMatch }: Ge
             </button>
           </form>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </>
   );
 };

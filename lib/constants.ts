@@ -204,7 +204,7 @@ export const profileLevels = {
     target: 10,
   },
   "BRONZE" : {
-    icon: "/icons/level2.svg",
+    icon: "/icons/level2.png",
     target: 50,
   },
   "SILVER" : {
@@ -224,3 +224,38 @@ export const profileLevels = {
     target: 351,
   }
 }
+
+export const LEVEL_1_TARGET = 10;
+export const LEVEL_2_TARGET = 50;
+export const LEVEL_3_TARGET = 100;
+
+export const BONUS = 50;
+
+export const REFER_COMMISSIONS = {
+  level1: {
+    target: 10,
+    commission: 0.15, // 15%
+  },
+  level2: {
+    target: 50,
+    commission: 0.15, // 15%
+  },
+  level3: {
+    target: 100,
+    commission: 0.20, // 20%
+  }
+}
+
+export const ALL_STEP_CHALLENGES = {
+  minPicks: 25,
+  minPickAmount: 0.025, // 2.5%
+  maxPickAmount: 0.1, // 10%
+  maxLoss: 0.2, // 20%
+  maxDailyLoss: 0.15, // 15%
+  profitTarget: 0.3, // 30%
+  minBetPeriod: 7, // 7 days
+  maxBetPeriod: 30, // 30 days
+}
+
+export const DAILY_LOSS_TIMER_RESET = new Date().setUTCHours(6, 0, 0, 0);
+

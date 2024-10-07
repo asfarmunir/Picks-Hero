@@ -54,14 +54,13 @@ const formSchema = z.object({
   }),
 });
 
-
 interface props {
-  searchParams : {
-    referrerCode?: string
-  }
+  searchParams: {
+    referrerCode?: string;
+  };
 }
-const page = ({searchParams : {referrerCode}}: props)  => {
-  console.log('this is the codeeeee ; ', referrerCode)
+const page = ({ searchParams: { referrerCode } }: props) => {
+  console.log("this is the codeeeee ; ", referrerCode);
   const router = useRouter();
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -77,40 +76,36 @@ const page = ({searchParams : {referrerCode}}: props)  => {
 
   const [isChecked, setIsChecked] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-let newCode = referrerCode
-async function onSubmit(values: any) {
-  setIsLoading(true);
-  try {
-    let res;
+  let newCode = referrerCode;
+  async function onSubmit(values: any) {
+    setIsLoading(true);
+    try {
+      let res;
 
-    if (referrerCode) {
-      res = await axios.post(
-        `http://localhost:3000/api/register?referral=${referrerCode}`,
-        values
-      );
-    } else {
+      if (referrerCode) {
+        res = await axios.post(
+          `/api/register?referral=${referrerCode}`,
+          values
+        );
+      } else {
+        res = await axios.post("/api/register", values);
+      }
 
-      res = await axios.post(
-        "http://localhost:3000/api/register",
-        values
-      );
+      if (!res) {
+        throw new Error("Sign up failed");
+      }
+
+      router.push("/api/auth/signin");
+    } catch (error: any) {
+      if (error?.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast("Server error, please try again later");
+      }
     }
 
-    if (!res) {
-      throw new Error("Sign up failed");
-    }
-
-    router.push("/api/auth/signin");
-  } catch (error: any) {
-    if (error?.response?.data?.message) {
-      toast.error(error.response.data.message);
-    } else {
-      toast("Server error, please try again later");
-    }
+    setIsLoading(false);
   }
-
-  setIsLoading(false);
-}
 
   return (
     <div className=" w-full flex items-start justify-center gap-20 pb-12">

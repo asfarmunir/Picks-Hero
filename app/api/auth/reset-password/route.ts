@@ -1,8 +1,7 @@
-
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/prisma/client';
-import { sendResetEmail } from '@/helper/resetEmail';
-import crypto from 'crypto';
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/prisma/client";
+import { sendResetEmail } from "@/helper/resetEmail";
+import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,11 +13,11 @@ export async function POST(req: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json({ message: 'User not found' }, { status: 404 });
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
     // Generate a secure reset token
-    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetToken = crypto.randomBytes(32).toString("hex");
     const resetTokenExpiry = Date.now() + 3600000; // 1-hour expiration
 
     // Save the token and expiry to the user record in the database
@@ -26,20 +25,26 @@ export async function POST(req: NextRequest) {
       where: { email: email },
       data: {
         resetToken,
-        resetTokenExpiry : new Date(resetTokenExpiry)
+        resetTokenExpiry: new Date(resetTokenExpiry),
       },
     });
 
     // Generate the password reset link (fallback link)
-    const resetLink = `http://localhost:3000/login/reset-password/${user.id}?token=${resetToken}`;
+    const resetLink = `/login/reset-password/${user.id}?token=${resetToken}`;
 
     // Send the email with the reset link
     await sendResetEmail(user.email, resetLink);
 
-    return NextResponse.json({ message: 'Reset email sent successfully' }, { status: 200 });
+    return NextResponse.json(
+      { message: "Reset email sent successfully" },
+      { status: 200 }
+    );
   } catch (error) {
-    console.error('Error sending reset email:', error);
-    return NextResponse.json({ message: 'Internal Server Error' }, { status: 500 });
+    console.error("Error sending reset email:", error);
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
   } finally {
     await prisma.$disconnect();
   }

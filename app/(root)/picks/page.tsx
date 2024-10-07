@@ -1,37 +1,33 @@
 "use client";
-import { picksTabs } from "@/lib/constants";
-import Image from "next/image";
-import React, { useEffect } from "react";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { useCreateBet } from "@/app/hooks/useCreateBet";
+import { useGetAccount } from "@/app/hooks/useGetAccount";
+import { useGetSports } from "@/app/hooks/useGetSports";
+import BetModal from "@/components/shared/BetModal";
+import Navbar from "@/components/shared/Navbar";
+import UserAccount from "@/components/shared/UserAccount";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FaAngleDown } from "react-icons/fa";
-import { MdOutlineArrowUpward } from "react-icons/md";
 import { Input } from "@/components/ui/input";
-import { LuSearch } from "react-icons/lu";
-import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
-import Navbar from "@/components/shared/Navbar";
-import UserAccount from "@/components/shared/UserAccount";
-import Link from "next/link";
-import BetModal from "@/components/shared/BetModal";
-import { useGetSports } from "@/app/hooks/useGetSports";
-import GamesTable from "./games";
-import BetSlip from "./bet-slip";
-import { useCreateBet } from "@/app/hooks/useCreateBet";
+import Image from "next/image";
+import React, { useEffect } from "react";
 import toast from "react-hot-toast";
+import { FaAngleDown } from "react-icons/fa";
+import { LuSearch } from "react-icons/lu";
+import { MdOutlineArrowUpward } from "react-icons/md";
+import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
+import BetSlip from "./bet-slip";
+import GamesTable from "./games";
+import {
+  americanToDecimalOdds,
+  calculateToWin,
+  getOriginalAccountValue,
+} from "@/lib/utils";
+import { accountStore } from "@/app/store/account";
+import { ALL_STEP_CHALLENGES } from "@/lib/constants";
 
 type oddsType = "american" | "decimal";
 
@@ -45,11 +41,18 @@ interface Bet {
   away_team: string;
   oddsFormat: "decimal" | "american";
   gameDate: string;
+  sport: string;
+  event: string;
+  league: string;
 }
 
 const page = () => {
+  // ACCOUNT
+  const account = accountStore((state) => state.account);
+
   // BET SLIP DATA
   const [selectedBets, setSelectedBets] = React.useState<Bet[]>([]);
+  const [toCollect, setToCollect] = React.useState<string>("0.00");
   const addBet = (bet: Bet) => {
     setSelectedBets([...selectedBets, bet]);
   };
@@ -57,11 +60,64 @@ const page = () => {
     setSelectedBets(selectedBets.filter((bet) => bet.id !== id));
   };
   const calculateOverallOdds = () => {
-    return selectedBets.reduce((acc, bet) => acc * bet.odds, 1).toFixed(2);
+    let overallOdds = 1;
+
+    // Multiply odds for each bet
+    selectedBets.forEach((bet) => {
+      const decimalOdds =
+        bet.oddsFormat === "american"
+          ? americanToDecimalOdds(bet.odds)
+          : bet.odds;
+      overallOdds *= decimalOdds;
+    });
+
+    return overallOdds.toFixed(2);
   };
+
   const calculateToCollect = () => {
-    return selectedBets.reduce((acc, bet) => acc + bet.toWin, 0).toFixed(2);
+    let overallOdds = 1;
+
+    // Multiply odds for each bet
+    selectedBets.forEach((bet) => {
+      const decimalOdds =
+        bet.oddsFormat === "american"
+          ? americanToDecimalOdds(bet.odds)
+          : bet.odds;
+      overallOdds *= decimalOdds;
+    });
+
+    // For parlays
+    let totalBetAmount = 0;
+    selectedBets.forEach((bet) => {
+      totalBetAmount += bet.pick; // Sum the total bet amount (wagered amount)
+    });
+
+    // Calculate parlay payout: betAmount * (overallOdds - 1)
+    const potentialPayout = totalBetAmount * (overallOdds - 1);
+
+    return potentialPayout.toFixed(2); // Return net profit from parlay
   };
+  const onPickInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    id: number
+  ) => {
+    const value = parseFloat(e.target.value);
+    const updatedBets = selectedBets.map((bet) => {
+      if (bet.id === id) {
+        return {
+          ...bet,
+          pick: value,
+          toWin: calculateToWin(bet, value),
+        };
+      }
+      return bet;
+    });
+    setSelectedBets(updatedBets);
+  };
+
+  useEffect(() => {
+    setToCollect(calculateToCollect());
+  }, [selectedBets]);
 
   // TABS MECHANISM
   const [tab, setTab] = React.useState("football");
@@ -78,13 +134,58 @@ const page = () => {
   };
 
   // ODDS FORMAT
-  const [oddsFormat, setOddsFormat] = React.useState<oddsType>("american");
+  const [oddsFormat, setOddsFormat] = React.useState<oddsType>("decimal");
   const changeOddsFormat = (format: oddsType) => {
     setOddsFormat(format);
   };
 
   // FEATURED MATCH
   const [featuredMatch, setFeaturedMatch] = React.useState<any>(null);
+  const addGameToBetSlip = ({ game, home }: { game: any; home: boolean }) => {
+
+    let gameAlreadyInBetSlip = false;
+    selectedBets.forEach((bet) => {
+      if (bet.id === game.id) {
+        gameAlreadyInBetSlip = true;
+      }
+    });
+
+    // if game exists, remove it
+    if (gameAlreadyInBetSlip) {
+      setSelectedBets(selectedBets.filter((bet) => bet.id !== game.id));
+    }
+    
+    const odds = home
+      ? game.bookmakers[0]?.markets[0]?.outcomes[0].price
+      : game.bookmakers[0]?.markets[0]?.outcomes[1].price;
+
+    const initialPick =
+      getOriginalAccountValue(account) * ALL_STEP_CHALLENGES.minPickAmount;
+    const bet: Bet = {
+      id: game.id,
+      team: home ? game.home_team : game.away_team,
+      odds: Number(odds),
+      pick: initialPick,
+      toWin:
+        oddsFormat === "decimal"
+          ? initialPick * (Number(odds) - 1)
+          : initialPick * (americanToDecimalOdds(Number(odds)) - 1),
+      oddsFormat: oddsFormat,
+      home_team: game.home_team,
+      away_team: game.away_team,
+      gameDate: game.commence_time,
+      sport: tab,
+      league: leagueTab,
+      event: `${game.home_team} vs ${game.away_team}`,
+    };
+
+    // if bet id is already there, skip
+    if (selectedBets.find((b) => b.id === bet.id)) {
+      return;
+    }
+
+    addBet(bet);
+  };
 
   // SPORTS DATA
   const { data, isPending, isError } = useGetSports();
@@ -111,10 +212,19 @@ const page = () => {
     }
   }, [data]);
 
+  const findTeamInBets = (team: string, id: number) => {
+    return selectedBets.find((bet) => bet.team === team && bet.id === id);
+  };
+
   // PLACE BETS
   const { mutate: placeBet, isPending: placingBet } = useCreateBet({
-    onSuccess: (data) => {},
-    onError: (error) => {},
+    onSuccess: (data) => {
+      setSelectedBets([]);
+      toast.success("Bet placed successfully");
+    },
+    onError: (error) => {
+      toast.error(error.error.message);
+    },
   });
 
   const placeBets = async () => {
@@ -123,45 +233,61 @@ const page = () => {
       return;
     }
 
-    const alteredBets = selectedBets.map((bet) => {
-      return {
-        eventId: (bet.id).toString(),
-        sportKey: leagueTab,
-        sport: tab,
-        event: `${bet.home_team} vs ${bet.away_team}`,
-        league: leagueTab,
-        team: bet.team,
+    let alteredBet;
+    if (selectedBets.length === 1) {
+      const bet = selectedBets[0];
+      alteredBet = {
+        eventId: [bet.id.toString()],
+        sportKey: [bet.league],
+        sport: [bet.sport],
+        event: [bet.event],
+        league: [bet.league],
+        team: [bet.team],
         odds: bet.odds,
         pick: bet.pick,
         winnings: bet.toWin,
         oddsFormat: bet.oddsFormat.toUpperCase(),
-        gameDate: new Date(bet.gameDate),
+        gameDate: [new Date(bet.gameDate)],
       };
-    });
-
-    try {
-      const results = await Promise.all(
-        alteredBets.map((bet) => 
-          new Promise((resolve, reject) => {
-            // Place each bet using the `placeBet` mutation
-            placeBet({bet, accountNumber: "PH3537349-22"}, {
-              onSuccess: (data) => {
-                toast.success(`Bet placed for ${bet.team}`);
-                resolve({ bet, success: true, data });
-              },
-              onError: (error) => {
-                toast.error(`${error}`);
-                reject({ bet, success: false, error });
-              },
-            });
-          })
-        )
-      );
-      toast.success("All bets placed successfully");
-    } catch (error: any) {
-      toast.error(error.error.message);
+    } else if (selectedBets.length > 1) {
+      // create a parlay
+      let totalPick = 0;
+      const eventIds: string[] = [];
+      const sports: string[] = [];
+      const events: string[] = [];
+      const leagues: string[] = [];
+      const teams: string[] = [];
+      const gameDates: Date[] = [];
+      selectedBets.forEach((bet) => {
+        eventIds.push(bet.id.toString());
+        sports.push(bet.sport);
+        events.push(bet.event);
+        leagues.push(bet.league);
+        teams.push(bet.team);
+        gameDates.push(new Date(bet.gameDate));
+        totalPick += bet.pick;
+      });
+      alteredBet = {
+        eventId: eventIds,
+        sportKey: leagues,
+        sport: sports,
+        event: events,
+        league: leagues,
+        team: teams,
+        odds: Number(calculateOverallOdds()),
+        pick: totalPick,
+        winnings: Number(calculateToCollect()),
+        oddsFormat: "DECIMAL",
+        gameDate: gameDates,
+      };
     }
-    setSelectedBets([]);
+
+    if (!alteredBet) return;
+
+    placeBet({
+      bet: alteredBet,
+      accountNumber: account.accountNumber,
+    });
   };
 
   return (
@@ -207,16 +333,39 @@ const page = () => {
             </p>
           </div>
           <div className="flex w-full md:w-fit items-center gap-2 flex-col md:flex-row">
-            <button className="flex justify-center items-center gap-2 p-4 text-sm w-full md:w-fit 2xl:text-lg  bg-[#272837] shadow-inner shadow-gray-600 rounded-lg">
+            <button
+              className={`flex justify-center items-center gap-2 p-4 text-sm w-full md:w-fit 2xl:text-lg  bg-[#272837] shadow-inner shadow-gray-600 rounded-lg ${
+                findTeamInBets(featuredMatch?.home_team, featuredMatch?.id)
+                  ? " border border-primary-50/80 shadow shadow-green-700"
+                  : ""
+              }`}
+              onClick={
+                () => addGameToBetSlip({ game: featuredMatch, home: true })
+              }
+            >
               {featuredMatch?.home_team}
             </button>
             <p className=" p-1.5 text-sm px-2 rounded-full font-bold -mx-4 -my-4 z-30 text-primary-50 bg-green-700/30 border-green-700/40 border-2">
               vs
             </p>
-            <button className="flex justify-center items-center gap-2 p-4 text-sm w-full md:w-fit 2xl:text-lg  bg-[#272837] shadow-inner shadow-gray-600 rounded-lg">
+            <button
+              className={`flex justify-center items-center gap-2 p-4 text-sm w-full md:w-fit 2xl:text-lg  bg-[#272837] shadow-inner shadow-gray-600 rounded-lg ${
+                findTeamInBets(featuredMatch?.away_team, featuredMatch?.id)
+                  ? " border border-primary-50/80 shadow shadow-green-700"
+                  : ""
+              }`}
+              onClick={() =>
+                addGameToBetSlip({ game: featuredMatch, home: false })
+              }
+            >
               {featuredMatch?.away_team}
             </button>
-            <button className="flex justify-center uppercase items-center gap-2 p-4 text-sm w-full md:w-fit 2xl:text-base font-bold bg-[#333547] inner-shadow rounded-lg">
+            <button
+              className="flex justify-center uppercase items-center gap-2 p-4 text-sm w-full md:w-fit 2xl:text-base font-bold bg-[#333547] inner-shadow rounded-lg"
+              onClick={() =>
+                addGameToBetSlip({ game: featuredMatch, home: true })
+              }
+            >
               BET NOW
             </button>
           </div>
@@ -292,13 +441,18 @@ const page = () => {
                 </DropdownMenuContent>
               </DropdownMenu>{" "}
             </div>
-            <GamesTable
-              sportKey={leagueTab}
-              oddsFormat={oddsFormat}
-              addBet={addBet}
-              bets={selectedBets}
-              setFeaturedMatch={setFeaturedMatch}
-            />
+            {account && (
+              <GamesTable
+                tab={tab}
+                sportKey={leagueTab}
+                oddsFormat={oddsFormat}
+                addBet={addBet}
+                bets={selectedBets}
+                setBets={setSelectedBets}
+                setFeaturedMatch={setFeaturedMatch}
+                account={account}
+              />
+            )}
             <div className="flex items-center justify-between p-5">
               <h4 className="text-[#848BAC] font-thin text-xs 2xl:text-base ">
                 PAGE 1-5
@@ -346,23 +500,29 @@ const page = () => {
               </div>
             )}
 
-            {selectedBets.map((bet, index) => (
-              <>
-                <BetSlip key={index} bet={bet} removeBet={removeBet} />
-                <div className=" w-full  mt-3 border-t border-gray-700 py-3 flex items-center justify-between">
-                  <p className="text-sm  text-primary-200 font-thin     ">
-                    OVERALL ODDS
-                  </p>
-                  <p className="font-bold">{calculateOverallOdds()}</p>
-                </div>
-                <div className=" w-full mb-4  flex items-center - justify-between">
-                  <p className="text-sm  text-primary-200 font-thin     ">
-                    TO COLLECT
-                  </p>
-                  <p className="font-bold">{calculateToCollect()} USD</p>
-                </div>
-              </>
-            ))}
+            {account &&
+              selectedBets.map((bet, index) => (
+                <>
+                  <BetSlip
+                    key={index}
+                    bet={bet}
+                    removeBet={removeBet}
+                    onPickInputChange={onPickInputChange}
+                  />
+                </>
+              ))}
+            <div className=" w-full  mt-3 border-t border-gray-700 py-3 flex items-center justify-between">
+              <p className="text-sm  text-primary-200 font-thin     ">
+                OVERALL ODDS
+              </p>
+              <p className="font-bold">{calculateOverallOdds()}</p>
+            </div>
+            <div className=" w-full mb-4  flex items-center - justify-between">
+              <p className="text-sm  text-primary-200 font-thin     ">
+                TO COLLECT
+              </p>
+              <p className="font-bold">{toCollect} USD</p>
+            </div>
 
             <div className=" w-full  border-t border-gray-700 py-3 flex items-center justify-between">
               <button
@@ -376,9 +536,7 @@ const page = () => {
                 disabled={placingBet}
                 onClick={placeBets}
               >
-                {
-                  placingBet ? "Placing bet..." : "place pick"
-                }
+                {placingBet ? "Placing bet..." : "place pick"}
               </button>
             </div>
           </div>
