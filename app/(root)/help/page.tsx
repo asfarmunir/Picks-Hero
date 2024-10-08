@@ -117,12 +117,12 @@ const page = () => {
               />
             </div>
 
-            <div className=" bg-[#272837] shadow-inner shadow-gray-700 p-3  md:p-6 item-center  overflow-hidden relative items-center rounded-2xl w-full  flex  justify-between gap-3 ">
-              <div className=" flex flex-col  gap-1">
-                <h2 className=" text-sm md:text-xl font-bold">
+            <a href="https://help.pickshero.io" target="_blank" className=" bg-[#272837] shadow-inner shadow-gray-700 p-3  md:p-6 item-center  overflow-hidden relative items-center rounded-2xl w-full  flex  justify-between gap-3 ">
+              <span className=" flex flex-col  gap-1">
+                <span className=" text-sm md:text-xl font-bold">
                   FAQs AND HELP CENTER
-                </h2>
-              </div>
+                </span>
+              </span>
               <Image
                 src="/icons/right.png"
                 alt="Video"
@@ -130,7 +130,7 @@ const page = () => {
                 height={23}
                 className=""
               />
-            </div>
+            </a>
             <div className=" bg-[#272837] shadow-inner shadow-gray-700 p-3  md:p-6 item-center  overflow-hidden relative items-center rounded-2xl w-full  flex   gap-2.5 ">
               <Image
                 src="/icons/email.png"
@@ -141,7 +141,7 @@ const page = () => {
               />
               <h2 className="  uppercase text-xs md:text-base font-bold">
                 Contact:{" "}
-                <span className="text-[#848BAC]">support@pickshero.com</span>
+                <a href="mailto:support@pickshero.io" className="text-[#848BAC] hover:underline">support@pickshero.com</a>
               </h2>
             </div>
           </div>{" "}
