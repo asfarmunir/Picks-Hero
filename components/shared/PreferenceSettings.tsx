@@ -31,114 +31,93 @@ const PreferenceSettings = ({
     preferences?.emailNotification || false
   );
 
-  const PreferenceSettings = ({
-    preferences,
-    fetchPreferences,
-  }: {
-    preferences: any;
-    fetchPreferences: () => void;
-  }) => {
-    const [displayStatsLive, setDisplayStatsLive] = useState(
-      preferences?.displayStatsLive || false
-    );
-    const [phoneNotification, setPhoneNotification] = useState(
-      preferences?.phoneNotification || false
-    );
-    const [emailNotification, setEmailNotification] = useState(
-      preferences?.emailNotification || false
-    );
+  const handleToggleChange = async (field: any, checked: boolean) => {
+    try {
+      const response = await axios.patch("/api/preferences", {
+        field,
+        value: checked,
+      });
 
-    const handleToggleChange = async (field: any, checked: boolean) => {
-      try {
-        const response = await axios.patch("/api/preferences", {
-          field,
-          value: checked,
-        });
-
-        if (response.status !== 200) {
-          throw new Error("Failed to update preferences");
-        }
-
-        toast.success("Preferences updated successfully:", response.data);
-        fetchPreferences();
-      } catch (error) {
-        toast.error("Error updating preferences");
+      if (response.status !== 200) {
+        throw new Error("Failed to update preferences");
       }
-    };
 
-    return (
-      <div className=" w-full flex text-white flex-col gap-4">
-        <div className=" w-full flex justify-between py-4 pb-8 border-b border-gray-700">
-          <div className="flex flex-col gap-1">
-            <h3 className=" text-lg uppercase font-bold">Display Stats Live</h3>
+      toast.success("Preferences updated successfully:", response.data);
+      fetchPreferences();
+    } catch (error) {
+      toast.error("Error updating preferences");
+    }
+  };
 
-            <p className="text-sm text-[#848BAC] tracking-wide ">
-              Display your stats online publicly.
-            </p>
-          </div>
-          <Switch
-            checked={displayStatsLive}
-            onChange={(checked: any): any => {
-              setDisplayStatsLive(checked);
-              handleToggleChange("displayStatsLive", checked);
-            }}
-            onClick={(e) => {
-              const switch_ = e.target as HTMLButtonElement;
-              const toggle = switch_.getAttribute("data-state");
-              handleToggleChange("displayStatsLive", toggle !== "checked");
-              setDisplayStatsLive(!displayStatsLive);
-            }}
-          />
+  return (
+    <div className=" w-full flex text-white flex-col gap-4">
+      <div className=" w-full flex justify-between py-4 pb-8 border-b border-gray-700">
+        <div className="flex flex-col gap-1">
+          <h3 className=" text-lg uppercase font-bold">Display Stats Live</h3>
+
+          <p className="text-sm text-[#848BAC] tracking-wide ">
+            Display your stats online publicly.
+          </p>
         </div>
-        <div className=" w-full flex justify-between py-4 pb-8 border-b border-gray-700">
-          <div className="flex flex-col gap-1">
-            <h3 className=" text-lg uppercase font-bold">
-              Phone Notifications
-            </h3>
+        <Switch
+          checked={displayStatsLive}
+          onChange={(checked: any): any => {
+            setDisplayStatsLive(checked);
+            handleToggleChange("displayStatsLive", checked);
+          }}
+          onClick={(e) => {
+            const switch_ = e.target as HTMLButtonElement;
+            const toggle = switch_.getAttribute("data-state");
+            handleToggleChange("displayStatsLive", toggle !== "checked");
+            setDisplayStatsLive(!displayStatsLive);
+          }}
+        />
+      </div>
+      <div className=" w-full flex justify-between py-4 pb-8 border-b border-gray-700">
+        <div className="flex flex-col gap-1">
+          <h3 className=" text-lg uppercase font-bold">Phone Notifications</h3>
 
-            <p className="text-sm text-[#848BAC] tracking-wide ">
-              Toggle whether you want to receive phone notifications.
-            </p>
-          </div>
-          <Switch
-            checked={phoneNotification}
-            onChange={(checked: any): any => {
-              setPhoneNotification(checked);
-              handleToggleChange("phoneNotification", checked);
-            }}
-            onClick={(e) => {
-              const switch_ = e.target as HTMLButtonElement;
-              const toggle = switch_.getAttribute("data-state");
-              handleToggleChange("phoneNotification", toggle !== "checked");
-              setPhoneNotification(!phoneNotification);
-            }}
-          />
+          <p className="text-sm text-[#848BAC] tracking-wide ">
+            Toggle whether you want to receive phone notifications.
+          </p>
         </div>
-        <div className=" w-full flex justify-between py-4 pb-8">
-          <div className="flex flex-col gap-1">
-            <h3 className=" text-lg uppercase font-bold">
-              Email Notifications
-            </h3>
+        <Switch
+          checked={phoneNotification}
+          onChange={(checked: any): any => {
+            setPhoneNotification(checked);
+            handleToggleChange("phoneNotification", checked);
+          }}
+          onClick={(e) => {
+            const switch_ = e.target as HTMLButtonElement;
+            const toggle = switch_.getAttribute("data-state");
+            handleToggleChange("phoneNotification", toggle !== "checked");
+            setPhoneNotification(!phoneNotification);
+          }}
+        />
+      </div>
+      <div className=" w-full flex justify-between py-4 pb-8">
+        <div className="flex flex-col gap-1">
+          <h3 className=" text-lg uppercase font-bold">Email Notifications</h3>
 
-            <p className="text-sm text-[#848BAC] tracking-wide max-w-md ">
-              Toggle whether you want to receive email notifications.
-            </p>
-          </div>
-          <Switch
-            checked={emailNotification}
-            onChange={(checked: any): any => {
-              setDisplayStatsLive(checked);
-              handleToggleChange("displayStatsLive", checked);
-            }}
-            onClick={(e) => {
-              const switch_ = e.target as HTMLButtonElement;
-              const toggle = switch_.getAttribute("data-state");
-              handleToggleChange("emailNotification", toggle !== "checked");
-              setEmailNotification(!emailNotification);
-            }}
-          />
+          <p className="text-sm text-[#848BAC] tracking-wide max-w-md ">
+            Toggle whether you want to receive email notifications.
+          </p>
         </div>
-        {/* <div className=" w-full flex justify-between py-4  ">
+        <Switch
+          checked={emailNotification}
+          onChange={(checked: any): any => {
+            setDisplayStatsLive(checked);
+            handleToggleChange("displayStatsLive", checked);
+          }}
+          onClick={(e) => {
+            const switch_ = e.target as HTMLButtonElement;
+            const toggle = switch_.getAttribute("data-state");
+            handleToggleChange("emailNotification", toggle !== "checked");
+            setEmailNotification(!emailNotification);
+          }}
+        />
+      </div>
+      {/* <div className=" w-full flex justify-between py-4  ">
         <div className="flex flex-col gap-1">
           <h3 className=" text-lg uppercase font-bold">ODDS DISPLAY</h3>
 
@@ -172,9 +151,8 @@ const PreferenceSettings = ({
           </DropdownMenuContent>
         </DropdownMenu>{" "}
       </div> */}
-      </div>
-    );
-  };
+    </div>
+  );
 };
 
 export default PreferenceSettings;

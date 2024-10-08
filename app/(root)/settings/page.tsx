@@ -113,15 +113,7 @@ const page = () => {
               ),
               billing: <BillingSettings />,
               verification: <Verification />,
-<<<<<<< HEAD
               kyc: <KYCVerification />,
-=======
-              kyc: (
-                <Suspense fallback={<div>Loading...</div>}>
-                  <KYCVerification />
-                </Suspense>
-              ),
->>>>>>> 4f5390111600bf6378ce21f74e6ed261d87d0c33
             }[tab]
           }
         </div>
