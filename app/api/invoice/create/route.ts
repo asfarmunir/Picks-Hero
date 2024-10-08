@@ -1,0 +1,103 @@
+import { generateCustomId } from "@/helper/keyGenerator";
+import { connectToDatabase } from "@/lib/database";
+import prisma from "@/prisma/client";
+import { getServerSession } from "next-auth";
+import { NextRequest, NextResponse } from "next/server";
+
+export async function POST(req: NextRequest) {
+
+    const { customerEmail, invoice, account, billingDetails } = await req.json();
+
+    await connectToDatabase();
+
+    const session = await getServerSession();
+    if(!session) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const user = await prisma.user.findFirst({
+        where: {
+            email: session.user?.email,
+        },
+    });
+    if(!user) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+    
+    // Create invoice
+    console.log({
+        customerEmail,
+        invoice: {
+            amount: Number(invoice.amount.replace("$", "")),
+            currencyFrom: invoice.currencyFrom,
+        },
+        reference: JSON.stringify({
+            accountDetails: {
+                accountType: account.accountType,
+                accountSize: account.accountSize,
+                status: account.status,
+                balance: parseInt(account.accountSize.replace("K", "000")),
+                accountNumber: generateCustomId(),
+                userId: user.id,
+            },
+            billingDetails: billingDetails,
+        }),
+        settlement: {
+            description: "Settlement to BTC",
+            currencyTo: "BTC",
+        },
+        notifyUrl: `https://app.pickshero.io/api/invoice/confirm`,
+    })
+    const response = await fetch("https://confirmo.net/api/v3/invoices", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${process.env.CONFIRMO_API_KEY}`,
+        },
+        body: JSON.stringify({
+            customerEmail,
+            invoice: {
+                amount: Number(invoice.amount.replace("$", "")),
+                currencyFrom: invoice.currencyFrom,
+            },
+            reference: JSON.stringify({
+                accountDetails: {
+                    accountType: account.accountType,
+                    accountSize: account.accountSize,
+                    status: account.status,
+                    balance: parseInt(account.accountSize.replace("K", "000")),
+                    accountNumber: generateCustomId(),
+                    userId: user.id,
+                },
+                billingDetails: billingDetails,
+            }),
+            settlement: {
+                description: "Settlement to BTC",
+                currencyTo: "BTC",
+            },
+            notifyUrl: `https://app.pickshero.io/api/invoice/confirm`,
+        }),
+    })
+
+    if (!response.ok) {
+        console.log(await response.text());
+        return NextResponse.json({ error: "Failed to create invoice" }, { status: response.status });
+    }
+
+    const data = await response.json();
+
+    await prisma.accountInvoices.create({
+        data: {
+            userId: user.id,
+            invoiceId: data.id,
+            amount: Number(invoice.amount.replace("$", "")),
+            status: "pending",
+            invoiceNumber: generateCustomId(false, false),
+            paymentMethod: "BTC",
+            paymentDate: new Date(),
+        },
+    })
+
+    return NextResponse.json(data);    
+
+}

@@ -95,7 +95,7 @@ model Account {
   minBetPeriodCompleted Boolean  @default(false) // Store minimum bet period completed
 
   totalFundedPayout Float     @default(0.0)
-  totalFundedAmount Float
+  totalFundedAmount Float     @default(0.0)
   fundedPayoutTimer DateTime?
 
   paymentMethod  String? // Store payment method details
@@ -169,22 +169,22 @@ model PaymentCard {
 }
 
 model AccountInvoices {
-  id            String @id @default(auto()) @map("_id") @db.ObjectId
-  accountId     String @db.ObjectId
-  userId        String @db.ObjectId
-  paymentCardId String @db.ObjectId
+  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  accountId     String? @db.ObjectId
+  userId        String  @db.ObjectId
+  paymentCardId String? @db.ObjectId
 
+  invoiceId     String
   invoiceNumber String
   amount        Float
   status        String
   paymentMethod String
   paymentDate   DateTime
 
-  account Account @relation(fields: [accountId], references: [id])
-  user    User    @relation(fields: [userId], references: [id])
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  User      User     @relation(fields: [userId], references: [id])
+  Account   Account? @relation(fields: [accountId], references: [id])
 
   @@map("accountinvoices")
 }
@@ -308,4 +308,19 @@ model FundedPayoutRequests {
   updatedAt DateTime @updatedAt
 
   @@map("fundedpayoutrequests")
+}
+
+enum NotificationType {
+  MESSAGE
+  ALERT
+  UPDATE
+}
+
+model Notification {
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String // ID of the user to notify
+  type      NotificationType // e.g., 'message', 'alert', 'update'
+  content   String // Notification message
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
 }

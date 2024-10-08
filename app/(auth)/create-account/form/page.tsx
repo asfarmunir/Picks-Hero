@@ -1,5 +1,7 @@
 "use client";
+import { Invoice } from '@confirmo/overlay';
 import { useCreateAccount } from "@/app/hooks/useCreateAccount";
+import { useCreateConfirmoInvoice } from "@/app/hooks/useCreateConfirmoInvoice";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -80,6 +82,22 @@ const page = () => {
   // router
   const router = useRouter();
 
+  // mutation
+  const { mutate: createPaymentInvoice } = useCreateConfirmoInvoice({
+    onSuccess: (data: any) => {
+      toast.success("Invoice created successfully");
+      const invoice_url = `https://confirmo.net/public/invoice/${data.id}` 
+      const overlay = Invoice.open(invoice_url, () => {
+        toast.success("Payment successful. You will be notified via email.");
+        router.push("/");
+      });
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Failed to create invoice");
+    },
+  });
+  
   // user details
   const { status, data: session } = useSession();
 
@@ -126,9 +144,33 @@ const page = () => {
 
   // billing address form submit
   async function onSubmit(values: any) {
-    localStorage.setItem("billing", JSON.stringify(values));
-    setStep(2);
+    // localStorage.setItem("billing", JSON.stringify(values));
+    // setStep(2);
     scrollTo(0, 0);
+
+    // const billing = JSON.parse(localStorage.getItem("billing") || "{}");
+    const data = {
+      account: {
+        accountSize: accountSize,
+        accountType:
+          accountType === "2"
+            ? "TWO_STEP"
+            : accountType === "3"
+            ? "THREE_STEP"
+            : "",
+        status: "CHALLENGE",
+      },
+      billingDetails: values,
+      customerEmail: values.email,
+      invoice: {
+        // amount: accountPrice,
+        amount: `$1`,
+        currencyFrom: "USD",
+      },
+    };
+    
+    createPaymentInvoice(data);
+
   }
 
   // go back

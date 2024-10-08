@@ -194,6 +194,7 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
           data: {
             ...generateInvoice(account, newAccount, userId),
             paymentCardId: paymentCardId,
+            invoiceId: "",
           },
         });
 
