@@ -48,7 +48,11 @@ export async function PATCH(req: NextRequest) {
       data: {
         firstName,
         lastName,
+<<<<<<< HEAD
+        email,
+=======
         // email,
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
         phoneNumber : phone,
         address,
         // dateOfBirth: parsedDateOfBirth,

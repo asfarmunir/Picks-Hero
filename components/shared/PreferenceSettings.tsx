@@ -14,6 +14,37 @@ import {
 import { FaAngleDown } from "react-icons/fa6";
 import { toast } from "react-toastify";
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+const PreferenceSettings = () => {
+  const [displayStatsLive, setDisplayStatsLive] = useState(false);
+  const [phoneNotification, setPhoneNotification] = useState(false);
+  const [emailNotification, setEmailNotification] = useState(false);
+
+
+  const handleToggleChange = async (field: any, checked: any) => {
+    if (checked) {
+      try {
+        const response = await axios.patch("http://localhost:3000/api/preferences", {
+          field,
+          value: true,
+        });
+
+        if (response.status !== 200) {
+          throw new Error("Failed to update preferences");
+        }
+  
+        console.log("Preferences updated successfully:", response.data);
+      } catch (error) {
+        console.error("Error updating preferences:", error);
+      }
+=======
+const PreferenceSettings = ({ preferences, fetchPreferences } : { preferences: any, fetchPreferences: ()=>void }) => {
+  const [displayStatsLive, setDisplayStatsLive] = useState(preferences?.displayStatsLive || false);
+  const [phoneNotification, setPhoneNotification] = useState(preferences?.phoneNotification || false);
+  const [emailNotification, setEmailNotification] = useState(preferences?.emailNotification || false);
+
+=======
 const PreferenceSettings = ({
   preferences,
   fetchPreferences,
@@ -30,6 +61,7 @@ const PreferenceSettings = ({
   const [emailNotification, setEmailNotification] = useState(
     preferences?.emailNotification || false
   );
+>>>>>>> 4f5390111600bf6378ce21f74e6ed261d87d0c33
 
   const handleToggleChange = async (field: any, checked: boolean) => {
     try {
@@ -49,6 +81,7 @@ const PreferenceSettings = ({
       fetchPreferences();
     } catch (error) {
       toast.error("Error updating preferences");
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
     }
   };
 
@@ -64,11 +97,17 @@ const PreferenceSettings = ({
         </div>
         <Switch
           checked={displayStatsLive}
+<<<<<<< HEAD
+          onChange={(checked:any):any => {
+            setDisplayStatsLive(checked);
+            handleToggleChange("displayStatsLive", checked);
+=======
           onClick={(e) => {
             const switch_ = e.target as HTMLButtonElement;
             const toggle = switch_.getAttribute("data-state");
             handleToggleChange("displayStatsLive", toggle !== "checked");
             setDisplayStatsLive(!displayStatsLive);
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
           }}
         />
       </div>
@@ -82,11 +121,17 @@ const PreferenceSettings = ({
         </div>
         <Switch
           checked={phoneNotification}
+<<<<<<< HEAD
+          onChange={(checked:any):any => {
+            setPhoneNotification(checked);
+            handleToggleChange("phoneNotification", checked);
+=======
           onClick={(e) => {
             const switch_ = e.target as HTMLButtonElement;
             const toggle = switch_.getAttribute("data-state");
             handleToggleChange("phoneNotification", toggle !== "checked");
             setPhoneNotification(!phoneNotification);
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
           }}
         />
       </div>
@@ -99,6 +144,13 @@ const PreferenceSettings = ({
           </p>
         </div>
         <Switch
+<<<<<<< HEAD
+        checked={emailNotification}
+        onChange={(checked:any):any => {
+          setDisplayStatsLive(checked);
+          handleToggleChange("displayStatsLive", checked);
+        }} />
+=======
           checked={emailNotification}
           onClick={(e) => {
             const switch_ = e.target as HTMLButtonElement;
@@ -107,6 +159,7 @@ const PreferenceSettings = ({
             setEmailNotification(!emailNotification);
           }}
         />
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
       </div>
       {/* <div className=" w-full flex justify-between py-4  ">
         <div className="flex flex-col gap-1">

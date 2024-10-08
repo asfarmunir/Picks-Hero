@@ -18,6 +18,8 @@ enum AccountStatus {
   BREACHED
 }
 
+<<<<<<< HEAD
+=======
 enum ProfileLevels {
   NEWBIE
   BRONZE
@@ -27,6 +29,7 @@ enum ProfileLevels {
   HERO
 }
 
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
 model User {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   firstName String
@@ -37,6 +40,14 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+<<<<<<< HEAD
+  twoFactorCode    String?
+  twoFactorSecret  String?
+  ascii            String?
+  otpUrl           String?
+  twoFactorExpires DateTime?
+
+=======
   profileLevel ProfileLevels @default(NEWBIE)
   picksWon     Int           @default(0)
   kycVerified  Boolean       @default(false)
@@ -47,6 +58,7 @@ model User {
   otpUrl           String?
   twoFactorExpires DateTime?
 
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
   resetToken       String?
   resetTokenExpiry DateTime?
 
@@ -66,12 +78,23 @@ model User {
   totalReferPayout Float     @default(0.0)
   referPayoutTimer DateTime?
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+  accounts Account[]
+=======
+  accounts        Account[]
+  PaymentCard     PaymentCard[]
+  AccountInvoices AccountInvoices[]
+  Bets            Bets[]
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
+=======
   accounts             Account[]
   PaymentCard          PaymentCard[]
   AccountInvoices      AccountInvoices[]
   Bets                 Bets[]
   PayoutRequests       ReferPayoutRequests[]
   FundedPayoutRequests FundedPayoutRequests[]
+>>>>>>> 4f5390111600bf6378ce21f74e6ed261d87d0c33
 
   @@map("users")
 }
@@ -80,11 +103,19 @@ model Account {
   id     String @id @default(auto()) @map("_id") @db.ObjectId
   userId String @db.ObjectId
 
+<<<<<<< HEAD
+  accountType AccountType  // 2 step, 3 step
+  accountSize String // 1k, 5k, 10k, 50k, 100k
+  status      AccountStatus // Challenge, Funded, Breached
+=======
   accountType   AccountType // 2 step, 3 step
   accountSize   String // 1k, 5k, 10k, 50k, 100k
   status        AccountStatus // Challenge, Funded, Breached
   balance       Float // Store account balance
   accountNumber String // Store account number
+<<<<<<< HEAD
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
+=======
   phase         Int           @default(1) // Store account phase
   picks         Int           @default(0) // Store account picks
 
@@ -97,17 +128,30 @@ model Account {
   totalFundedPayout Float     @default(0.0)
   totalFundedAmount Float     @default(0.0)
   fundedPayoutTimer DateTime?
+>>>>>>> 4f5390111600bf6378ce21f74e6ed261d87d0c33
 
   paymentMethod  String? // Store payment method details
   user           User?            @relation(fields: [userId], references: [id])
   billingAddress BillingAddress[]
   paymentCard    PaymentCard[]
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+=======
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  AccountInvoices AccountInvoices[]
+  Bets            Bets[]
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
+=======
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
   AccountInvoices      AccountInvoices[]
   Bets                 Bets[]
   FundedPayoutRequests FundedPayoutRequests[]
+>>>>>>> 4f5390111600bf6378ce21f74e6ed261d87d0c33
 
   @@map("accounts")
 }
@@ -151,7 +195,10 @@ model BillingAddress {
 model PaymentCard {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   accountId String @db.ObjectId
+<<<<<<< HEAD
+=======
   userId    String @db.ObjectId
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
 
   cardNumber String // Store encrypted card number
   cardExpiry String
@@ -160,13 +207,18 @@ model PaymentCard {
   cardCvv    String // Store encrypted cvv
 
   account Account @relation(fields: [accountId], references: [id])
+<<<<<<< HEAD
+=======
   user    User    @relation(fields: [userId], references: [id])
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("paymentcard")
 }
+<<<<<<< HEAD
+=======
 
 model AccountInvoices {
   id            String  @id @default(auto()) @map("_id") @db.ObjectId
@@ -235,6 +287,9 @@ model Bets {
 
   @@map("bets")
 }
+<<<<<<< HEAD
+>>>>>>> 87699aa2b7abe4d9103cb3a5dcf4aba498944fb6
+=======
 
 enum CronJobType {
   objectiveMin
