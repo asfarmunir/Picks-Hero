@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Table,
   TableBody,
@@ -28,6 +28,7 @@ import Image from "next/image";
 import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
 import { useGetBets } from "@/app/hooks/useGetBets";
 import { useUpgradeAccount } from "@/app/hooks/useUpgradeAccount";
+import { accountStore } from "@/app/store/account";
 
 const formatDate = (date: string) => {
   const dateObj = new Date(date);
@@ -41,13 +42,96 @@ const formatDate = (date: string) => {
 };
 
 const BetModal = () => {
-  const { data: bets, isPending, refetch } = useGetBets("PH4504514-22");
+  const accountNumber = accountStore((state) => state.account.accountNumber);
+
+  const { data: betsData, isPending, refetch } = useGetBets(accountNumber);
   const { data, refetch: checkAndUpgradeObjectives } = useUpgradeAccount();
 
-  const results = [{}];
+  // Tab Switching
+  const [tab, setTab] = useState<"OPEN" | "CLOSE">("OPEN");
+  const changeTab = (selectedTab: "OPEN" | "CLOSE") => {
+    setTab(selectedTab);
+    setCurrentPage(1); // Reset to first page on tab change
+  };
 
+  // Sorting by bet date
+  const [sortFilter, setSortFilter] = useState<
+    "LAST_7_DAYS" | "LAST_14_DAYS" | "LAST_30_DAYS"
+  >("LAST_7_DAYS");
+  const sortBets = (
+    filter: "LAST_7_DAYS" | "LAST_14_DAYS" | "LAST_30_DAYS"
+  ) => {
+    setSortFilter(filter);
+    setCurrentPage(1); // Reset to first page on sort change
+  };
+
+  // Derived state: Filtered Bets based on Tab and Sort Filter
+  const filteredBets = useMemo(() => {
+    if (!betsData) return;
+
+    let filtered = betsData.filter((bet: any) =>
+      tab === "OPEN" ? bet.betStatus === "OPENED" : bet.betStatus === "CLOSED"
+    );
+
+    const currentDate = new Date();
+
+    switch (sortFilter) {
+      case "LAST_7_DAYS":
+        filtered = filtered.filter((bet: any) => {
+          const betDate = new Date(bet.betDate);
+          const diffTime = currentDate.getTime() - betDate.getTime();
+          const diffDays = diffTime / (1000 * 60 * 60 * 24);
+          return diffDays <= 7;
+        });
+        break;
+      case "LAST_14_DAYS":
+        filtered = filtered.filter((bet: any) => {
+          const betDate = new Date(bet.betDate);
+          const diffTime = currentDate.getTime() - betDate.getTime();
+          const diffDays = diffTime / (1000 * 60 * 60 * 24);
+          return diffDays <= 14;
+        });
+        break;
+      case "LAST_30_DAYS":
+        filtered = filtered.filter((bet: any) => {
+          const betDate = new Date(bet.betDate);
+          const diffTime = currentDate.getTime() - betDate.getTime();
+          const diffDays = diffTime / (1000 * 60 * 60 * 24);
+          return diffDays <= 30;
+        });
+        break;
+      default:
+        break;
+    }
+
+    return filtered;
+  }, [betsData, tab, sortFilter]);
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const betsPerPage = 5; // Adjust as needed
+
+  const totalPages = useMemo(
+    () => Math.ceil(filteredBets?.length / betsPerPage),
+    [filteredBets?.length, betsPerPage]
+  );
+
+  const currentBets = useMemo(() => {
+    const start = (currentPage - 1) * betsPerPage;
+    const end = start + betsPerPage;
+    return filteredBets?.slice(start, end);
+  }, [filteredBets, currentPage, betsPerPage]);
+
+  // Change page
+  const goToNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+  const goToPreviousPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  // Web Socket
   const [updates, setUpdates] = useState([{}]);
-
   useEffect(() => {
     const socket = new WebSocket("ws://localhost:443");
 
@@ -88,7 +172,7 @@ const BetModal = () => {
 
   useEffect(() => {
     refetch();
-  }, [updates]);
+  }, [updates, accountNumber]);
 
   return (
     <Dialog>
@@ -115,22 +199,22 @@ const BetModal = () => {
               <button
                 className={`border  
              px-6 text-xs 2xl:text-lg py-2 flex w-full md:w-fit justify-center  items-center flex-grow md:flex-grow-0 rounded-full ${
-               true
+               tab === "OPEN"
                  ? "border-[#52FC18] bg-[#1A5B0B]"
                  : " border-gray-700 text-[#848BAC] border-2"
              } font-semibold uppercase`}
-                //   onClick={() => changeTab(curr.title)}
+                onClick={() => changeTab("OPEN")}
               >
                 Open
               </button>
               <button
                 className={`border  
              px-6 text-xs 2xl:text-lg py-2 flex w-full md:w-fit justify-center  items-center flex-grow md:flex-grow-0 rounded-full ${
-               true
-                 ? " border-gray-700 text-[#848BAC] border-2"
-                 : "border-[#52FC18] bg-[#1A5B0B]"
+               tab === "CLOSE"
+                 ? "border-[#52FC18] bg-[#1A5B0B]"
+                 : " border-gray-700 text-[#848BAC] border-2"
              } font-semibold uppercase`}
-                //   onClick={() => changeTab(curr.title)}
+                onClick={() => changeTab("CLOSE")}
               >
                 Close
               </button>
@@ -146,16 +230,23 @@ const BetModal = () => {
                 />
                 Sort
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-48 mr-12   bg-[#181926] text-white border-none  mt-1  p-3 rounded-lg shadow-gray-700 shadow-sm">
-                <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between ">
+              <DropdownMenuContent className="w-48 mr-12 bg-[#181926] text-white border-none  mt-1  p-3 rounded-lg shadow-gray-700 shadow-sm">
+                <DropdownMenuItem
+                  className="flex text-xs 2xl:text-base items-center justify-between "
+                  onClick={() => sortBets("LAST_7_DAYS")}
+                >
                   <p>LAST 7 DAYS</p>
-                  {/* <MdOutlineArrowUpward className="text-lg" /> */}
                 </DropdownMenuItem>
-
-                <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between ">
+                <DropdownMenuItem
+                  className="flex text-xs 2xl:text-base items-center justify-between "
+                  onClick={() => sortBets("LAST_14_DAYS")}
+                >
                   <p>LAST 14 DAYS</p>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="flex text-xs 2xl:text-base items-center justify-between ">
+                <DropdownMenuItem
+                  className="flex text-xs 2xl:text-base items-center justify-between "
+                  onClick={() => sortBets("LAST_30_DAYS")}
+                >
                   <p>LAST 30 DAYS</p>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -206,77 +297,99 @@ const BetModal = () => {
             <TableBody>
               {isPending && (
                 <TableRow className=" border-none">
-                  <TableCell className=" font-semibold max-w-[100px] uppercase text-xs 2xl:text-sm text-center truncate">
+                  <TableCell
+                    colSpan={12}
+                    className=" font-semibold uppercase text-xs 2xl:text-sm text-center truncate"
+                  >
                     Loading...
                   </TableCell>
                 </TableRow>
               )}
-              {bets?.map((bet: any, index: number) => (
-                <TableRow className=" border-none" key={index}>
-                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                    {bet.id}
-                  </TableCell>
-                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                    {bet.sport.join(", ")}
-                  </TableCell>
-                  <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
-                    {bet.event.join(", ")}
-                  </TableCell>
-                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                    {bet.league.map((league: string) =>
-                      league?.split("_")[1].toUpperCase()
-                    )}
-                  </TableCell>
-                  <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
-                    {bet.team.join(", ")}
-                  </TableCell>
-                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                    {bet.odds}
-                  </TableCell>
-                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                    ${bet.pick}
-                  </TableCell>
-                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm flex items-center justify-center truncate">
-                    <p
-                      className={`px-2 py-1 border mt-2 rounded-full ${
-                        bet.betStatus === "OPENED"
-                          ? "bg-green-500/20 text-green-500 border-green-500"
-                          : "bg-red-500/20 text-red-500 border-red-500"
-                      }`}
-                    >
-                      {bet.betStatus}
-                    </p>
-                  </TableCell>
-                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
-                    ${bet.winnings.toFixed(2)}
-                  </TableCell>
-                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center ">
-                    {formatDate(bet.betDate)}
-                  </TableCell>
-                  <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center ">
-                    {bet.gameDate.map((date: string) => `${formatDate(date)} `)}
-                  </TableCell>
-                  <TableCell className=" font-semibold  capitalize text-xs 2xl:text-sm text-center ">
-                    <Dialog>
-                      <DialogTrigger className=" w-fit text-xs 2xl:text-sm text-nowrap rounded-xl inner-shadow px-4 py-3 inline-flex items-center gap-3">
-                        <span className=" font-bold uppercase">Bet slip</span>{" "}
-                      </DialogTrigger>
-                      <BetSlipDialogBody bet={bet} key={bet.id} />
-                    </Dialog>
+              {!isPending && currentBets.length === 0 && (
+                <TableRow className=" border-none">
+                  <TableCell
+                    colSpan={12}
+                    rowSpan={2}
+                    className=" font-semibold uppercase text-xs 2xl:text-sm text-center truncate"
+                  >
+                    No {tab} bets found
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
+              {!isPending &&
+                currentBets.length > 0 &&
+                currentBets?.map((bet: any, index: number) => (
+                  <TableRow className=" border-none" key={index}>
+                    <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                      {bet.id}
+                    </TableCell>
+                    <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                      {bet.sport?.join(", ")}
+                    </TableCell>
+                    <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
+                      {bet.event?.join(", ")}
+                    </TableCell>
+                    <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                      {bet.league?.map((league: string) =>
+                        league?.split("_")[1].toUpperCase()
+                      )}
+                    </TableCell>
+                    <TableCell className=" font-semibold max-w-[120px] capitalize text-xs 2xl:text-sm text-center truncate">
+                      {bet.team?.join(", ")}
+                    </TableCell>
+                    <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                      {bet.odds}
+                    </TableCell>
+                    <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                      ${bet.pick}
+                    </TableCell>
+                    <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm flex items-center justify-center truncate">
+                      <p
+                        className={`px-2 py-1 border mt-2 rounded-full ${
+                          bet.betStatus === "OPENED"
+                            ? "bg-green-500/20 text-green-500 border-green-500"
+                            : "bg-red-500/20 text-red-500 border-red-500"
+                        }`}
+                      >
+                        {bet.betStatus}
+                      </p>
+                    </TableCell>
+                    <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
+                      ${bet.winnings?.toFixed(2)}
+                    </TableCell>
+                    <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center ">
+                      {formatDate(bet.betDate)}
+                    </TableCell>
+                    <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center ">
+                      {bet.gameDate?.map(
+                        (date: string) => `${formatDate(date)} `
+                      )}
+                    </TableCell>
+                    <TableCell className=" font-semibold  capitalize text-xs 2xl:text-sm text-center ">
+                      <Dialog>
+                        <DialogTrigger className=" w-fit text-xs 2xl:text-sm text-nowrap rounded-xl inner-shadow px-4 py-3 inline-flex items-center gap-3">
+                          <span className=" font-bold uppercase">Bet slip</span>{" "}
+                        </DialogTrigger>
+                        <BetSlipDialogBody bet={bet} key={bet.id} />
+                      </Dialog>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
-          <div className="flex items-center justify-between p-5 border-t border-gray-700">
+          <div className="flex items-center justify-between p-5">
             <h4 className="text-[#848BAC] font-thin text-xs 2xl:text-base ">
-              PAGE 1-5
+              PAGE {currentPage} OF{" "}
+              {Math.ceil(filteredBets?.length / betsPerPage)}
             </h4>
             <div className="flex gap-2 items-center">
-              <button className="text-[#848BAC] text-2xl">
+              <button
+                className="text-[#848BAC] text-2xl"
+                onClick={goToPreviousPage}
+              >
                 <TiArrowLeft />
               </button>
-              <button className="text-[white] text-2xl">
+              <button className="text-[white] text-2xl" onClick={goToNextPage}>
                 <TiArrowRight />
               </button>
             </div>
