@@ -1,5 +1,4 @@
 "use client";
-import { Invoice } from '@confirmo/overlay';
 import { useCreateAccount } from "@/app/hooks/useCreateAccount";
 import { useCreateConfirmoInvoice } from "@/app/hooks/useCreateConfirmoInvoice";
 import { Button } from "@/components/ui/button";
@@ -21,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -28,6 +28,7 @@ import { useForm } from "react-hook-form";
 import { ColorRing } from "react-loader-spinner";
 import { toast } from "react-toastify";
 import { z } from "zod";
+
 
 const formSchema = z.object({
   firstName: z.string().min(2, {
@@ -81,15 +82,18 @@ const cardSchema = z.object({
 const page = () => {
   // router
   const router = useRouter();
-
+  
   // mutation
   const { mutate: createPaymentInvoice } = useCreateConfirmoInvoice({
-    onSuccess: (data: any) => {
+    onSuccess: async (data: any) => {
       toast.success("Invoice created successfully");
       const invoice_url = `https://confirmo.net/public/invoice/${data.id}` 
+      const { Invoice } = await import("@confirmo/overlay");
       const overlay = Invoice.open(invoice_url, () => {
         toast.success("Payment successful. You will be notified via email.");
         router.push("/");
+      }, {
+        closeAfterPaid: true,
       });
     },
     onError: (error) => {
