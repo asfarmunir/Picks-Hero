@@ -45,6 +45,10 @@ model User {
   address     String?
   dateOfBirth DateTime?
 
+  agreement1 Boolean @default(false)
+  agreement2 Boolean @default(false)
+  agreement3 Boolean @default(false)
+
   referralCode     String?
   referredBy       String?
   referralBonus    Float     @default(0.0)

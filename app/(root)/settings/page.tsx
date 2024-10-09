@@ -19,6 +19,7 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { MdOutlineArrowUpward } from "react-icons/md";
 import { noSSR } from "next/dynamic";
+import Agreements from "./agreements";
 
 // import KYCVerification from "./kyc-verfication";
 const KYCVerification = React.lazy(() => import("./kyc-verfication"));
@@ -111,6 +112,7 @@ const page = () => {
                   fetchPreferences={fetchPreferences}
                 />
               ),
+              agreements: <Agreements />,
               billing: <BillingSettings />,
               verification: <Verification />,
               kyc: <KYCVerification />,
