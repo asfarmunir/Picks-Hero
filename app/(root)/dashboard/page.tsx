@@ -13,9 +13,13 @@ import { LoaderCircle } from "lucide-react";
 import Link from "next/link";
 import { accountStore } from "@/app/store/account";
 import toast from "react-hot-toast";
+import { getOriginalAccountValue } from "@/lib/utils";
 const page = () => {
-  const [tab, setTab] = React.useState("stats");
+  // ACCOUNT
+  const account = accountStore((state) => state.account);
 
+  // TABS
+  const [tab, setTab] = React.useState("stats");
   const changeTab = (tab: string) => {
     setTab(tab);
   };
@@ -79,7 +83,7 @@ const page = () => {
             <div className="flex flex-col gap-1">
               <p className=" font-bold  text-primary-200">ACCOUNT BALANCE</p>
               <h2 className=" text-3xl 2xl:text-4xl font-bold text-white">
-                $15,000
+                ${account.balance.toLocaleString()}
               </h2>
               <div className="flex items-center my-3 gap-3 md:gap-10">
                 <div className="flex flex-col ">
@@ -87,7 +91,10 @@ const page = () => {
                     PROFIT
                   </p>
                   <h2 className="  2xl:text-lg font-semibold text-white">
-                    $5,000
+                    $
+                    {account.balance - getOriginalAccountValue(account)
+                      ? "0"
+                      : account.balance - getOriginalAccountValue(account)}
                   </h2>
                 </div>{" "}
                 <div className="flex flex-col ">
@@ -101,7 +108,16 @@ const page = () => {
                       width={23}
                       height={23}
                     />
-                    $50%
+                    {account.balance - getOriginalAccountValue(account) < 0
+                      ? 0
+                      : (
+                          (Math.abs(
+                            account.balance - getOriginalAccountValue(account)
+                          ) /
+                            getOriginalAccountValue(account)) *
+                          100
+                        ).toFixed(2)}
+                    %
                   </h2>
                 </div>{" "}
               </div>
@@ -187,13 +203,13 @@ const Stats = () => {
     data: accountStats,
     isPending,
     isError,
-    refetch
+    refetch,
   } = useGetAccountStats({ accountId: account.id });
 
-  useEffect(()=> {
-    refetch()
-  }, [account])
-  
+  useEffect(() => {
+    refetch();
+  }, [account]);
+
   if (isError) {
     toast.error("Error fetching account stats");
     return (

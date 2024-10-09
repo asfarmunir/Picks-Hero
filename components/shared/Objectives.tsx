@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useGetAccount } from "@/app/hooks/useGetAccount";
 import { accountStore } from "@/app/store/account";
 import { ALL_STEP_CHALLENGES } from "@/lib/constants";
@@ -10,16 +10,21 @@ import toast from "react-hot-toast";
 
 const Objectives = () => {
   const accountId = accountStore((state) => state.account.id);
-  
-  const { data: account, isPending, isError, refetch } = useGetAccount(accountId);
-  useEffect(()=>{
-    refetch()
-  }, [accountId])
+
+  const {
+    data: account,
+    isPending,
+    isError,
+    refetch,
+  } = useGetAccount(accountId);
+  useEffect(() => {
+    refetch();
+  }, [accountId]);
 
   // States to store the countdowns
   const [minBetCountdown, setMinBetCountdown] = useState("");
   const [maxBetCountdown, setMaxBetCountdown] = useState("");
-  
+
   useEffect(() => {
     if (!account) return;
 
@@ -31,7 +36,9 @@ const Objectives = () => {
       if (distance <= 0) return "0D 0H 0M 0S"; // If time has passed
 
       const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const hours = Math.floor(
+        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+      );
       const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
@@ -47,22 +54,22 @@ const Objectives = () => {
     // Clear the interval on component unmount
     return () => clearInterval(interval);
   }, [account]);
-  
-  if(isError) {
+
+  if (isError) {
     toast.error("Error fetching account stats");
     return (
       <div className="w-full h-36 flex justify-center items-center bg-[#181926] shadow-inner shadow-gray-700 rounded-lg">
         <p className="text-white">Error fetching account stats</p>
       </div>
-    )
-  }  
+    );
+  }
 
-  if(isPending) {
+  if (isPending) {
     return (
       <div className="w-full h-36 flex justify-center items-center bg-[#181926] shadow-inner shadow-gray-700 rounded-lg">
         <LoaderCircle className="animate-spin" />
       </div>
-    )
+    );
   }
 
   if (!account) {
@@ -70,9 +77,8 @@ const Objectives = () => {
       <div className="w-full h-36 flex justify-center items-center bg-[#181926] shadow-inner shadow-gray-700 rounded-lg">
         <p className="text-white">Account not found</p>
       </div>
-    )
+    );
   }
-  
 
   return (
     <div className=" w-full space-y-4">
@@ -120,7 +126,13 @@ const Objectives = () => {
             />
             <div className="  font-bold flex flex-col  gap-1">
               <p className=" text-base 2xl:text-lg ">
-                ${(account.balance - getOriginalAccountValue(account)) < 0 ? 0 : (account.balance - getOriginalAccountValue(account)).toFixed(2)} / $
+                $
+                {account.balance - getOriginalAccountValue(account) < 0
+                  ? 0
+                  : (
+                      account.balance - getOriginalAccountValue(account)
+                    ).toFixed(2)}{" "}
+                / $
                 {getOriginalAccountValue(account) *
                   ALL_STEP_CHALLENGES.profitTarget}{" "}
               </p>
@@ -131,9 +143,10 @@ const Objectives = () => {
           </div>
           <div className=" hidden md:flex flex-col items-end gap-2">
             <p className=" text-green-600 font-thin text-sm">
-              {((account.balance - getOriginalAccountValue(account)) < 0 ? 0 : (account.balance - getOriginalAccountValue(account)) /
-                getOriginalAccountValue(account)) *
-                100}{" "}
+              {(account.balance - getOriginalAccountValue(account) < 0
+                ? 0
+                : (account.balance - getOriginalAccountValue(account)) /
+                  getOriginalAccountValue(account)) * 100}{" "}
               %
             </p>
             <div className=" w-36 h-4 bg-[#393C53] rounded-sm border-gray-700">
@@ -141,9 +154,10 @@ const Objectives = () => {
                 className="h-full bg-[#00B544] rounded-sm shadow-inner shadow-gray-700"
                 style={{
                   width: `${
-                    ((account.balance - getOriginalAccountValue(account)) < 0 ? 0 : (account.balance - getOriginalAccountValue(account)) /
-                getOriginalAccountValue(account)) *
-                100
+                    (account.balance - getOriginalAccountValue(account) < 0
+                      ? 0
+                      : (account.balance - getOriginalAccountValue(account)) /
+                        getOriginalAccountValue(account)) * 100
                   }%`,
                 }}
               ></div>
@@ -171,14 +185,23 @@ const Objectives = () => {
           </div>
           <div className=" hidden md:flex flex-col items-end gap-2">
             <p className=" text-red-600 font-thin text-sm">
-              {(account.dailyLoss / getOriginalAccountValue(account)) * 100}%
+              {(
+                (account.dailyLoss / getOriginalAccountValue(account)) *
+                100
+              ).toFixed(2)}
+              %
             </p>
             <div className=" w-36 h-4 bg-[#393C53] rounded-sm border-gray-700">
               <div
                 className="h-full bg-[#F74418] rounded-sm shadow-inner shadow-gray-700 "
                 style={{
                   width: `${
-                    (account.dailyLoss / getOriginalAccountValue(account)) * 100
+                    (account.dailyLoss / getOriginalAccountValue(account)) *
+                      100 >
+                    100
+                      ? 100
+                      : (account.dailyLoss / getOriginalAccountValue(account)) *
+                        100
                   }%`,
                 }}
               ></div>
@@ -205,9 +228,7 @@ const Objectives = () => {
           </div>
           <div className=" hidden md:flex flex-col items-end gap-2">
             <p className=" text-red-600 font-thin text-sm">
-              {(account.totalLoss /
-                getOriginalAccountValue(account)) *
-                100}
+              {((account.totalLoss / getOriginalAccountValue(account)) * 100) > 100 ? 100 : (account.totalLoss / getOriginalAccountValue(account)) * 100}
               %
             </p>
             <div className=" w-36 h-4 bg-[#393C53] rounded-sm border-gray-700">
@@ -215,9 +236,7 @@ const Objectives = () => {
                 className="h-full bg-[#F74418] rounded-sm shadow-inner shadow-gray-700 "
                 style={{
                   width: `${
-                    ((account.totalLoss) /
-                      getOriginalAccountValue(account)) *
-                    100
+                    ((account.totalLoss / getOriginalAccountValue(account)) * 100) > 100 ? 100 : (account.totalLoss / getOriginalAccountValue(account)) * 100
                   }%`,
                 }}
               ></div>
@@ -233,7 +252,9 @@ const Objectives = () => {
               height={43}
             />
             <div className="  font-bold flex flex-col  gap-1">
-              <p className=" text-base 2xl:text-lg ">{account.picks}/{ALL_STEP_CHALLENGES.minPicks}</p>
+              <p className=" text-base 2xl:text-lg ">
+                {account.picks}/{ALL_STEP_CHALLENGES.minPicks}
+              </p>
               <span className=" text-xs 2xl:text-sm text-primary-200">
                 MINIMUM NUMBER OF PICKS
               </span>
@@ -241,13 +262,14 @@ const Objectives = () => {
           </div>
           <div className=" hidden md:flex flex-col items-end gap-2">
             <p className=" text-green-600 font-thin text-sm">
-              {(account.picks / ALL_STEP_CHALLENGES.minPicks) * 100}%
+              {((account.picks / ALL_STEP_CHALLENGES.minPicks) * 100) > 100 ? 100 : (account.picks / ALL_STEP_CHALLENGES.minPicks) * 100 }%
             </p>
             <div className=" w-36 h-4 bg-[#393C53] rounded-sm border-gray-700">
-              <div className="h-full bg-[#00B544] rounded-sm shadow-inner shadow-gray-700 "
+              <div
+                className="h-full bg-[#00B544] rounded-sm shadow-inner shadow-gray-700 "
                 style={{
                   width: `${
-                    (account.picks / ALL_STEP_CHALLENGES.minPicks) * 100
+                    ((account.picks / ALL_STEP_CHALLENGES.minPicks) * 100) > 100 ? 100 : (account.picks / ALL_STEP_CHALLENGES.minPicks) * 100
                   }%`,
                 }}
               ></div>
@@ -264,7 +286,8 @@ const Objectives = () => {
             />
             <div className="  font-bold flex flex-col  gap-1">
               <p className=" text-base 2xl:text-lg ">
-                {account.minBetPeriod ? minBetCountdown : `0 Days` } Remaining</p>
+                {account.minBetPeriod ? minBetCountdown : `0 Days`} Remaining
+              </p>
               <span className=" text-xs 2xl:text-sm text-primary-200">
                 MINIMUM BET PERIOD
               </span>
@@ -272,12 +295,20 @@ const Objectives = () => {
           </div>
           <div className=" hidden md:flex flex-col items-end gap-2">
             <p className=" text-green-600 font-thin text-sm">
-              {getPercentageTimePassed(new Date(account.createdAt), new Date(account.minBetPeriod)).toFixed(2)}%
+              {getPercentageTimePassed(
+                new Date(account.createdAt),
+                new Date(account.minBetPeriod)
+              ).toFixed(2)}
+              %
             </p>
             <div className=" w-36 h-4 bg-[#393C53] rounded-sm border-gray-700">
-              <div className="h-full bg-[#00B544] rounded-sm shadow-inner shadow-gray-700 "
+              <div
+                className="h-full bg-[#00B544] rounded-sm shadow-inner shadow-gray-700 "
                 style={{
-                  width: `${getPercentageTimePassed(new Date(account.createdAt), new Date(account.minBetPeriod))}%`,
+                  width: `${getPercentageTimePassed(
+                    new Date(account.createdAt),
+                    new Date(account.minBetPeriod)
+                  )}%`,
                 }}
               ></div>
             </div>
@@ -293,7 +324,8 @@ const Objectives = () => {
             />
             <div className="  font-bold flex flex-col  gap-1">
               <p className=" text-base 2xl:text-lg ">
-                {account.accountType !== "FUNDED" ? maxBetCountdown : `0 Days` } Remaining
+                {account.accountType !== "FUNDED" ? maxBetCountdown : `0 Days`}{" "}
+                Remaining
               </p>
               <span className=" text-xs 2xl:text-sm text-primary-200">
                 TIME REMAINING
@@ -302,12 +334,20 @@ const Objectives = () => {
           </div>
           <div className=" hidden md:flex flex-col items-end gap-2">
             <p className=" text-green-600 font-thin text-sm">
-              {getPercentageTimePassed(new Date(account.createdAt), new Date(account.maxBetPeriod)).toFixed(2)}%
+              {getPercentageTimePassed(
+                new Date(account.createdAt),
+                new Date(account.maxBetPeriod)
+              ).toFixed(2)}
+              %
             </p>
             <div className=" w-36 h-4 bg-[#393C53] rounded-sm border-gray-700">
-              <div className="h-full bg-[#00B544] rounded-sm shadow-inner shadow-gray-700 "
+              <div
+                className="h-full bg-[#00B544] rounded-sm shadow-inner shadow-gray-700 "
                 style={{
-                  width: `${getPercentageTimePassed(new Date(account.createdAt), new Date(account.maxBetPeriod))}%`,
+                  width: `${getPercentageTimePassed(
+                    new Date(account.createdAt),
+                    new Date(account.maxBetPeriod)
+                  )}%`,
                 }}
               ></div>
             </div>
