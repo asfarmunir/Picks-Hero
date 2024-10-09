@@ -180,9 +180,9 @@ const ConfirmationModal = ({
         isOpen ? "" : "hidden"
       }`}
     >
-      <div className="bg-primary-100 w-full max-w-2xl p-8 rounded-xl mx-6">
+      <div className="bg-primary-100 w-full max-w-lg p-8 rounded-xl mx-6">
         <h2 className="text-xl font-bold mb-4 text-center uppercase">
-          Confirm{" "}
+          Are you sure?
         </h2>
         <p className="text-gray-400 mb-6 text-center">
           Are you sure you want to sign this agreement?
