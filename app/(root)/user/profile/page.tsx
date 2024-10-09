@@ -32,7 +32,7 @@ import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
 import { accountStore } from "@/app/store/account";
 import { getOriginalAccountValue } from "@/lib/utils";
 import PayoutModal from "./payout-modal";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { User } from "@prisma/client";
 import FundedPayoutRequestsTable from "./payout-requests";
 import { useSearchParams } from "next/navigation";
@@ -106,7 +106,10 @@ const page = () => {
         <div className=" w-full  md:w-[70%] h-full shadow-inner shadow-gray-800 flex flex-col gap-4 bg-[#181926] p-4 md:p-6 rounded-xl">
           <div className=" w-full items-center flex justify-between">
             <h2 className=" text-xl font-bold text-white">PROFILE</h2>
-            <button className=" text-white uppercase text-sm bg-[#333547]  px-5 py-2 rounded-lg inline-flex items-center gap-3">
+            <button 
+              className=" text-white uppercase text-sm bg-[#333547]  px-5 py-2 rounded-lg inline-flex items-center gap-3"
+              onClick={() => signOut()}
+            >
               <Image
                 src="/icons/logout.png"
                 alt="Edit"
@@ -169,8 +172,6 @@ const ProfileSection = () => {
       </div>
     );
   }
-
-  console.log(data)
 
   return (
     <>
