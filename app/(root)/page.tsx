@@ -127,13 +127,15 @@ const page = () => {
               <p className=" text-[#AFB2CA] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
                 TOTAL FUNDED AMOUNT
               </p>
-              <Image
-                src="/icons/arrow.svg"
-                alt="Arrow Icon"
-                width={30}
-                className=" border-2 border-gray-600 rounded-lg bg-[#272837] p-0.5"
-                height={30}
-              />
+              <Link href={"/user/profile?tab=payouts"}>
+                <Image
+                  src="/icons/arrow.svg"
+                  alt="Arrow Icon"
+                  width={30}
+                  className=" border-2 border-gray-600 rounded-lg bg-[#272837] p-0.5"
+                  height={30}
+                />
+              </Link>
             </div>
             <div className=" flex items-center gap-4">
               <Image
@@ -156,7 +158,7 @@ const page = () => {
               <p className=" text-[#AFB2CA] uppercase mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
                 Total Payout Amount
               </p>
-              <Link href={"/user/profile"}>
+              <Link href={"/user/profile?tab=payouts"}>
                 <Image
                   src="/icons/arrow.svg"
                   alt="Arrow Icon"

@@ -18,6 +18,15 @@ enum AccountStatus {
   BREACHED
 }
 
+enum ProfileLevels {
+  NEWBIE
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+  HERO
+}
+
 model User {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   firstName String
@@ -27,6 +36,10 @@ model User {
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  profileLevel ProfileLevels @default(NEWBIE)
+  picksWon     Int           @default(0)
+  kycVerified  Boolean       @default(false)
 
   twoFactorCode    String?
   twoFactorSecret  String?

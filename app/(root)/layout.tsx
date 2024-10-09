@@ -1,15 +1,11 @@
 "use client";
 import MobileNav from "@/components/shared/MobileNav";
-import Navbar from "@/components/shared/Navbar";
 import Sidebar from "@/components/shared/Sidebar";
-import Image from "next/image";
-import React from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { accountStore } from "../store/account";
+import React, { useEffect } from "react";
 import { useGetAccounts } from "../hooks/useGetAccounts";
+import { accountStore } from "../store/account";
 
 const layout = ({ children }: { children: React.ReactNode }) => {
 

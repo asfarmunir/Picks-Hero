@@ -35,6 +35,9 @@ import PayoutModal from "./payout-modal";
 import { useSession } from "next-auth/react";
 import { User } from "@prisma/client";
 import FundedPayoutRequestsTable from "./payout-requests";
+import { useSearchParams } from "next/navigation";
+import { userStore } from "@/app/store/user";
+import { LoaderCircle } from "lucide-react";
 
 interface Account {
   id: string;
@@ -64,8 +67,12 @@ type ProfileLevel =
   | "HERO";
 
 const page = () => {
-  const [tab, setTab] = useState<string>("profile");
+  // Search Params
+  const searchParams = useSearchParams();
+  const defaultTab = searchParams.get("tab") || "profile";
 
+  // Tabs
+  const [tab, setTab] = useState<string>(defaultTab);
   const changeTab = (tab: string) => {
     setTab(tab);
   };
@@ -153,7 +160,17 @@ export default page;
 
 const ProfileSection = () => {
   const { data, isPending } = useGetUser();
-  const user: any = useSession().data?.user;
+
+  if (isPending) {
+    return (
+      <div className=" p-4 shadow-inner shadow-gray-700 rounded-xl flex items-center justify-center bg-[#272837]">
+        <LoaderCircle className="animate-spin" />
+        Loading...
+      </div>
+    );
+  }
+
+  console.log(data)
 
   return (
     <>
@@ -165,7 +182,7 @@ const ProfileSection = () => {
               Username
             </p>
             <h3 className="font-bold text-xl">
-              {`${user?.firstName} ${user?.lastName}`}
+              {`${data.user?.firstName} ${data.user?.lastName}`}
             </h3>
           </div>
         </div>
@@ -432,7 +449,11 @@ const PayoutsSection = () => {
 
   return (
     <>
-      <PayoutModal open={isModalOpen} onClose={closeModal} handlePayoutSuccess={handlePayoutSuccess} />
+      <PayoutModal
+        open={isModalOpen}
+        onClose={closeModal}
+        handlePayoutSuccess={handlePayoutSuccess}
+      />
       <div className=" w-full space-y-5 bg-primary-100 py-6  md:p-3  rounded-2xl 2xl:p-5 mb-8">
         <div className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative min-h-32 2xl:min-h-44 rounded-2xl w-full  flex flex-col gap-1 ">
           <div className=" text-[#AFB2CA] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold flex justify-between items-center">
@@ -446,7 +467,6 @@ const PayoutsSection = () => {
                 {"Request Payout"}
               </button>
             )}
-            <p>You can only request payount once in 14 days.</p>
           </div>
           <div className=" flex items-center gap-4">
             <Image
@@ -455,12 +475,15 @@ const PayoutsSection = () => {
               width={45}
               height={45}
             />
-            <p className="   md:mt-0 text-3xl  2xl:text-4xl font-semibold">
+            <p className="flex flex-col md:mt-0 text-3xl  2xl:text-4xl font-semibold">
               $
               {account.status === "FUNDED"
                 ? account.totalFundedAmount -
                     getOriginalAccountValue(account) || 0
                 : 0}
+              <span className="text-sm text-gray-400">
+                You can only request payount once in 14 days.
+              </span>
             </p>
           </div>
         </div>
