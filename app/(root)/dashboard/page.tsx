@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 // import { MdOutlineArrowUpward } from "react-icons/md";
 import { useGetAccountStats } from "@/app/hooks/useGetAccountStats";
 import AccountGraph from "@/components/shared/AccountGraph";
@@ -14,6 +14,7 @@ import Link from "next/link";
 import { accountStore } from "@/app/store/account";
 import toast from "react-hot-toast";
 import { getOriginalAccountValue } from "@/lib/utils";
+import PayoutsExplained from "./payouts-explained";
 const page = () => {
   // ACCOUNT
   const account = accountStore((state) => state.account);
@@ -24,8 +25,15 @@ const page = () => {
     setTab(tab);
   };
 
+  // Payout Explained Modal
+  const [open, setOpen] = useState(false);
+  const openExplanation = () => {
+    setOpen(true);
+  };
+
   return (
     <>
+      <PayoutsExplained open={open} setOpen={setOpen} />
       <div
         className=" hidden md:block sticky 
         top-0
@@ -58,7 +66,10 @@ const page = () => {
             </p>
           </div>
           <div className="flex w-full md:w-fit items-center gap-2 flex-col md:flex-row">
-            <button className="flex justify-center items-center gap-2 px-4 py-2 text-sm w-full md:w-fit 2xl:text-base font-bold bg-[#333547] shadow-inner shadow-gray-600 rounded-lg">
+            <button
+              className="flex justify-center items-center gap-2 px-4 py-2 text-sm w-full md:w-fit 2xl:text-base font-bold bg-[#333547] shadow-inner shadow-gray-600 rounded-lg"
+              onClick={openExplanation}
+            >
               <Image
                 src="/icons/help-white.svg"
                 alt="Arrow Icon"
@@ -67,7 +78,10 @@ const page = () => {
               />
               PAYOUTS EXAPLINED
             </button>
-            <button className="flex justify-center uppercase items-center gap-2 px-4 py-2 text-sm w-full md:w-fit 2xl:text-base font-bold bg-[#333547] inner-shadow rounded-lg">
+            <Link
+              href={"/user/profile?tab=payouts"}
+              className="flex justify-center uppercase items-center gap-2 px-4 py-2 text-sm w-full md:w-fit 2xl:text-base font-bold bg-[#333547] inner-shadow rounded-lg"
+            >
               <Image
                 src="/icons/stack.png"
                 alt="Arrow Icon"
@@ -75,7 +89,7 @@ const page = () => {
                 height={18}
               />
               Request Payout
-            </button>
+            </Link>
           </div>
         </div>
         <div className=" w-full bg-[#181926] rounded-lg shadow-inner shadow-gray-800">

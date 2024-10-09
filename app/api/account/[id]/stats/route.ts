@@ -28,8 +28,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
             where: { accountId, betResult: "LOSE" }
         });
 
-        const winRate = numberOfPicks > 0 ? (numberOfWins / numberOfPicks) * 100 : 0;
-        const lossRate = numberOfPicks > 0 ? (numberOfLosses / numberOfPicks) * 100 : 0;
+        const numberOfResults = numberOfWins + numberOfLosses || 1;
+        const winRate = numberOfPicks > 0 ? (numberOfWins / numberOfResults) * 100 : 0;
+        const lossRate = numberOfPicks > 0 ? (numberOfLosses / numberOfResults) * 100 : 0;
 
         const averagePickSize = await prisma.bets.aggregate({
             where: { accountId },
