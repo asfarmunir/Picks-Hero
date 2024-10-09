@@ -1,6 +1,7 @@
 import { generateCustomId } from "@/helper/keyGenerator";
 import { connectToDatabase } from "@/lib/database";
 import prisma from "@/prisma/client";
+import { NotificationType } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -98,6 +99,42 @@ export async function POST(req: NextRequest) {
         },
     })
 
+    await createNotification("Invoice created successfully. Payment is under review.", "UPDATE", user.id);
+
     return NextResponse.json(data);    
 
+}
+
+const createNotification = async (message: string, type: NotificationType, userId: string) => {
+    try {
+        const notification = await prisma.notification.create({
+            data: {
+                content: message,
+                type,
+                userId: userId,
+                read: false,
+            }
+        });
+
+        const response = await fetch(`${process.env.BG_SERVICES_URL}/generate-notification`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                userId,
+                message: notification.content,
+            }),
+        })
+
+        if (!response.ok) {
+            console.log(await response.text());
+            throw new Error("Failed to create notification");
+        }
+        
+    }
+    catch (error) {
+        console.error(error);
+        throw new Error("Failed to create notification");
+    }
 }

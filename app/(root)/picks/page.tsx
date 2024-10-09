@@ -374,7 +374,7 @@ const page = () => {
           <div className=" w-full transition-all border border-gray-700 rounded-xl bg-primary-100  flex flex-col">
             <div className="flex flex-col md:flex-row  mb-4 w-full items-center justify-between">
               <div className="flex  items-center gap-3 w-full p-2 md:p-6 md:pr-32 ">
-                <DropdownMenu>
+                {/* <DropdownMenu>
                   <DropdownMenuTrigger className=" bg-[#393C53]    justify-center text-nowrap w-fit  text-xs md:text-sm px-3 md:px-4 py-3 font-bold rounded-lg inline-flex items-center gap-2">
                     TOP EARNERS
                     <FaAngleDown className=" text-lg" />
@@ -394,7 +394,7 @@ const page = () => {
                       <MdOutlineArrowUpward className="text-lg rotate-180" />
                     </DropdownMenuItem>
                   </DropdownMenuContent>
-                </DropdownMenu>{" "}
+                </DropdownMenu>{" "} */}
                 <div className=" bg-[#333547]/60 inline-flex  items-center py-1 px-2 rounded-lg">
                   <LuSearch className="w-7 h-7 text-[#848BAC] " />
                   <Input

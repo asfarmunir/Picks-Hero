@@ -46,6 +46,7 @@ const formatDate = (date: string) => {
 };
 
 const BetHistory = () => {
+  const account = accountStore((state) => state.account);
   const accountNumber = accountStore((state) => state.account.accountNumber);
   
   const { data: betsData, isPending, refetch } = useGetBets(accountNumber);
@@ -140,7 +141,7 @@ const BetHistory = () => {
   // Web Socket
   const [updates, setUpdates] = useState([{}]);
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:443");
+    const socket = new WebSocket(`ws://localhost:443?user=${account.userId}`);
 
     // When connection is established
     socket.onopen = () => {

@@ -47,8 +47,8 @@ const page = () => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "test@gmail.com",
-      password: "password",
+      email: "",
+      password: "",
     },
   });
 
@@ -117,7 +117,7 @@ const page = () => {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder=" enter your email"
+                        placeholder="Enter your email"
                         {...field}
                         className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
                       />
@@ -136,7 +136,8 @@ const page = () => {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder=" enter your password"
+                        placeholder="Enter your password"
+                        type="password"
                         {...field}
                         className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
                       />

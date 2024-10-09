@@ -65,11 +65,11 @@ const page = ({ searchParams: { referrerCode } }: props) => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "test@gmail.com",
-      password: "password",
-      firstName: "John",
-      lastName: "Doe",
-      confirmPassword: "password",
+      email: "",
+      password: "",
+      firstName: "",
+      lastName: "",
+      confirmPassword: "",
       country: "",
     },
   });
@@ -96,6 +96,7 @@ const page = ({ searchParams: { referrerCode } }: props) => {
       }
 
       router.push("/api/auth/signin");
+      toast.success("Account created successfully. Login to continue.")
     } catch (error: any) {
       if (error?.response?.data?.message) {
         toast.error(error.response.data.message);
@@ -203,7 +204,7 @@ const page = ({ searchParams: { referrerCode } }: props) => {
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder="enter your first name"
+                          placeholder="Enter your first name"
                           {...field}
                           className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
                         />
@@ -222,7 +223,7 @@ const page = ({ searchParams: { referrerCode } }: props) => {
                       </FormLabel>
                       <FormControl>
                         <Input
-                          placeholder=" enter your last name"
+                          placeholder="Enter your last name"
                           {...field}
                           className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
                         />
@@ -243,7 +244,7 @@ const page = ({ searchParams: { referrerCode } }: props) => {
                     <FormControl>
                       <Select onValueChange={field.onChange}>
                         <SelectTrigger className="  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight ">
-                          <SelectValue placeholder=" select your country " />
+                          <SelectValue placeholder="Select your country " />
                         </SelectTrigger>
                         <SelectContent>
                           {Object.entries(countries).map(([code, { name }]) => (
@@ -268,7 +269,7 @@ const page = ({ searchParams: { referrerCode } }: props) => {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder=" enter your email"
+                        placeholder="Enter your email"
                         {...field}
                         className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
                       />
@@ -287,7 +288,8 @@ const page = ({ searchParams: { referrerCode } }: props) => {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder=" enter your password"
+                        placeholder="Enter your password"
+                        type="password"
                         {...field}
                         className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
                       />
@@ -306,8 +308,9 @@ const page = ({ searchParams: { referrerCode } }: props) => {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder=" re-enter your password"
+                        placeholder="Re-enter your password"
                         {...field}
+                        type="password"
                         className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
                       />
                     </FormControl>

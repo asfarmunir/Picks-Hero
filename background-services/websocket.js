@@ -4,6 +4,9 @@ const { getOriginalBalance } = require("./utils");
 
 const prisma = new PrismaClient();
 
+// Store connected clients by their userId
+const connectedClients = {};
+
 // Function to broadcast data to all connected WebSocket clients
 function broadcast(data, wss) {
   wss.clients.forEach((client) => {
@@ -11,6 +14,17 @@ function broadcast(data, wss) {
       client.send(JSON.stringify(data));
     }
   });
+}
+
+// Function to send a notification to a specific client by userId
+function sendNotification(userId, message) {
+  const client = connectedClients[userId];
+
+  if (client && client.readyState === WebSocket.OPEN) {
+    client.send(JSON.stringify({ message }));
+  } else {
+    console.log(`Client with userId: ${userId} is not connected.`);
+  }
 }
 
 function getNewUserLevel(picksWon) {
@@ -207,10 +221,16 @@ async function checkForUpdates(wss) {
 const init = (server) => {
   const wss = new WebSocket.Server({ port: 443 });
 
-  wss.on("connection", (ws) => {
-    console.log("Client connected to WebSocket server");
+  wss.on("connection", (ws, req) => {
+    // Parse userId from query params or a message
+    const userId = req.url.split("?userId=")[1];
+    console.log(userId);
 
-    // // When a message is received from the client
+    // Store the connected client
+    connectedClients[userId] = ws;
+    console.log(`Client connected: userId=${userId}`);
+
+    // When a message is received from the client
     ws.on("message", (message) => {
       console.log("Received message:", message);
       ws.send("Server received your message");
@@ -218,7 +238,8 @@ const init = (server) => {
 
     // When the connection is closed
     ws.on("close", () => {
-      console.log("Client disconnected");
+      console.log(`Client disconnected: userId=${userId}`);
+      delete connectedClients[userId]; // Remove the client from the map
     });
   });
 
@@ -227,5 +248,4 @@ const init = (server) => {
   // Periodically check for match updates (every 1 minute)
   setInterval(() => checkForUpdates(wss), 1 * 60 * 1000);
 };
-
-module.exports = { init };
+module.exports = { init, sendNotification };

@@ -446,6 +446,7 @@ const PayoutsSection = () => {
                 {"Request Payout"}
               </button>
             )}
+            <p>You can only request payount once in 14 days.</p>
           </div>
           <div className=" flex items-center gap-4">
             <Image

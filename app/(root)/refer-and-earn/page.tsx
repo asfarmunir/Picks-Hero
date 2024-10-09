@@ -35,7 +35,7 @@ const page = () => {
     return str.slice(0, num) + "...";
   };
 
-  let link = `/signup?referrerCode=${currentUser.referralCode}`;
+  let link = `${process.env.NODE_ENV === "production" ? "https://app.heropicks.io":"http://localhost:3000" }/signup?referrerCode=${currentUser.referralCode}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(link).then(
@@ -125,16 +125,18 @@ const page = () => {
             <h2 className="text-2xl 2xl:text-3xl font-bold uppercase text-white">
               refer & earn
             </h2>
-            <button className="hover:outline hover:outline-1 hover:outline-primary-200 text-white font-semibold uppercase text-sm bg-[#333547] px-4 py-2 rounded-lg inline-flex items-center gap-2">
+            {/* <button className="hover:outline hover:outline-1 hover:outline-primary-200 text-white font-semibold uppercase text-sm bg-[#333547] px-4 py-2 rounded-lg inline-flex items-center gap-2">
               <Image src="/icons/info.png" alt="Edit" width={17} height={17} />
               Learn more
-            </button>
+            </button> */}
           </div>
           <div className="border-2 border-[#52FC18]/40 bg-[#52FC18]/15 p-3 md:p-7 rounded-2xl w-full flex flex-col md:flex-row gap-3 items-center justify-between">
             <h2 className="font-bold text-lg text-[#848BAC]">
               Code:
               <span className="text-primary-50 ml-1">
-                {truncateString(link, 30)}
+                {
+                  `${process.env.NODE_ENV === "production" ? "https://app.heropicks.io":"http://localhost:3000" }${truncateString(link, 30)}`
+                }
               </span>
             </h2>
             <button

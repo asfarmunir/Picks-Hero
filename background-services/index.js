@@ -80,6 +80,18 @@ app.delete("/delete-cron-job", async (req, res) => {
   }
 });
 
+
+app.post("/generate-notification", async (req, res) => {
+  const { userId, message } = req.body;
+
+  if (!userId || !message) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  websocket.sendNotification(userId, message);
+  return res.status(200).json({ message: "Notification sent successfully" });
+});
+
 // Start the server
 const server = app.listen(PORT, () => {
   console.log(`Express server running on http://localhost:${PORT}`);
