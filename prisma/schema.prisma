@@ -328,3 +328,17 @@ model Notification {
   read      Boolean          @default(false)
   createdAt DateTime         @default(now())
 }
+
+enum CertificateType {
+  FUNDED
+  PAYOUT
+  LIFETIME_PAYOUT
+  PROFILE_LEVEL
+}
+model CertificateHistory {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  accountId String   @db.ObjectId
+  type     CertificateType
+  createdAt DateTime @default(now())
+}

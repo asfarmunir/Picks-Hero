@@ -33,11 +33,12 @@ import { accountStore } from "@/app/store/account";
 import { getOriginalAccountValue } from "@/lib/utils";
 import PayoutModal from "./payout-modal";
 import { signOut, useSession } from "next-auth/react";
-import { User } from "@prisma/client";
+import { CertificateType, User } from "@prisma/client";
 import FundedPayoutRequestsTable from "./payout-requests";
 import { useSearchParams } from "next/navigation";
-import { userStore } from "@/app/store/user";
 import { LoaderCircle } from "lucide-react";
+import { useSendCertificate } from "@/app/hooks/useSendCertificate";
+import toast from "react-hot-toast";
 
 interface Account {
   id: string;
@@ -106,7 +107,7 @@ const page = () => {
         <div className=" w-full  md:w-[70%] h-full shadow-inner shadow-gray-800 flex flex-col gap-4 bg-[#181926] p-4 md:p-6 rounded-xl">
           <div className=" w-full items-center flex justify-between">
             <h2 className=" text-xl font-bold text-white">PROFILE</h2>
-            <button 
+            <button
               className=" text-white uppercase text-sm bg-[#333547]  px-5 py-2 rounded-lg inline-flex items-center gap-3"
               onClick={() => signOut()}
             >
@@ -495,9 +496,35 @@ const PayoutsSection = () => {
 };
 
 const CertificaeSection = () => {
+  const account = accountStore((state) => state.account);
+  const { mutate: sendCertificate, isPending } = useSendCertificate({
+    onSuccess: () => {
+      toast.success("Certificate sent successfully");
+    },
+    onError: (error: any) => {
+      console.log("Failed to send certificate", error);
+      toast.error("Failed to send certificate");
+    },
+  });
+
+  const handleSendCertificate = (certificateType: CertificateType) => {
+    sendCertificate({
+      certificateType,
+      accountId: account.id,
+    });
+  };
+
   return (
-    <div className=" w-full flex flex-col space-y-5  py-6  md:p-3  rounded-2xl 2xl:p-5  mb-8 ">
-      <div className=" bg-[#272837] shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center  overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 ">
+    <div
+      className={`w-full flex flex-col space-y-5  py-6  md:p-3  rounded-2xl 2xl:p-5  mb-8 transition-opacity
+      ${isPending ? " opacity-20 pointer-events-none " : " opacity-100 pointer-events-auto"}
+    `}
+    >
+      <div
+        className=" bg-[#272837] shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center  overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 "
+        role="button"
+        onClick={() => handleSendCertificate("FUNDED")}
+      >
         <div className=" flex items-center gap-2">
           <Image
             src="/icons/funded_c.svg"
@@ -591,7 +618,11 @@ const CertificaeSection = () => {
           </DialogContent>
         </Dialog>
       </div>
-      <div className=" bg-[#272837] shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 ">
+      <div
+        className=" bg-[#272837] shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 "
+        role="button"
+        onClick={() => handleSendCertificate("PAYOUT")}
+      >
         <div className=" flex items-center gap-2">
           <Image
             src="/icons/payout_c.svg"
@@ -608,7 +639,11 @@ const CertificaeSection = () => {
           You have no certificates to display
         </p>
       </div>
-      <div className=" bg-[#272837] shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 ">
+      <div
+        className=" bg-[#272837] shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 "
+        role="button"
+        onClick={() => handleSendCertificate("LIFETIME_PAYOUT")}
+      >
         <div className=" flex items-center gap-2">
           <Image
             src="/icons/lifetime_c.svg"
@@ -625,7 +660,11 @@ const CertificaeSection = () => {
           You have no certificates to display
         </p>
       </div>
-      <div className=" bg-[#272837]  shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 ">
+      <div
+        className=" bg-[#272837]  shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 "
+        role="button"
+        onClick={() => handleSendCertificate("PROFILE_LEVEL")}
+      >
         <div className=" flex items-center gap-2">
           <Image
             src="/icons/funded_c.svg"
