@@ -178,7 +178,9 @@ const ProfileSection = () => {
     <>
       <div className=" p-4 shadow-inner shadow-gray-700 rounded-xl flex items-start justify-between bg-[#272837]">
         <div className="flex gap-3 items-center">
-          <Image src="/images/avatar.png" alt="User" width={60} height={60} />
+          <div className="w-16 h-16 rounded-full bg-gray-700 border border-gray-500 flex justify-center items-center text-xl text-gray-400">
+            {`${data.user?.firstName[0]}${data.user?.lastName[0]}`}
+          </div>
           <div className="flex flex-col">
             <p className=" text-sm font-bold text-[#848BAC] uppercase">
               Username
