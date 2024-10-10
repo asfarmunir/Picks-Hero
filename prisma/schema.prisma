@@ -112,6 +112,7 @@ model Account {
   AccountInvoices      AccountInvoices[]
   Bets                 Bets[]
   FundedPayoutRequests FundedPayoutRequests[]
+  BalanceHistory       BalanceHistory[]
 
   @@map("accounts")
 }
@@ -335,10 +336,24 @@ enum CertificateType {
   LIFETIME_PAYOUT
   PROFILE_LEVEL
 }
+
 model CertificateHistory {
+  id        String          @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String          @db.ObjectId
+  accountId String          @db.ObjectId
+  type      CertificateType
+  createdAt DateTime        @default(now())
+}
+
+model BalanceHistory {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId    String   @db.ObjectId
   accountId String   @db.ObjectId
-  type     CertificateType
+  balance   Float // Store account balance at the end of the day
+  date      DateTime // Store date of balance snapshot
+  account   Account  @relation(fields: [accountId], references: [id])
+
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("balancehistory")
 }

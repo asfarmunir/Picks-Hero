@@ -32,14 +32,15 @@ const layout = ({ children }: { children: React.ReactNode }) => {
   // User Account
   const { data: accounts, isPending } = useGetAccounts();
 
-  const [hasAccount, setHasAccount] = useState(false);
+  const [hasAccount, setHasAccount] = useState(true);
 
   useEffect(() => {
     if (accounts && !isPending) {
       updateAccount(accounts[0]);
-    }
-    if (accounts && accounts.length === 1) {
-      setHasAccount(true);
+
+      if (accounts.length === 0) {
+        setHasAccount(true);
+      }
     }
   }, [accounts, isPending]);
 

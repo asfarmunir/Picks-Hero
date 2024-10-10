@@ -6,6 +6,10 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
     const { id: accountId } = params;
 
+    if(!accountId) {
+        return NextResponse.json({ error: "Account ID is required" }, { status: 400 });
+    }
+    
     try {
         // connect to database
         await connectToDatabase();

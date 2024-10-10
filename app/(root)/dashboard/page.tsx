@@ -31,6 +31,12 @@ const page = () => {
     setOpen(true);
   };
 
+  // Graph Filter
+  const [filter, setFilter] = useState<"1M" | "7D" | "3M" | "24H">("1M");
+  const changeFilter = (filter: "1M" | "7D" | "3M" | "24H") => {
+    setFilter(filter);
+  };
+
   return (
     <>
       <PayoutsExplained open={open} setOpen={setOpen} />
@@ -106,7 +112,7 @@ const page = () => {
                   </p>
                   <h2 className="  2xl:text-lg font-semibold text-white">
                     $
-                    {account.balance - getOriginalAccountValue(account)
+                    {account.balance - getOriginalAccountValue(account) < 0
                       ? "0"
                       : account.balance - getOriginalAccountValue(account)}
                   </h2>
@@ -136,23 +142,47 @@ const page = () => {
                 </div>{" "}
               </div>
             </div>{" "}
-            <div className="flex w-full md:w-fit justify-center items-center bg-primary uppercase text-xs 2xl:text-sm rounded-md text-white px-2 py-0.5 ">
-              <span className="px-2 flex-grow text-center  py-0.5 font-bold text-primary-200">
+            <div className="flex w-full md:w-fit justify-center items-center bg-primary uppercase text-xs 2xl:text-sm rounded-md text-white px-2 py-0.5">
+              <span
+                className={`px-2 flex-grow text-center  py-0.5 font-bold text-primary-200 rounded ${
+                  filter === "24H" && "bg-primary-200/60 text-white"
+                }`}
+                role="button"
+                onClick={() => changeFilter("24H")}
+              >
                 24 h
               </span>
-              <span className="px-2 flex-grow text-center  py-0.5 font-bold text-primary-200">
+              <span
+                className={`px-2 flex-grow text-center  py-0.5 font-bold text-primary-200 rounded ${
+                  filter === "7D" && "bg-primary-200/60 text-white"
+                }`}
+                onClick={() => changeFilter("7D")}
+                role="button"
+              >
                 7d
               </span>
-              <span className="px-2 flex-grow text-center  py-0.5 font-bold text-white rounded bg-primary-200/60">
+              <span
+                className={`px-2 flex-grow text-center  py-0.5 font-bold text-primary-200 rounded ${
+                  filter === "1M" && "bg-primary-200/60 text-white"
+                }`}
+                onClick={() => changeFilter("1M")}
+                role="button"
+              >
                 1 m
               </span>
-              <span className="px-2 flex-grow text-center  py-0.5 font-bold text-primary-200">
+              <span
+                className={`px-2 flex-grow text-center  py-0.5 font-bold text-primary-200 rounded ${
+                  filter === "3M" && "bg-primary-200/60 text-white"
+                }`}
+                onClick={() => changeFilter("3M")}
+                role="button"
+              >
                 3 m
               </span>
             </div>
           </div>
           <div className="p-1 md:p4">
-            <AccountGraph />
+            <AccountGraph filter={filter} />
           </div>
         </div>
         <div className="flex items-center justify-between">

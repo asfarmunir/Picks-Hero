@@ -57,6 +57,25 @@ const init = () => {
       timezone: "UTC",
     }
   );
+
+  // Schedule the CRON job to run at 12 AM UTC every day
+  cron.schedule('0 0 * * *', async () => {
+    const accounts = await prisma.account.findMany();
+  
+    accounts.forEach(async (account) => {
+      await prisma.balanceHistory.create({
+        data: {
+          accountId: account.id,
+          balance: account.balance,
+          date: new Date()
+        }
+      });
+    });
+  
+    console.log('Daily balance snapshots saved.');
+  }, {
+    timezone: 'UTC'
+  });
 };
 
 // cron job fn for marking objective as fulfilled, WILL RUN ONCE 7 DAYS AFTER ACCOUNT CREATION

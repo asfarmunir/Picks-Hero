@@ -1,5 +1,8 @@
 "use client";
-import React from "react";
+import { useGetGraphData } from "@/app/hooks/useGetGraphData";
+import { accountStore } from "@/app/store/account";
+import { LoaderCircle } from "lucide-react";
+import React, { useMemo } from "react";
 import {
   AreaChart,
   Area,
@@ -10,53 +13,87 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const data = [
-  { name: "June 1", uv: 1200 },
-  { name: "June 2", uv: 2100 },
-  { name: "June 3", uv: 1500 },
-  { name: "June 4", uv: 3900 },
-  { name: "June 5", uv: 2000 },
-  { name: "June 6", uv: 2800 },
-  { name: "June 7", uv: 4200 },
-  { name: "June 8", uv: 2600 },
-  { name: "June 9", uv: 3200 },
-  { name: "June 10", uv: 5000 },
-  { name: "June 11", uv: 4700 },
-  { name: "June 12", uv: 2900 },
-  { name: "June 13", uv: 2400 },
-  { name: "June 14", uv: 4300 },
-  { name: "June 15", uv: 3300 },
-  { name: "June 16", uv: 2900 },
-  { name: "June 17", uv: 5000 },
-  { name: "June 18", uv: 4200 },
-  { name: "June 19", uv: 3800 },
-  { name: "June 20", uv: 3500 },
-  { name: "June 21", uv: 2700 },
-  { name: "June 17", uv: 4000 },
-  { name: "June 18", uv: 5000 },
-  { name: "June 19", uv: 3800 },
-  { name: "June 20", uv: 3500 },
-  { name: "June 21", uv: 3700 },
-  { name: "June 17", uv: 3000 },
-  { name: "June 18", uv: 5000 },
-  { name: "June 19", uv: 3800 },
-  { name: "June 20", uv: 3500 },
-  { name: "June 21", uv: 3700 },
-  { name: "June 22", uv: 2100 },
-  { name: "June 23", uv: 4200 },
-  { name: "June 24", uv: 4500 },
-  { name: "June 25", uv: 3900 },
-  { name: "June 26", uv: 4200 },
-  { name: "June 27", uv: 4700 },
-  { name: "June 28", uv: 4900 },
-  { name: "June 29", uv: 5000 },
-];
+// const data = [
+//   { name: "June 1", uv: 1200 },
+//   { name: "June 2", uv: 2100 },
+//   { name: "June 3", uv: 1500 },
+//   { name: "June 4", uv: 3900 },
+//   { name: "June 5", uv: 2000 },
+//   { name: "June 6", uv: 2800 },
+//   { name: "June 7", uv: 4200 },
+//   { name: "June 8", uv: 2600 },
+//   { name: "June 9", uv: 3200 },
+//   { name: "June 10", uv: 5000 },
+//   { name: "June 11", uv: 4700 },
+//   { name: "June 12", uv: 2900 },
+//   { name: "June 13", uv: 2400 },
+//   { name: "June 14", uv: 4300 },
+//   { name: "June 15", uv: 3300 },
+//   { name: "June 16", uv: 2900 },
+//   { name: "June 17", uv: 5000 },
+//   { name: "June 18", uv: 4200 },
+//   { name: "June 19", uv: 3800 },
+//   { name: "June 20", uv: 3500 },
+//   { name: "June 21", uv: 2700 },
+//   { name: "June 17", uv: 4000 },
+//   { name: "June 18", uv: 5000 },
+//   { name: "June 19", uv: 3800 },
+//   { name: "June 20", uv: 3500 },
+//   { name: "June 21", uv: 3700 },
+//   { name: "June 17", uv: 3000 },
+//   { name: "June 18", uv: 5000 },
+//   { name: "June 19", uv: 3800 },
+//   { name: "June 20", uv: 3500 },
+//   { name: "June 21", uv: 3700 },
+//   { name: "June 22", uv: 2100 },
+//   { name: "June 23", uv: 4200 },
+//   { name: "June 24", uv: 4500 },
+//   { name: "June 25", uv: 3900 },
+//   { name: "June 26", uv: 4200 },
+//   { name: "June 27", uv: 4700 },
+//   { name: "June 28", uv: 4900 },
+//   { name: "June 29", uv: 5000 },
+// ];
 
-const Example = () => {
+interface GraphDataType {
+  date: string;
+  balance: number;
+}
+
+const Example = ({ filter }: { filter: "1M" | "3M" | "24H" | "7D" }) => {
+  const account = accountStore((state) => state.account);
+  const { data, isPending } = useGetGraphData(account.id);
+
+  const filteredData: GraphDataType[] = useMemo(()=>{
+    if (!data) return [];
+    switch (filter) {
+      case "1M":
+        return data.slice(-30);
+      case "3M":
+        return data.slice(-90);
+      case "7D":
+        return data.slice(-7);
+      case "24H":
+        return data.slice(-24);
+      default:
+        return data;
+    }
+    
+  }, [data, filter])
+  
+  if (isPending) {
+    return (
+      <div className="bg-primary-100 flex justify-center items-center h-[310px] gap-2">
+        <LoaderCircle className="animate-spin" />
+        Loading Graph...
+      </div>
+    );
+  }
+
   return (
     <ResponsiveContainer width="100%" height={310}>
       <AreaChart
-        data={data}
+        data={filteredData}
         margin={{
           top: 10,
           right: 10,
@@ -66,7 +103,7 @@ const Example = () => {
       >
         {/* <CartesianGrid strokeDasharray="3 3" stroke="#444" /> */}
         <XAxis
-          dataKey="name"
+          dataKey="date"
           tick={{
             fill: "#737897",
             fontSize: 12, // Adjust the font size
@@ -75,13 +112,14 @@ const Example = () => {
           }}
           tickLine={{ stroke: "#737897" }}
           interval={6}
+          allowDuplicatedCategory
         />
         <YAxis
-          ticks={[0, 1000, 2000, 3000, 4000, 5000]}
+          // ticks={[0, 1000, 2000, 3000, 4000, 5000]}
           tick={{
             fill: "#737897",
             fontSize: 12, // Adjust the font size
-            dy: -15, // Adjust vertical position
+            dy: 0, // Adjust vertical position
             dx: -10, // Adjust horizontal position
           }}
           tickLine={{ stroke: "#737897" }}
@@ -103,7 +141,7 @@ const Example = () => {
         />
         <Area
           type="linear"
-          dataKey="uv"
+          dataKey="balance"
           stroke="#3fd80c"
           fill="rgba(63, 216, 12, 0.1)"
         />
