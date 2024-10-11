@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/prisma/client";
-import { sendResetEmail } from "@/helper/resetEmail";
 import crypto from "crypto";
+import { sendPasswordResetEmail } from "@/helper/sendgridapi";
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     const resetLink = `/login/reset-password/${user.id}?token=${resetToken}`;
 
     // Send the email with the reset link
-    await sendResetEmail(user.email, resetLink);
+    await sendPasswordResetEmail(email, resetLink);
 
     return NextResponse.json(
       { message: "Reset email sent successfully" },

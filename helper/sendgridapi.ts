@@ -1,39 +1,169 @@
-import sendgrid from '@sendgrid/mail';
-import { FaCode } from 'react-icons/fa';
+import { FROM_EMAIL } from "@/lib/constants";
+import { getBreachedEmailTemplate, getFundedEmailTemplate } from "@/lib/email-templates/account";
+import { getAffiliateSaleEmailTemplate } from "@/lib/email-templates/affiliate";
+import { getPhaseCompleteEmailTemplate } from "@/lib/email-templates/phase-complete";
+import { getResetPasswordEmailTemplate } from "@/lib/email-templates/reset";
+import { getSignupEmailTemplate } from "@/lib/email-templates/signup";
+import {
+  getWelcomePhase1EmailTemplate,
+  getWelcomePhase2EmailTemplate,
+  getWelcomePhase3EmailTemplate,
+} from "@/lib/email-templates/welcome";
+import sendgrid from "@sendgrid/mail";
+import { getServerSession } from "next-auth";
 
 sendgrid.setApiKey(process.env.SENDGRID_API_KEY as string);
 
 export async function sendGreetingEmail(to: string, name: string) {
   const message = {
     to,
-    from: 'aligatorabdullah@gmail.com', 
-    subject: 'Welcome to the PicksHero!',
+    from: FROM_EMAIL,
+    subject: getSignupEmailTemplate(name).title,
     text: `Hello ${name},\n\nThank you for signing up to PicksHero. We're excited to have you on board!`,
-    html: `<p>Hello <strong>${name}</strong>,</p><p>Thank you for signing up to <strong>PicksHero</strong>. We're excited to have you on board!</p>`,
+    html: getSignupEmailTemplate(name).template,
   };
 
   try {
-      const response = await sendgrid.send(message);
-    console.log('Greeting email sent successfully:', response);
+    const response = await sendgrid.send(message);
+    console.log("Greeting email sent successfully:", response);
   } catch (error) {
-    console.error('Error sending greeting email:', error);
+    console.error("Error sending greeting email:", error);
   }
 }
 
 export async function send2FACodeEmail(userEmail: string, code: string) {
-    const message = {
-      to: userEmail,
-      from: 'aligatorabdullah@gmail.com',
-      subject: 'Your 2FA Code',
-      text: `Your 2FA code is: ${code}. It is valid for 10 minutes.`,
-      html: `<strong>Your 2FA code is: ${code}</strong>. It is valid for 10 minutes.`,
-    };
-  
-    try {
-     const FAcode = await sendgrid.send(message);
-     console.log('2FA code is sent : ', FAcode)
-      console.log('2FA code sent successfully');
-    } catch (error) {
-      console.error('Error sending 2FA code:', error);
-    }
+  const message = {
+    to: userEmail,
+    from: FROM_EMAIL,
+    subject: "Your 2FA Code",
+    text: `Your 2FA code is: ${code}. It is valid for 10 minutes.`,
+    html: `<strong>Your 2FA code is: ${code}</strong>. It is valid for 10 minutes.`,
+  };
+
+  try {
+    const FAcode = await sendgrid.send(message);
+    console.log("2FA code is sent : ", FAcode);
+    console.log("2FA code sent successfully");
+  } catch (error) {
+    console.error("Error sending 2FA code:", error);
   }
+}
+
+export async function sendPasswordResetEmail(
+  userEmail: string,
+  resetLink: string
+) {
+  const message = {
+    to: userEmail,
+    from: FROM_EMAIL,
+    subject: getResetPasswordEmailTemplate(resetLink).title,
+    text: `You requested a password reset. Click here to reset your password: ${resetLink}`,
+    html: getResetPasswordEmailTemplate(resetLink).template,
+  };
+
+  try {
+    const response = await sendgrid.send(message);
+    console.log("Password reset email sent successfully:", response);
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
+  }
+}
+
+export async function sendAffiliateSaleEmail(
+  userEmail: string,
+  firstName: string,
+  amount: string
+) {
+  const message = {
+    to: userEmail,
+    from: FROM_EMAIL,
+    subject: getAffiliateSaleEmailTemplate(firstName, amount).title,
+    text: `Congratulations! You've earned a commission of ${amount} from a referral.`,
+    html: getAffiliateSaleEmailTemplate(firstName, amount).template,
+  };
+
+  try {
+    const response = await sendgrid.send(message);
+    console.log("Affiliate sale email sent successfully:", response);
+  } catch (error) {
+    console.error("Error sending affiliate sale email:", error);
+  }
+}
+
+export async function sendAccountBreachedEmail(
+  userEmail: string,
+  userName: string,
+  accountNumber: string
+) {
+  const message = {
+    to: userEmail,
+    from: FROM_EMAIL,
+    subject: getBreachedEmailTemplate(userName, accountNumber).title,
+    html: getAffiliateSaleEmailTemplate(userName, accountNumber).template,
+  };
+
+  try {
+    const response = await sendgrid.send(message);
+    console.log("Breached Email Sent.");
+  } catch (error) {
+    console.error("Breached Email Send Error: ", error);
+  }
+}
+
+export async function sendPhaseUpdateEmail(
+  userEmail: string,
+  userName: string,
+  accountNumber: string,
+  startingPhase: number
+) {
+  const subject =
+    startingPhase === 1
+      ? getWelcomePhase1EmailTemplate(userName).title
+      : startingPhase === 2
+      ? getWelcomePhase2EmailTemplate(userName).title
+      : getWelcomePhase3EmailTemplate(userName).title;
+  
+  const template =
+    startingPhase === 1
+      ? getWelcomePhase1EmailTemplate(userName).template
+      : startingPhase === 2
+      ? getWelcomePhase2EmailTemplate(userName).template
+      : getWelcomePhase3EmailTemplate(userName).template;
+
+  const message = {
+    to: userEmail,
+    from: FROM_EMAIL,
+    subject: subject,
+    html: template,
+  };
+
+  const phaseCompleteMessage = {
+    to: userEmail,
+    from: FROM_EMAIL,
+    subject: getPhaseCompleteEmailTemplate(userName, `Phase-${startingPhase-1}`).title,
+    html: getPhaseCompleteEmailTemplate(userName, `Phase-${startingPhase-1}`).template,
+  }
+
+  try {
+    await sendgrid.send(message);
+    await sendgrid.send(phaseCompleteMessage);
+  } catch (error) {
+    console.error("Account Update Email Send Error: ", error);
+  }
+}
+
+export async function sendFundedAccountEmail(userEmail:string, userName: string, accountNumber: string) {
+  const message = {
+    to: userEmail,
+    from: FROM_EMAIL,
+    subject: getFundedEmailTemplate(userName, accountNumber).title,
+    html: getFundedEmailTemplate(userName, accountNumber).template,
+  };
+
+  try {
+    const response = await sendgrid.send(message);
+    console.log("Funded Email Sent.");
+  } catch (error) {
+    console.error("Funded Email Send Error: ", error);
+  }
+}

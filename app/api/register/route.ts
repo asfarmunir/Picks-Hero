@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/prisma/client";
 import { connectToDatabase } from "@/helper/dbconnect";
-import * as bcryptjs from "bcryptjs";
-import nodemailer from "nodemailer";
 import { generateReferralCode } from "@/helper/referral";
+import { sendGreetingEmail } from "@/helper/sendgridapi";
+import prisma from "@/prisma/client";
+import * as bcryptjs from "bcryptjs";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
@@ -81,26 +81,29 @@ export async function POST(req: NextRequest) {
           data: { totalReferrals: { increment: 1 } },
         }),
       ]);
+
     }
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD,
-      },
-    });
+    // const transporter = nodemailer.createTransport({
+    //   service: "gmail",
+    //   auth: {
+    //     user: process.env.EMAIL,
+    //     pass: process.env.PASSWORD,
+    //   },
+    // });
 
-    const mailOptions = {
-      from: process.env.EMAIL,
-      to: email,
-      subject: "Welcome to PicksHero! Confirm Your Account",
-      html: `<p>Hello ${firstName},</p>
-            <p>Welcome to <strong>PicksHero</strong>! We're thrilled to have you on board. You're just one step away from unlocking all the exciting features of our app.</p>
-            <p>Best regards,<br/>The PicksHero Team</p>`,
-    };
+    // const mailOptions = {
+    //   from: process.env.EMAIL,
+    //   to: email,
+    //   subject: "Welcome to PicksHero! Confirm Your Account",
+    //   html: `<p>Hello ${firstName},</p>
+    //         <p>Welcome to <strong>PicksHero</strong>! We're thrilled to have you on board. You're just one step away from unlocking all the exciting features of our app.</p>
+    //         <p>Best regards,<br/>The PicksHero Team</p>`,
+    // };
 
-    await transporter.sendMail(mailOptions);
+    // await transporter.sendMail(mailOptions);
+
+    await sendGreetingEmail(email, firstName);
 
     return NextResponse.json({
       message: "User created successfully, confirmation email sent",

@@ -44,10 +44,84 @@ function calculateTotalProfit(account) {
   return total_profit;
 }
 
+const areObjectivesComplete = (account) => {
+  const objectives = getTailoredObjectives(account)
+  let objectivesComplete = true;
+  if(!account.minBetPeriodCompleted) {
+    objectivesComplete = false;
+  }
+  if(account.totalLoss > objectives.maxLoss) {
+    objectivesComplete = false;
+  }
+  if(account.dailyLoss > objectives.maxDailyLoss) {
+    objectivesComplete = false;
+  }
+  if(calculateTotalProfit(account) < objectives.profitTarget) {
+    objectivesComplete = false;
+  }
+  if(account.picks < objectives.minPicks) {
+    objectivesComplete = false;
+  }
+  return objectivesComplete;
+}
+
+async function sendBreachedEmail(status, accountId) {
+  const emailResponse = await fetch("http://localhost:3000/api/send-status-email", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      accountId: account.id,
+      status: "BREACHED",
+    }),
+  })
+  if (!emailResponse.ok) {
+    throw new Error(`Email request failed with status ${emailResponse.status}`);
+  }
+}
+
+async function sendPhaseUpdateEmail(accountId, newPhase) {
+  const emailResponse = await fetch("http://localhost:3000/api/send-status-email", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      accountId: accountId,
+      status: "PHASE",
+      phaseNumber: newPhase,
+    }),
+  })
+  if (!emailResponse.ok) {
+    throw new Error(`Email request failed with status ${emailResponse.status}`);
+  }
+}
+
+async function sendFundedAccountEmail(accountId) {
+  const emailResponse = await fetch("http://localhost:3000/api/send-status-email", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      accountId: accountId,
+      status: "FUNDED",
+    }),
+  })
+  if (!emailResponse.ok) {
+    throw new Error(`Email request failed with status ${emailResponse.status}`);
+  }
+}
+
 module.exports = {
   ALL_STEP_CHALLENGES,
   getTailoredObjectives,
   getOriginalBalance,
   calculateTotalLoss,
   calculateTotalProfit,
+  areObjectivesComplete,
+  sendBreachedEmail,
+  sendPhaseUpdateEmail,
+  sendFundedAccountEmail
 };

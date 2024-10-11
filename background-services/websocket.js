@@ -1,6 +1,13 @@
 const WebSocket = require("ws");
 const { PrismaClient } = require("../node_modules/@prisma/client");
-const { getOriginalBalance } = require("./utils");
+const {
+  getOriginalBalance,
+  sendBreachedEmail,
+  getTailoredObjectives,
+  areObjectivesComplete,
+  sendPhaseUpdateEmail,
+  sendFundedAccountEmail,
+} = require("./utils");
 
 const prisma = new PrismaClient();
 
@@ -143,7 +150,7 @@ async function checkForUpdates(wss) {
 
           // If the bet is won, update the account balance and increment picks won
           if (betResult === "WIN") {
-            await prisma.account.update({
+            const updatedAccount = await prisma.account.update({
               where: { id: bet.accountId },
               data: {
                 balance: { increment: bet.pick + bet.winnings },
@@ -152,7 +159,7 @@ async function checkForUpdates(wss) {
                 },
               },
             });
-            await prisma.user.update({
+            const updatedUser = await prisma.user.update({
               where: {
                 id: bet.userId,
               },
@@ -165,6 +172,44 @@ async function checkForUpdates(wss) {
                 },
               },
             });
+            if (account.status === "CHALLENGE") {
+              const objectivesComplete = areObjectivesComplete(updatedAccount);
+              if(objectivesComplete) {
+                let goFunded = false;
+                let newPhase = updatedAccount.phaseNumber + 1;
+
+                if(account.accountType === "TWO_STEP" && newPhase === 3) {
+                  goFunded = true;
+                }
+                else if (account.accountType === "THREE_STEP" && newPhase === 4) {
+                  goFunded = true;
+                }
+
+                if(goFunded) {
+                  await prisma.account.update({
+                    where: {
+                      id: bet.accountId,
+                    },
+                    data: {
+                      status: "FUNDED",
+                      phaseNumber: newPhase,
+                    },
+                  });
+                  await sendFundedAccountEmail(account.id);
+                } else {
+                  await prisma.account.update({
+                    where: {
+                      id: bet.accountId,
+                    },
+                    data: {
+                      phase: newPhase,
+                    },
+                  });
+                  await sendPhaseUpdateEmail(account.id, newPhase);
+                }
+
+              }
+            }
           } else {
             await prisma.account.update({
               where: {
@@ -190,6 +235,8 @@ async function checkForUpdates(wss) {
                   status: "BREACHED",
                 },
               });
+
+              await sendBreachedEmail("BREACHED", account.id);
             }
             if (
               account.totalLoss + bet.pick >=
@@ -203,6 +250,8 @@ async function checkForUpdates(wss) {
                   status: "BREACHED",
                 },
               });
+
+              await sendBreachedEmail("BREACHED", account.id);
             }
           }
         } catch (error) {

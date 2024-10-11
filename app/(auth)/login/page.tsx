@@ -1,38 +1,25 @@
 "use client";
-import React from "react";
 import Image from "next/image";
-import { useState, useRef } from "react";
+import { createRef, useRef, useState } from "react";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { set, useForm } from "react-hook-form";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import toast from "react-hot-toast";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { delete2Ftoken } from "@/helper/delete2Ftoken";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 import { ColorRing } from "react-loader-spinner";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@radix-ui/react-checkbox";
-import { UNDERSCORE_NOT_FOUND_ROUTE } from "next/dist/shared/lib/constants";
-import { createDropdownMenuScope } from "@radix-ui/react-dropdown-menu";
+import * as z from "zod";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -65,6 +52,25 @@ const page = () => {
 
     setIsLoading(true);
 
+    try {
+      recaptchaRef.current.reset();
+      console.log("recaptchaRef", recaptchaRef.current);
+      const token = await recaptchaRef.current?.executeAsync();
+      if (token) {
+        const apiQuery:any = await fetch(`/api/auth/verify-captcha/${token}`)
+        const {success} = await apiQuery.json();
+        if(success){
+          alert('Form submitted successfully');
+        } else {
+          alert('Form submission failed');
+        }
+      } else {
+        alert('Error getting token');
+      }
+    } catch (error) {
+      console.log('error in handleClick ', error);
+    }
+    
     const result = await signIn("credentials", {
       redirect: false,
       email: values.email,
@@ -82,6 +88,18 @@ const page = () => {
       setToggle(toggle);
     }
     setIsLoading(false);
+  }
+
+
+  // CAPTCHA VERIFICATION
+  const recaptchaRef :any = createRef();
+
+  const onChange = () => {
+    // on captcha change
+  }
+
+  const asyncScriptOnLoad = () => {
+    console.log('Google recaptcha loaded just fine')
   }
 
   return (
@@ -166,6 +184,14 @@ const page = () => {
                   <span className=" text-[#F74418]">{AuthError}</span>
                 </p>
               )}
+
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                size="invisible"
+                sitekey="6LeQr1wqAAAAABFdff9ZpBeE5iAaeC89vV1TRWJP"
+                onChange={onChange}
+                asyncScriptOnLoad={asyncScriptOnLoad}
+              />
 
               <div className="flex flex-col w-full mt-2 items-center justify-center">
                 <Button

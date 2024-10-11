@@ -11,6 +11,7 @@ import {
   REFER_COMMISSIONS,
 } from "@/lib/constants";
 import { dateToFullCronString } from "@/lib/utils";
+import { sendAffiliateSaleEmail } from "@/helper/sendgridapi";
 
 function generateInvoice(account: any, newAccount: any, userId: any) {
   // Strip $ from accountPrice
@@ -76,7 +77,7 @@ async function handleReferralCommission(user: any, account: any, accountInvoice:
   });
 
   // Create a new commission record
-  await prisma.referralHistory.create({
+  const referral =  await prisma.referralHistory.create({
     data: {
       userId: user.id,
       referredUserId: referrer.id,
@@ -86,6 +87,9 @@ async function handleReferralCommission(user: any, account: any, accountInvoice:
       orderNumber: accountInvoice.invoiceNumber,
     },
   });
+
+  await sendAffiliateSaleEmail(referrer.email, referrer.firstName, `$${referral.orderValue}`)
+
 }
 
 type cronJobTypes = "objectiveMin" | "objectiveMax" | "inactivity";
