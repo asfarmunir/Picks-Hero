@@ -114,6 +114,7 @@ export default function FundedPayoutRequestsTable({
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
+
   return (
     <div className=" w-full border border-gray-700 rounded-xl  flex flex-col">
       <div className="flex items-center justify-between w-full p-6 ">
@@ -185,7 +186,7 @@ export default function FundedPayoutRequestsTable({
             </TableRow>
           )}
 
-          {payoutHistoryData?.length === 0 && (
+          {!isPending && !currentHistory && (
             <TableRow>
               <TableCell colSpan={5} className="text-center">
                 No payout history found.
@@ -193,7 +194,7 @@ export default function FundedPayoutRequestsTable({
             </TableRow>
           )}
 
-          {!isPending &&
+          {!isPending && currentHistory &&
             currentHistory.map((payout: FundedPayoutRequests) => (
               <TableRow className=" border-none">
                 <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-base text-center truncate">

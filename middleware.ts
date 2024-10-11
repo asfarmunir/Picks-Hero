@@ -4,10 +4,12 @@ import { getToken } from 'next-auth/jwt';
 import { getServerSession } from 'next-auth';
 import middleware from 'next-auth/middleware'
 
+
+
 export default middleware
 
 export const config = {
   matcher: [
-    '/notFunctionalrightnow',                 
+    '/dashboard', '/picks', '/profile', '/settings', '/refer-and-earn', '/community'              
   ],
 };

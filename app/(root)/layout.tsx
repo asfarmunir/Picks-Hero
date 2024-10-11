@@ -1,19 +1,19 @@
 "use client";
 import MobileNav from "@/components/shared/MobileNav";
 import Sidebar from "@/components/shared/Sidebar";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import { useGetAccounts } from "../hooks/useGetAccounts";
-import { accountStore } from "../store/account";
 import {
   Dialog,
   DialogContent,
   DialogOverlay,
   DialogTitle,
 } from "@/components/ui/dialog";
-import Link from "next/link";
+import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { useGetAccounts } from "../hooks/useGetAccounts";
+import { accountStore } from "../store/account";
 
 const layout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
@@ -34,15 +34,18 @@ const layout = ({ children }: { children: React.ReactNode }) => {
 
   const [hasAccount, setHasAccount] = useState(true);
 
+  const pathname = usePathname();
   useEffect(() => {
     if (accounts && !isPending) {
       updateAccount(accounts[0]);
 
-      if (accounts.length === 0) {
-        setHasAccount(true);
-      }
     }
-  }, [accounts, isPending]);
+    if (!isPending && accounts.length === 0 && !(pathname === '/user/profile' || pathname === '/settings') ) {
+      setHasAccount(false);
+    }
+  }, [accounts, isPending, pathname]);
+
+  
 
   useEffect(() => {
     if (!hasAccount) {
@@ -78,6 +81,14 @@ const layout = ({ children }: { children: React.ReactNode }) => {
             >
               Create Account
             </Link>
+            <div className="flex gap-2">
+              <span className="text-sm text-white text-opacity-40">OR{" "}</span>
+              <button className="text-primary-50 underline text-sm focus:outline-none text-left"
+                onClick={() => signOut()}
+              >
+                Sign out
+              </button>
+            </div>
             <Image
               src="/images/hero.png"
               alt="Hero Image"

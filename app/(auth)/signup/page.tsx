@@ -1,10 +1,7 @@
 "use client";
-import React, { useState } from "react";
 import Image from "next/image";
+import { useState } from "react";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -15,7 +12,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
 import {
   Select,
   SelectContent,
@@ -23,11 +19,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { zodResolver } from "@hookform/resolvers/zod";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { CheckIcon } from "@radix-ui/react-icons";
 import axios from "axios";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import * as z from "zod";
 
 // Import the countries list
 import { countries } from "countries-list";
@@ -107,6 +107,7 @@ const page = ({ searchParams: { referrerCode } }: props) => {
 
     setIsLoading(false);
   }
+
 
   return (
     <div className=" w-full flex items-start justify-center gap-20 pb-12">

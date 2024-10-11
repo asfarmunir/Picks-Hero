@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { createRef, useRef, useState } from "react";
+import { createRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,10 +16,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import ReCAPTCHA from "react-google-recaptcha";
 import { useForm } from "react-hook-form";
 import { ColorRing } from "react-loader-spinner";
 import * as z from "zod";
-import ReCAPTCHA from "react-google-recaptcha";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -57,20 +57,20 @@ const page = () => {
       console.log("recaptchaRef", recaptchaRef.current);
       const token = await recaptchaRef.current?.executeAsync();
       if (token) {
-        const apiQuery:any = await fetch(`/api/auth/verify-captcha/${token}`)
-        const {success} = await apiQuery.json();
-        if(success){
-          alert('Form submitted successfully');
+        const apiQuery: any = await fetch(`/api/auth/verify-captcha/${token}`);
+        const { success } = await apiQuery.json();
+        if (success) {
+          alert("Form submitted successfully");
         } else {
-          alert('Form submission failed');
+          alert("Form submission failed");
         }
       } else {
-        alert('Error getting token');
+        alert("Error getting token");
       }
     } catch (error) {
-      console.log('error in handleClick ', error);
+      console.log("error in handleClick ", error);
     }
-    
+
     const result = await signIn("credentials", {
       redirect: false,
       email: values.email,
@@ -90,17 +90,16 @@ const page = () => {
     setIsLoading(false);
   }
 
-
   // CAPTCHA VERIFICATION
-  const recaptchaRef :any = createRef();
+  const recaptchaRef: any = createRef();
 
   const onChange = () => {
     // on captcha change
-  }
+  };
 
   const asyncScriptOnLoad = () => {
-    console.log('Google recaptcha loaded just fine')
-  }
+    console.log("Google recaptcha loaded just fine");
+  };
 
   return (
     <div className=" w-full flex  md:items-center h-[90svh] overflow-hidden  justify-center gap-16 pb-4">
