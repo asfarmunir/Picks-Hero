@@ -141,7 +141,7 @@ const page = () => {
               />
               <h2 className="  uppercase text-xs md:text-base font-bold">
                 Contact:{" "}
-                <a href="mailto:support@pickshero.io" className="text-[#848BAC] hover:underline">support@pickshero.com</a>
+                <a href="mailto:support@pickshero.io" className="text-[#848BAC] hover:underline">support@pickshero.io</a>
               </h2>
             </div>
           </div>{" "}
