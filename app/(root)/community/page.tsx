@@ -60,8 +60,10 @@ const page = () => {
   };
 
   const filteredData = useMemo(() => {
+    if(loading) return [];
+
     const searchFiltered = data?.leaderboard.filter((account: any) =>
-      `${account.user.firstName} ${account.user.lastName}`
+      `${account.user?.firstName} ${account.user?.lastName}`
         .toLowerCase()
         .includes(search.toLowerCase())
     );
@@ -228,7 +230,7 @@ const page = () => {
                                 width={25}
                                 height={25}
                               />
-                              {`${account.user.firstName} ${account.user.lastName}`}
+                              {`${account.user?.firstName} ${account.user?.lastName}`}
                             </div>
                           </TableCell>
                           <TableCell className="  max-w-[100px]  py-5 border-b border-gray-700 ">
@@ -236,9 +238,9 @@ const page = () => {
                               <Image
                                 src={
                                   profileLevels[
-                                    account.user
-                                      .profileLevel as profileLevelName
-                                  ].icon
+                                    account?.user
+                                      ?.profileLevel as profileLevelName
+                                  ]?.icon
                                 }
                                 alt="profile"
                                 width={25}

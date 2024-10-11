@@ -1,6 +1,7 @@
 // Nextjs GET APi
 
 import { connectToDatabase } from "@/helper/dbconnect";
+import { sendNotification } from "@/helper/notifications";
 import prisma from "@/prisma/client";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
@@ -74,6 +75,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    await sendNotification("Congratulations. Your KYC has been verified", "UPDATE", user.id);
     return NextResponse.json({ message: "KYC verified" });
   } catch (error) {
     console.log(error);

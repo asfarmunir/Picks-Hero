@@ -114,6 +114,23 @@ async function sendFundedAccountEmail(accountId) {
   }
 }
 
+async function sendAppNotification(userId, type, message) {
+  const emailResponse = await fetch("http://localhost:3000/api/notification", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      userId,
+      type,
+      message,
+    }),
+  })
+  if (!emailResponse.ok) {
+    throw new Error(`Email request failed with status ${emailResponse.status}`);
+  }
+}
+
 module.exports = {
   ALL_STEP_CHALLENGES,
   getTailoredObjectives,
@@ -123,5 +140,6 @@ module.exports = {
   areObjectivesComplete,
   sendBreachedEmail,
   sendPhaseUpdateEmail,
-  sendFundedAccountEmail
+  sendFundedAccountEmail,
+  sendAppNotification
 };

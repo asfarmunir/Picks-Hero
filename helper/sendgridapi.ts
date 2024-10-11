@@ -1,6 +1,7 @@
 import { FROM_EMAIL } from "@/lib/constants";
 import { getBreachedEmailTemplate, getFundedEmailTemplate } from "@/lib/email-templates/account";
 import { getAffiliateSaleEmailTemplate } from "@/lib/email-templates/affiliate";
+import { getKycEmailTemplate } from "@/lib/email-templates/kyc";
 import { getPhaseCompleteEmailTemplate } from "@/lib/email-templates/phase-complete";
 import { getResetPasswordEmailTemplate } from "@/lib/email-templates/reset";
 import { getSignupEmailTemplate } from "@/lib/email-templates/signup";
@@ -165,5 +166,21 @@ export async function sendFundedAccountEmail(userEmail:string, userName: string,
     console.log("Funded Email Sent.");
   } catch (error) {
     console.error("Funded Email Send Error: ", error);
+  }
+}
+
+export async function sendKycVerifiedEmail (userEmail: string, userName: string) {
+  const message = {
+    to: userEmail,
+    from: FROM_EMAIL,
+    subject: getKycEmailTemplate(userName).title,
+    html: getKycEmailTemplate(userName).template,
+  }
+
+  try {
+    const response = await sendgrid.send(message);
+    console.log("KYC Verified Email Sent.");
+  } catch (error) {
+    console.error("KYC Verified Email Send Error: ", error);
   }
 }

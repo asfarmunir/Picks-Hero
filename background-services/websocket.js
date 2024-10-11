@@ -7,6 +7,7 @@ const {
   areObjectivesComplete,
   sendPhaseUpdateEmail,
   sendFundedAccountEmail,
+  sendAppNotification,
 } = require("./utils");
 
 const prisma = new PrismaClient();
@@ -172,6 +173,9 @@ async function checkForUpdates(wss) {
                 },
               },
             });
+            
+            await sendAppNotification(bet.userId, "WIN", `Congratulations! You won ${bet.winnings} picks.`);
+
             if (account.status === "CHALLENGE") {
               const objectivesComplete = areObjectivesComplete(updatedAccount);
               if(objectivesComplete) {
@@ -196,6 +200,7 @@ async function checkForUpdates(wss) {
                     },
                   });
                   await sendFundedAccountEmail(account.id);
+                  await sendAppNotification(bet.userId, "UPDATE", "Congratulations! Your account has been funded.");
                 } else {
                   await prisma.account.update({
                     where: {
@@ -206,6 +211,7 @@ async function checkForUpdates(wss) {
                     },
                   });
                   await sendPhaseUpdateEmail(account.id, newPhase);
+                  await sendAppNotification(bet.userId, "UPDATE", `Your account is upgraded to phase ${newPhase}`);
                 }
 
               }
@@ -237,6 +243,7 @@ async function checkForUpdates(wss) {
               });
 
               await sendBreachedEmail("BREACHED", account.id);
+              await sendAppNotification(bet.userId, "ALERT", "Your account has been breached.");
             }
             if (
               account.totalLoss + bet.pick >=
@@ -252,6 +259,7 @@ async function checkForUpdates(wss) {
               });
 
               await sendBreachedEmail("BREACHED", account.id);
+              await sendAppNotification(bet.userId, "ALERT", "Your account has been breached.");
             }
           }
         } catch (error) {

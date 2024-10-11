@@ -7,22 +7,21 @@ export async function POST(req: NextRequest) {
 
     await connectToDatabase();
 
-    const { message, type } = await req.json();
+    const { message, type, userId } = await req.json();
 
     const session = await getServerSession();
-    if (!session) {
+    if (!session && !userId) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     try {
-
-        const user = await prisma.user.findFirst({
+        const user = !session ? null : await prisma.user.findFirst({
             where: {
                 email: session.user?.email
             }
         });
         
-        if(!user) {
+        if(!user && !userId) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
@@ -30,7 +29,7 @@ export async function POST(req: NextRequest) {
             data: {
                 content: message,
                 type,
-                userId: user.id,
+                userId: user ? user.id : userId,
                 read: false,
             }
         });

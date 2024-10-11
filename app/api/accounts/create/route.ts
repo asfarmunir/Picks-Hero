@@ -12,6 +12,7 @@ import {
 } from "@/lib/constants";
 import { dateToFullCronString } from "@/lib/utils";
 import { sendAffiliateSaleEmail } from "@/helper/sendgridapi";
+import { sendNotification } from "@/helper/notifications";
 
 function generateInvoice(account: any, newAccount: any, userId: any) {
   // Strip $ from accountPrice
@@ -89,7 +90,7 @@ async function handleReferralCommission(user: any, account: any, accountInvoice:
   });
 
   await sendAffiliateSaleEmail(referrer.email, referrer.firstName, `$${referral.orderValue}`)
-
+  await sendNotification(`You've earned a commission of $${referral.commission} from a referral.`, "UPDATE", referrer.id);
 }
 
 type cronJobTypes = "objectiveMin" | "objectiveMax" | "inactivity";

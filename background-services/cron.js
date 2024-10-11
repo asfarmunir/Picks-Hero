@@ -5,6 +5,7 @@ const {
   calculateTotalLoss,
   getTailoredObjectives,
   calculateTotalProfit,
+  sendAppNotification,
 } = require("./utils");
 const prisma = new PrismaClient();
 
@@ -81,13 +82,14 @@ const init = () => {
 // cron job fn for marking objective as fulfilled, WILL RUN ONCE 7 DAYS AFTER ACCOUNT CREATION
 const markMinObjectiveAsFulfilled = async (accountId) => {
   try {
-    await prisma.account.update({
+    const updatedAccount = await prisma.account.update({
       where: { id: accountId },
       data: {
         minBetPeriod: new Date(0), // random in the past
         minBetPeriodCompleted: true,
       },
     });
+    await sendAppNotification(updatedAccount.userId, "UPDATE", "Your minimum bet period is completed successfully!")
   } catch (error) {
     throw new Error(error);
   }
