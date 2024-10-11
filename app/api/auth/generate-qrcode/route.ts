@@ -8,7 +8,7 @@ import { AuthOptions } from "../authOptions";
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(AuthOptions);
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
         where : {
             email : session?.user?.email!
         }
@@ -21,6 +21,3 @@ return NextResponse.json({qrcode : user?.otpUrl , twofactorsecret : user?.twoFac
     );
   }
 }
-
-
-

@@ -163,8 +163,6 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
           },
         });
 
-        console.log("Billing address saved!");
-
         // Save payment card
         const existingCard = await tx.paymentCard.findFirst({
           where: {

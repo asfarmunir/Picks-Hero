@@ -105,7 +105,7 @@ const Navbar = () => {
               </div>
             )}
 
-            {!isPending && data.notifications.length === 0 && !isPending && (
+            {!isPending && data.notifications?.length === 0 && (
               <div className="flex hover:bg-[#333547]/20 items-center justify-start my-4 py-3 px-3.5">
                 <Image
                   src="/images/notification.svg"

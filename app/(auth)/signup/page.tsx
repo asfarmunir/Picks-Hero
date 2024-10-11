@@ -60,7 +60,6 @@ interface props {
   };
 }
 const page = ({ searchParams: { referrerCode } }: props) => {
-  console.log("this is the codeeeee ; ", referrerCode);
   const router = useRouter();
   const form = useForm({
     resolver: zodResolver(formSchema),

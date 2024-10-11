@@ -82,7 +82,7 @@ const formSchema = z.object({
 
 const GeneralSettings = () => {
   const { status, data: session }: any = useSession();
-  console.log("this is the user in the settings", session);
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -103,8 +103,6 @@ const GeneralSettings = () => {
         .toISOString()
         .split("T")[0];
 
-      console.log("Submitting form values:", values);
-
       const userData = {
         id: session?.user?.id,
         firstName: values.firstName,
@@ -122,7 +120,6 @@ const GeneralSettings = () => {
       );
 
       if (response.status === 200) {
-        console.log("User updated successfully:", response.data);
         toast.success("Profile updated successfully!");
       } else {
         console.error("Failed to update user", response);

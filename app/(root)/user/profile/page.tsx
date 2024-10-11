@@ -504,7 +504,7 @@ const CertificaeSection = () => {
       toast.success("Certificate sent successfully");
     },
     onError: (error: any) => {
-      console.log("Failed to send certificate", error);
+      // console.log("Failed to send certificate", error);
       toast.error("Failed to send certificate");
     },
   });

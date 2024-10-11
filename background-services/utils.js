@@ -1,3 +1,5 @@
+const BASE_URL = process.env.NODE_ENV === "production" ? "https://app.heropicks.io/" : "http://localhost:3000";
+
 const ALL_STEP_CHALLENGES = {
   minPicks: 25,
   minPickAmount: 0.025, // 2.5%
@@ -66,7 +68,7 @@ const areObjectivesComplete = (account) => {
 }
 
 async function sendBreachedEmail(status, accountId) {
-  const emailResponse = await fetch("http://localhost:3000/api/send-status-email", {
+  const emailResponse = await fetch(`${BASE_URL}/api/send-status-email`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -82,7 +84,7 @@ async function sendBreachedEmail(status, accountId) {
 }
 
 async function sendPhaseUpdateEmail(accountId, newPhase) {
-  const emailResponse = await fetch("http://localhost:3000/api/send-status-email", {
+  const emailResponse = await fetch(`${BASE_URL}/api/send-status-email`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -99,7 +101,7 @@ async function sendPhaseUpdateEmail(accountId, newPhase) {
 }
 
 async function sendFundedAccountEmail(accountId) {
-  const emailResponse = await fetch("http://localhost:3000/api/send-status-email", {
+  const emailResponse = await fetch(`${BASE_URL}/api/send-status-email`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -115,7 +117,7 @@ async function sendFundedAccountEmail(accountId) {
 }
 
 async function sendAppNotification(userId, type, message) {
-  const emailResponse = await fetch("http://localhost:3000/api/notification", {
+  const emailResponse = await fetch(`${BASE_URL}/api/notification`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -8,7 +8,6 @@ export async function POST(req: NextRequest) {
     await connectToDatabase();
     
     const { user, userId } = await req.json();
-    console.log(user, userId)
 
     try {
         await prisma.user.update({

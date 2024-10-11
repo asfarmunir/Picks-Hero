@@ -29,7 +29,7 @@ export default function TwoFactorAuthPage() {
       setQrUrl(res.data.qrcode);
       settwofactorsecret(res.data.twofactorsecret);
     } catch (error) {
-      throw error;
+      toast.error("Failed to fetch QR code");
     }
   };
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,7 +49,7 @@ export default function TwoFactorAuthPage() {
         toast.error("verificatoin failed!");
       }
     } catch (error) {
-      throw error;
+      toast.error("Failed to verify QR code");
     }
   };
 

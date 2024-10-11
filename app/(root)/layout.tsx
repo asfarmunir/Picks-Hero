@@ -18,7 +18,6 @@ import { accountStore } from "../store/account";
 const layout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const { status, data: session } = useSession();
-  console.log("this is the session : ", session, status);
 
   useEffect(() => {
     if (status === "unauthenticated") {

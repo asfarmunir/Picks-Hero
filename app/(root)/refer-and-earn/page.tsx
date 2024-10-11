@@ -35,7 +35,7 @@ const page = () => {
     return str.slice(0, num) + "...";
   };
 
-  let link = `${process.env.NODE_ENV === "production" ? "https://app.heropicks.io":"http://localhost:3000" }/signup?referrerCode=${currentUser.referralCode}`;
+  let link = `${process.env.NODE_ENV === "production" ? "https://app.pickshero.io":"http://localhost:3000" }/signup?referrerCode=${currentUser.referralCode}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(link).then(
@@ -135,7 +135,7 @@ const page = () => {
               Code:
               <span className="text-primary-50 ml-1">
                 {
-                  `${process.env.NODE_ENV === "production" ? "https://app.heropicks.io":"http://localhost:3000" }${truncateString(link, 30)}`
+                  `${process.env.NODE_ENV === "production" ? "https://app.pickshero.io":"http://localhost:3000" }${truncateString(link, 30)}`
                 }
               </span>
             </h2>

@@ -20,6 +20,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { useForm } from "react-hook-form";
 import { ColorRing } from "react-loader-spinner";
 import * as z from "zod";
+import toast from "react-hot-toast";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -48,13 +49,10 @@ const page = () => {
   }
   const router = useRouter();
   async function onSubmit(values: value) {
-    console.log("values", values);
-
     setIsLoading(true);
 
     try {
       recaptchaRef.current.reset();
-      console.log("recaptchaRef", recaptchaRef.current);
       const token = await recaptchaRef.current?.executeAsync();
       if (token) {
         const apiQuery: any = await fetch(`/api/auth/verify-captcha/${token}`);
@@ -68,7 +66,7 @@ const page = () => {
         alert("Error getting token");
       }
     } catch (error) {
-      console.log("error in handleClick ", error);
+      toast.error("Failed to verify captcha");
     }
 
     const result = await signIn("credentials", {
@@ -76,14 +74,11 @@ const page = () => {
       email: values.email,
       password: values.password,
     });
-    console.log("this is the result", result);
     if (result?.status !== 200) {
-      console.log("pushing in error");
       setToggle(!toggle);
 
       setAuthError("Incorrect credentials please try again!");
     } else {
-      console.log("pushing");
       router.push("/2fa-auth");
       setToggle(toggle);
     }
@@ -98,7 +93,7 @@ const page = () => {
   };
 
   const asyncScriptOnLoad = () => {
-    console.log("Google recaptcha loaded just fine");
+    // console.log("Google recaptcha loaded just fine");
   };
 
   return (

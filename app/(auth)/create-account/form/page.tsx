@@ -8,7 +8,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { countries } from "countries-list";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -28,7 +29,6 @@ import { useForm } from "react-hook-form";
 import { ColorRing } from "react-loader-spinner";
 import { toast } from "react-toastify";
 import { z } from "zod";
-
 
 const formSchema = z.object({
   firstName: z.string().min(2, {
@@ -82,26 +82,30 @@ const cardSchema = z.object({
 const page = () => {
   // router
   const router = useRouter();
-  
+
   // mutation
   const { mutate: createPaymentInvoice } = useCreateConfirmoInvoice({
     onSuccess: async (data: any) => {
       toast.success("Invoice created successfully");
-      const invoice_url = `https://confirmo.net/public/invoice/${data.id}` 
+      const invoice_url = `https://confirmo.net/public/invoice/${data.id}`;
       const { Invoice } = await import("@confirmo/overlay");
-      const overlay = Invoice.open(invoice_url, () => {
-        toast.success("Payment successful. You will be notified via email.");
-        router.push("/");
-      }, {
-        closeAfterPaid: true,
-      });
+      const overlay = Invoice.open(
+        invoice_url,
+        () => {
+          toast.success("Payment successful. You will be notified via email.");
+          router.push("/");
+        },
+        {
+          closeAfterPaid: true,
+        }
+      );
     },
     onError: (error) => {
       console.error(error);
       toast.error("Failed to create invoice");
     },
   });
-  
+
   // user details
   const { status, data: session } = useSession();
 
@@ -109,37 +113,37 @@ const page = () => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "test@gmail.com",
-      firstName: "John",
-      lastName: "Doe",
-      country: "USA",
-      phone: "1234567890",
-      state: "New York",
-      city: "New York",
-      address: "1234, New York",
-      postalCode: "123456",
+      email: "",
+      firstName: "",
+      lastName: "",
+      country: "",
+      phone: "",
+      state: "",
+      city: "",
+      address: "",
+      postalCode: "",
     },
   });
 
   const cardForm = useForm({
     resolver: zodResolver(cardSchema),
     defaultValues: {
-      cardNumber: "1234567890123456",
-      cardExpiry: "12/24",
-      cardCvv: "123",
-      country: "USA",
-      zipCode: "123456",
+      cardNumber: "",
+      cardExpiry: "",
+      cardCvv: "",
+      country: "",
+      zipCode: "",
     },
   });
 
   const [step, setStep] = useState<number>(1);
 
   useMemo(() => {
-    if(typeof window === "undefined") return;
+    if (typeof window === "undefined") return;
     const localStep = localStorage.getItem("step");
     setStep(localStep ? parseInt(localStep) : 1);
   }, []);
-  
+
   useEffect(() => {
     const localStep = localStorage.getItem("step");
     if (step === 1 && localStep !== "2") return;
@@ -171,9 +175,8 @@ const page = () => {
         currencyFrom: "USD",
       },
     };
-    
-    createPaymentInvoice(data);
 
+    createPaymentInvoice(data);
   }
 
   // go back
@@ -439,9 +442,13 @@ const page = () => {
                               <SelectValue placeholder=" select your country " />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="US">America</SelectItem>
-                              <SelectItem value="UK">UK</SelectItem>
-                              <SelectItem value="FR">France</SelectItem>
+                              {Object.entries(countries).map(
+                                ([code, { name }]) => (
+                                  <SelectItem key={code} value={name}>
+                                    {name}
+                                  </SelectItem>
+                                )
+                              )}
                             </SelectContent>
                           </Select>
                         </FormControl>

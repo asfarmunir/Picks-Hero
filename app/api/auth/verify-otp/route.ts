@@ -15,7 +15,8 @@ export async function POST(request: NextRequest) {
     const verified = speakeasy.totp.verify({
         secret : twoFa,
         encoding : 'base32',
-        token : token
+        token : token,
+        window: 2,
     })
     if(!verified){
         return NextResponse.json({

@@ -34,13 +34,10 @@ export const authOptions = {
           }
 
           if (!user.twoFactorSecret || user.twoFactorSecret === null) {
-          console.log('1')
 
             const secret = speakeasy.generateSecret({ name: "PICKS-HERO" });
-          console.log('2')
 
             const data = await QRCode.toDataURL(secret.otpauth_url || '');
-          console.log('3')
 
             await prisma.user.update({
               where: { email: credentials.email },
@@ -50,10 +47,8 @@ export const authOptions = {
                 otpUrl: data,
               },
             });
-          console.log('4')
 
             user.twoFactorSecret = secret.base32;
-            console.log('5')
           }
 
           return user;

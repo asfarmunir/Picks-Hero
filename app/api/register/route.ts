@@ -18,11 +18,9 @@ export async function POST(req: NextRequest) {
     let newUser;
 
     if (!referrerCode) {
-      console.log("2", referrerCode);
       const existingUser = await prisma.user.findUnique({
         where: { email },
       });
-      console.log("1", existingUser);
       if (existingUser) {
         return NextResponse.json(
           { message: "User with this email already exists" },
@@ -44,7 +42,6 @@ export async function POST(req: NextRequest) {
       const existingUser = await prisma.user.findUnique({
         where: { email },
       });
-      console.log("1", existingUser);
 
       if (existingUser) {
         return NextResponse.json(

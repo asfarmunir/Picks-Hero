@@ -35,7 +35,6 @@ const Page = () => {
 
   async function onSubmit(values: any) {
     setLoading(true);
-    console.log("this is the value : ", values);
     try {
       const response = await axios.post(
         "https://app.pickshero.io/api/auth/reset-password",
@@ -43,7 +42,6 @@ const Page = () => {
           email: values.email,
         }
       );
-      console.log("this is the response in th page : ", response);
       if (response.status === 200) {
         toast.success("A reset link has been sent to your email!");
       }

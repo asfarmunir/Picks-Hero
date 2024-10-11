@@ -25,30 +25,6 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
     
-    // Create invoice
-    console.log({
-        customerEmail,
-        invoice: {
-            amount: Number(invoice.amount.replace("$", "")),
-            currencyFrom: invoice.currencyFrom,
-        },
-        reference: JSON.stringify({
-            accountDetails: {
-                accountType: account.accountType,
-                accountSize: account.accountSize,
-                status: account.status,
-                balance: parseInt(account.accountSize.replace("K", "000")),
-                accountNumber: generateCustomId(),
-                userId: user.id,
-            },
-            billingDetails: billingDetails,
-        }),
-        settlement: {
-            description: "Settlement to BTC",
-            currencyTo: "BTC",
-        },
-        notifyUrl: `https://app.pickshero.io/api/invoice/confirm`,
-    })
     const response = await fetch("https://confirmo.net/api/v3/invoices", {
         method: "POST",
         headers: {
