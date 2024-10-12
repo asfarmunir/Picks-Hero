@@ -1,8 +1,8 @@
 // pages/api/webhook.js
+import { sendNotification } from "@/helper/notifications";
 import prisma from "@/prisma/client";
 import { AccountStatus, AccountType } from "@prisma/client";
 import crypto from "crypto";
-import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
 // Your callback password
@@ -10,18 +10,17 @@ const CALLBACK_PASSWORD = process.env.CALLBACK_PASS;
 
 // Webhook handler for payment notifications
 export async function POST(req: NextRequest) {
-  const { invoice } = await req.json();
+  const body = await req.json();
+  const { invoice } = body;
 
   try {
     // Step 1: Verify the signature
     const isValidSignature = verifySignature(
-      req.body,
+      body,
       req.headers.get("bp-signature")
     );
     
     console.log("isValidSignature", isValidSignature);
-    console.log("Request Body, ", req.body);
-    console.log("Request BP Signature, ", req.headers.get("bp-signature"));
     
     if (!isValidSignature) {
       return NextResponse.json(
@@ -65,6 +64,8 @@ function verifySignature(body: any, receivedSignature: any) {
   const bodyString = JSON.stringify(body);
   const signatureString = `${bodyString}${CALLBACK_PASSWORD}`;
 
+  console.log("Signature String: ", signatureString);
+  console.log("Callback Pass: ", CALLBACK_PASSWORD);
   // Generate SHA256 hash
   const expectedSignature = crypto
     .createHash("sha256")
@@ -77,54 +78,49 @@ function verifySignature(body: any, receivedSignature: any) {
   return expectedSignature === receivedSignature;
 }
 
-// Mock function to create a user account (you can replace this with actual logic)
 async function createUserAccount(reference: any) {
-  const session = await getServerSession();
-  if (!session) {
-    throw new Error("Unauthorized");
-  }
-
-  const user = await prisma.user.findFirst({
-    where: {
-      email: session.user?.email,
-    },
-  });
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
   const accountDetails = JSON.parse(reference).accountDetails;
   const billinDetails = JSON.parse(reference).billingDetails;
 
-  const newAcc = await prisma.account.create({
-    data: {
-      accountType: accountDetails.accountType as AccountType,
-      accountSize: accountDetails.accountSize as string,
-      status: accountDetails.status as AccountStatus,
-      balance: accountDetails.balance as number,
-      accountNumber: accountDetails.accountNumber as string,
-      userId: accountDetails.userId,
-      minBetPeriod: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-      maxBetPeriod: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-    },
+  const newAcc = await prisma.$transaction(async (prisma) => {
+    // Step 1: Create the new account
+    const createdAccount = await prisma.account.create({
+      data: {
+        accountType: accountDetails.accountType as AccountType,
+        accountSize: accountDetails.accountSize as string,
+        status: accountDetails.status as AccountStatus,
+        balance: accountDetails.balance as number,
+        accountNumber: accountDetails.accountNumber as string,
+        userId: accountDetails.userId,
+        minBetPeriod: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+        maxBetPeriod: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+      },
+    });
+  
+    // Step 2: Create the billing address linked to the account
+    await prisma.billingAddress.create({
+      data: {
+        address: billinDetails.address,
+        city: billinDetails.city,
+        country: billinDetails.country,
+        email: billinDetails.email,
+        firstName: billinDetails.firstName,
+        lastName: billinDetails.lastName,
+        phone: billinDetails.phone,
+        zipCode: billinDetails.postalCode,
+        state: billinDetails.state,
+        accountId: createdAccount.id, // Link to the newly created account
+      },
+    });
+  
+    return createdAccount; // Return the created account
   });
 
-  await prisma.billingAddress.create({
-    data: {
-      address: billinDetails.address,
-      city: billinDetails.city,
-      country: billinDetails.country,
-      email: billinDetails.email,
-      firstName: billinDetails.firstName,
-      lastName: billinDetails.lastName,
-      phone: billinDetails.phone,
-      zipCode: billinDetails.postalCode,
-      state: billinDetails.state,
-      id: user.id,
-      accountId: newAcc.id,
-    },
-  });
-
+  try {
+    await sendNotification("Account created successfully", "UPDATE", accountDetails.userId);
+  } catch (error) {
+    console.error("Error sending notification:", error);
+  }
+  
   return newAcc;
 }

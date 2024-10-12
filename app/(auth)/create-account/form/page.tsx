@@ -27,7 +27,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ColorRing } from "react-loader-spinner";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -36,9 +36,6 @@ const formSchema = z.object({
   }),
   lastName: z.string().min(2, {
     message: "Last name should be atleast 2 characters",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address",
   }),
   country: z.string().min(2, {
     message: "Please enter a your country name",
@@ -84,7 +81,7 @@ const page = () => {
   const router = useRouter();
 
   // mutation
-  const { mutate: createPaymentInvoice } = useCreateConfirmoInvoice({
+  const { mutate: createPaymentInvoice, isPending: loadingInvoice } = useCreateConfirmoInvoice({
     onSuccess: async (data: any) => {
       toast.success("Invoice created successfully");
       const invoice_url = `https://confirmo.net/public/invoice/${data.id}`;
@@ -92,7 +89,7 @@ const page = () => {
       const overlay = Invoice.open(
         invoice_url,
         () => {
-          toast.success("Payment successful. You will be notified via email.");
+          toast.success("Payment under review. You will be notified via email once payment is confirmed");
           router.push("/");
         },
         {
@@ -113,7 +110,6 @@ const page = () => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
       firstName: "",
       lastName: "",
       country: "",
@@ -168,8 +164,8 @@ const page = () => {
             : "",
         status: "CHALLENGE",
       },
-      billingDetails: values,
-      customerEmail: values.email,
+      billingDetails: { ...values, email: session?.user?.email },
+      customerEmail: session?.user?.email,
       invoice: {
         amount: accountPrice,
         currencyFrom: "USD",
@@ -386,26 +382,21 @@ const page = () => {
                   />
                 </div>
                 <div className="flex flex-col md:flex-row items-center justify-between w-full gap-2 md:gap-4">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem className="mb-4 w-full">
-                        <FormLabel className="block 2xl:text-[1.05rem] text-gray-300  mb-2.5">
-                          Email
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            required
-                            placeholder="enter your email"
-                            {...field}
-                            className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <FormItem className="mb-4 w-full">
+                    <FormLabel className="block 2xl:text-[1.05rem] text-gray-300  mb-2.5">
+                      Email
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        required
+                        readOnly
+                        placeholder="enter your email"
+                        defaultValue={session?.user?.email}
+                        className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                   <FormField
                     control={form.control}
                     name="phone"
@@ -555,9 +546,9 @@ const page = () => {
                   <Button
                     type="submit"
                     className="bg-[#333547] mb-4 inner-shadow border border-[#28B601] w-full rounded-xl hover:bg-slate-600 mt-4 text-white font-semibold py-6 px-10 2xl:text-lg   focus:outline-none focus:shadow-outline"
-                    disabled={isPending}
+                    disabled={loadingInvoice}
                   >
-                    {isPending ? (
+                    {loadingInvoice ? (
                       <ColorRing
                         visible={true}
                         height="35"
