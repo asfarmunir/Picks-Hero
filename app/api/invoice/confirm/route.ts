@@ -18,6 +18,11 @@ export async function POST(req: NextRequest) {
       req.body,
       req.headers.get("bp-signature")
     );
+    
+    console.log("isValidSignature", isValidSignature);
+    console.log("Request Body, ", req.body);
+    console.log("Request BP Signature, ", req.headers.get("bp-signature"));
+    
     if (!isValidSignature) {
       return NextResponse.json(
         { message: "Invalid signature" },
