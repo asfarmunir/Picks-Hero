@@ -171,8 +171,7 @@ const page = () => {
       billingDetails: values,
       customerEmail: values.email,
       invoice: {
-        // amount: accountPrice,
-        amount: "$1",
+        amount: accountPrice,
         currencyFrom: "USD",
       },
     };
@@ -221,8 +220,7 @@ const page = () => {
             ? "THREE_STEP"
             : "",
         status: "CHALLENGE",
-        // accountPrice: accountPrice,
-        accountPrice: `$1`,
+        accountPrice: accountPrice,
       },
       billingDetails: billing,
       card: values,
