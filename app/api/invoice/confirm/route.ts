@@ -72,6 +72,8 @@ function verifySignature(body: any, receivedSignature: any) {
     .digest("hex");
 
   // Compare with the signature received in the webhook header
+  console.log("Expected Signature: ", expectedSignature);
+  console.log("Received Signature: ", receivedSignature);
   return expectedSignature === receivedSignature;
 }
 
