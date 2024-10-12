@@ -220,7 +220,8 @@ const page = () => {
             ? "THREE_STEP"
             : "",
         status: "CHALLENGE",
-        accountPrice: accountPrice,
+        // accountPrice: accountPrice,
+        accountPrice: `$1`,
       },
       billingDetails: billing,
       card: values,
