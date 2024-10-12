@@ -171,7 +171,8 @@ const page = () => {
       billingDetails: values,
       customerEmail: values.email,
       invoice: {
-        amount: accountPrice,
+        // amount: accountPrice,
+        amount: "$1",
         currencyFrom: "USD",
       },
     };
