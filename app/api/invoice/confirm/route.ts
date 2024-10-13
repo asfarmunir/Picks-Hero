@@ -11,7 +11,7 @@ const CALLBACK_PASSWORD = process.env.CALLBACK_PASS;
 // Webhook handler for payment notifications
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { invoice } = body;
+  // const { invoice } = body;
 
   try {
     // Step 1: Verify the signature
@@ -30,9 +30,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Step 2: Check if the payment is successful
-    if (invoice.status === "PAID") {
+    if (body.status === "PAID") {
       // Extract user info (if necessary) from the invoice
-      const reference = invoice.reference;
+      const reference = body.reference;
 
       try {
         // Create the user account
