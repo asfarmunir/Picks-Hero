@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Step 2: Check if the payment is successful
-    if (body.status === "PAID") {
+    if (body.status === "paid") {
       // Extract user info (if necessary) from the invoice
       const reference = body.reference;
 
