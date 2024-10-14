@@ -27,7 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
 import { accountStore } from "@/app/store/account";
 import { getOriginalAccountValue } from "@/lib/utils";
@@ -39,6 +39,7 @@ import { useSearchParams } from "next/navigation";
 import { LoaderCircle, LoaderCircleIcon } from "lucide-react";
 import { useSendCertificate } from "@/app/hooks/useSendCertificate";
 import toast from "react-hot-toast";
+import { usePostAvatar } from "@/app/hooks/usePostAvatar";
 
 interface Account {
   id: string;
@@ -126,10 +127,11 @@ const page = () => {
               <button
                 key={index}
                 className={`border  
-             px-5 text-xs 2xl:text-lg py-2 flex-grow md:flex-grow-0 rounded-full ${tab === curr.name
-                    ? "border-[#52FC18] bg-[#1A5B0B]"
-                    : " border-gray-700 text-[#848BAC] border-2"
-                  } font-semibold uppercase`}
+             px-5 text-xs 2xl:text-lg py-2 flex-grow md:flex-grow-0 rounded-full ${
+               tab === curr.name
+                 ? "border-[#52FC18] bg-[#1A5B0B]"
+                 : " border-gray-700 text-[#848BAC] border-2"
+             } font-semibold uppercase`}
                 onClick={() => changeTab(curr.name)}
               >
                 {curr.name}
@@ -162,7 +164,36 @@ const page = () => {
 export default page;
 
 const ProfileSection = () => {
-  const { data, isPending } = useGetUser();
+  const imageRef = useRef<HTMLInputElement>(null);
+  const [image, setImage] = useState<File | null>(null);
+  const { data, isPending, refetch } = useGetUser();
+
+  const handleImageUpload = () => {
+    imageRef.current?.click();
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (file) {
+      setImage(file);
+    }
+  };
+
+  const { mutate: postAvatar, isPending: uploading } = usePostAvatar({
+    onSuccess: (data) => {
+      toast.success("Avatar uploaded successfully");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error("Failed to upload avatar");
+    },
+  });
+
+  useEffect(() => {
+    if (image) {
+      postAvatar(image);
+    }
+  }, [image]);
 
   if (isPending) {
     return (
@@ -177,9 +208,19 @@ const ProfileSection = () => {
     <>
       <div className=" p-4 shadow-inner shadow-gray-700 rounded-xl flex items-start justify-between bg-[#272837]">
         <div className="flex gap-3 items-center">
-          <div className="w-16 h-16 rounded-full bg-gray-700 border border-gray-500 flex justify-center items-center text-xl text-gray-400">
-            {`${data.user?.firstName[0]}${data.user?.lastName[0]}`}
-          </div>
+          {data?.user?.avatar ? (
+            <Image
+              src={data.user.avatar}
+              alt="User"
+              width={50}
+              height={50}
+              className="rounded-full object-cover !w-12 !h-12"
+            />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-gray-700 border border-gray-500 flex justify-center items-center text-xl text-gray-400">
+              {`${data.user?.firstName[0]}${data.user?.lastName[0]}`}
+            </div>
+          )}
           <div className="flex flex-col">
             <p className=" text-sm font-bold text-[#848BAC] uppercase">
               Username
@@ -189,9 +230,20 @@ const ProfileSection = () => {
             </h3>
           </div>
         </div>
-        <button className=" inline-flex uppercase text-xs text-[#52FC18] items-center gap-2">
+        <input
+          type="file"
+          className="hidden"
+          ref={imageRef}
+          accept="image/*"
+          onChange={handleImageChange}
+        />
+        <button
+          disabled={uploading}
+          className=" inline-flex uppercase text-xs text-[#52FC18] items-center gap-2 disabled:opacity-20"
+          onClick={handleImageUpload}
+        >
           <Image src="/icons/edit.png" alt="Edit" width={16} height={16} />
-          Edit Avatar
+          {uploading ? "Uploading..." : "Edit Avatar"}
         </button>
       </div>
       <div className=" p-4 shadow-inner shadow-gray-700 rounded-xl flex items-start justify-between bg-[#272837]">
@@ -232,11 +284,12 @@ const ProfileSection = () => {
           <div
             className="bg-[#00B544] shadow-inner rounded-md shadow-gray-500 h-full"
             style={{
-              width: `${(data?.user?.picksWon /
-                profileLevels[data?.user?.profileLevel as ProfileLevel]
-                  ?.target) *
+              width: `${
+                (data?.user?.picksWon /
+                  profileLevels[data?.user?.profileLevel as ProfileLevel]
+                    ?.target) *
                 100
-                }%`,
+              }%`,
             }}
           ></div>
         </div>
@@ -339,21 +392,77 @@ const ProfileSection = () => {
   );
 };
 
+type sortFilterType = "ALL" | "FUNDED" | "BREACHED";
 const AccountsSection = ({ accounts }: { accounts: Account[] }) => {
+  const [tab, setTab] = useState("hide");
+  const [sortFilter, setSortFilter] = useState<sortFilterType>("ALL");
+  // Sort Filter
+  const changeSortFilter = (sortFilter: sortFilterType) => {
+    setSortFilter(sortFilter);
+  };
+
+  // Filter
+  const filteredData = useMemo(() => {
+    // Tab Filer
+    const filteredData = accounts?.filter((account: any) => {
+      if (tab === "show") {
+        return (
+          account.status === "BREACHED" ||
+          account.status === "FUNDED" ||
+          account.status === "CHALLENGE"
+        );
+      } else if (tab === "hide") {
+        return account.status !== "BREACHED";
+      }
+      return true;
+    });
+
+    // Sort Filter
+    if (sortFilter === "FUNDED") {
+      return filteredData?.filter(
+        (account: any) => account.status === "FUNDED"
+      );
+    } else if (sortFilter === "BREACHED") {
+      return filteredData?.filter(
+        (account: any) => account.status === "BREACHED"
+      );
+    } else {
+      return filteredData;
+    }
+  }, [tab, accounts, sortFilter]);
+
   return (
     <div className=" w-full space-y-5 bg-primary-100 py-6 px-2 md:p-3  rounded-2xl 2xl:p-5 mb-8">
       <div className=" w-full flex flex-col gap-3 md:flex-row items-center  justify-between">
         <h2 className=" 2xl:text-xl font-bold"> OVERVIEW</h2>
         <div className="flex flex-col md:flex-row items-center gap-2 w-full md:w-fit">
-          <button className=" bg-[#272837]   justify-center  w-full md:w-fit text-xs 2xl:text-base px-3.5 py-2 rounded-xl inline-flex items-center gap-2">
-            <Image
-              src="/icons/check.png"
-              alt="Arrow Icon"
-              width={18}
-              height={18}
-            />
-            SHOW BREACHED
-          </button>
+          {tab !== "show" ? (
+            <button
+              onClick={() => setTab("show")}
+              className=" bg-[#272837]   justify-center  w-full md:w-fit text-sm px-3.5 py-2 rounded-xl inline-flex items-center gap-2"
+            >
+              <Image
+                src="/icons/check.png"
+                alt="Arrow Icon"
+                width={18}
+                height={18}
+              />
+              SHOW BREACHED
+            </button>
+          ) : (
+            <button
+              onClick={() => setTab("hide")}
+              className=" bg-[#272837]   justify-center  w-full md:w-fit text-sm px-3.5 py-2 rounded-xl inline-flex items-center gap-2"
+            >
+              <Image
+                src="/icons/hide.png"
+                alt="Arrow Icon"
+                width={18}
+                height={18}
+              />
+              HIDE INACTIVE
+            </button>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger className=" bg-[#272837]    justify-center w-full md:w-fit  text-xs 2xl:text-base px-3.5 py-2 rounded-xl inline-flex items-center gap-2">
               <Image
@@ -365,14 +474,14 @@ const AccountsSection = ({ accounts }: { accounts: Account[] }) => {
               SORT
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-48  bg-[#181926] text-white border-none  mt-1  p-3 rounded-lg text-xs 2xl:text-base">
-              <DropdownMenuItem className="flex items-center justify-between ">
+              <DropdownMenuItem className="flex items-center justify-between " onClick={()=>changeSortFilter("ALL")} >
                 <p>ALL</p>
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="flex items-center justify-between ">
+              <DropdownMenuItem className="flex items-center justify-between " onClick={()=>changeSortFilter("FUNDED")}>
                 <p>FUNDED</p>
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center justify-between ">
+              <DropdownMenuItem className="flex items-center justify-between " onClick={()=>changeSortFilter("BREACHED")}>
                 <p>BREACHED</p>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -392,10 +501,10 @@ const AccountsSection = ({ accounts }: { accounts: Account[] }) => {
         </div>
       </div>
       <div className="flex flex-col  items-center gap-4">
-        {accounts?.length === 0 && (
-          <p className="text-white text-center">No accounts found</p>
+        {filteredData?.length === 0 && (
+          <p className="text-white text-center capitalize">No {sortFilter} accounts found</p>
         )}
-        {accounts?.map((account, index) => (
+        {filteredData?.map((account, index) => (
           <div
             key={index}
             className=" bg-[#272837] p-3 pb-8 md:p-7  overflow-hidden relative  rounded-2xl w-full  flex flex-col gap-1 "
@@ -481,7 +590,7 @@ const PayoutsSection = () => {
               $
               {account.status === "FUNDED"
                 ? account.totalFundedAmount -
-                getOriginalAccountValue(account) || 0
+                    getOriginalAccountValue(account) || 0
                 : 0}
               <span className="text-sm text-gray-400">
                 You can only request payount once in 14 days.
@@ -509,14 +618,13 @@ const CertificaeSection = () => {
   });
 
   const filteredAccounts = useMemo(() => {
-    return (
-      accounts.filter(
-        (account: Account) => account.status === "FUNDED"
-      )
-    )
-  }, [accounts])
+    return accounts.filter((account: Account) => account.status === "FUNDED");
+  }, [accounts]);
 
-  const handleSendCertificate = (certificateType: CertificateType, accountId?: string) => {
+  const handleSendCertificate = (
+    certificateType: CertificateType,
+    accountId?: string
+  ) => {
     sendCertificate({
       certificateType,
       accountId: accountId || account.id,
@@ -526,7 +634,11 @@ const CertificaeSection = () => {
   return (
     <div
       className={`w-full flex flex-col space-y-5  py-6  md:p-3  rounded-2xl 2xl:p-5  mb-8 transition-opacity
-      ${isPending ? " opacity-20 pointer-events-none " : " opacity-100 pointer-events-auto"}
+      ${
+        isPending
+          ? " opacity-20 pointer-events-none "
+          : " opacity-100 pointer-events-auto"
+      }
     `}
     >
       <div
@@ -549,50 +661,46 @@ const CertificaeSection = () => {
           Click to get your certificate
         </p>
         <Dialog>
-          {
-            !fetchingAccounts && filteredAccounts.length > 0 ? (
-              <DialogTrigger className=" flex items-center px-4 py-1.5  shadow-inner shadow-gray-600 rounded-xl gap-1 text-white font-bold 2xl:text-lg ">
-                <Image
-                  src="/icons/certificate.svg"
-                  alt="Arrow Icon"
-                  width={20}
-                  height={20}
-                />
-                VIEW {filteredAccounts.length} CERTIFICATES
-              </DialogTrigger>
-            ) : !fetchingAccounts && filteredAccounts.length === 0 ? (
-              <div className="flex items-center px-4 py-1.5  shadow-inner shadow-gray-600 rounded-xl gap-1 text-white font-bold 2xl:text-lg">
-                No funded accounts
-              </div>
-            ) : (
-              <div className="flex items-center px-4 py-1.5  shadow-inner shadow-gray-600 rounded-xl gap-1 text-white font-bold 2xl:text-lg">
-                <LoaderCircleIcon className="animate-spin mr-2" />
-                Loading...
-              </div>
-            )
-          }
+          {!fetchingAccounts && filteredAccounts.length > 0 ? (
+            <DialogTrigger className=" flex items-center px-4 py-1.5  shadow-inner shadow-gray-600 rounded-xl gap-1 text-white font-bold 2xl:text-lg ">
+              <Image
+                src="/icons/certificate.svg"
+                alt="Arrow Icon"
+                width={20}
+                height={20}
+              />
+              VIEW {filteredAccounts.length} CERTIFICATES
+            </DialogTrigger>
+          ) : !fetchingAccounts && filteredAccounts.length === 0 ? (
+            <div className="flex items-center px-4 py-1.5  shadow-inner shadow-gray-600 rounded-xl gap-1 text-white font-bold 2xl:text-lg">
+              No funded accounts
+            </div>
+          ) : (
+            <div className="flex items-center px-4 py-1.5  shadow-inner shadow-gray-600 rounded-xl gap-1 text-white font-bold 2xl:text-lg">
+              <LoaderCircleIcon className="animate-spin mr-2" />
+              Loading...
+            </div>
+          )}
           <DialogContent className=" bg-primary-100 text-white p-8 border-none">
             <DialogHeader>
               <DialogTitle className=" text-xl font-bold mb-4">
                 FUNDED CERTIFICATES
               </DialogTitle>
               <div className="flex flex-col gap-2 w-full">
-                {
-                  filteredAccounts.length === 0 && (
-                    <div className=" p-4 bg-[#272837] rounded-xl py-8 shadow-inner shadow-gray-700 flex items-center justify-between">
-                      <div className="flex items-center ">
-                        <div className="w-12 h-12 rounded-xl mr-2.5 bg-gray-700"></div>
-                        <div className=" flex flex-col  gap-1">
-                          <h2 className=" text-sm md:text-base font-bold">
-                            No funded accounts
-                          </h2>
-                        </div>
+                {filteredAccounts.length === 0 && (
+                  <div className=" p-4 bg-[#272837] rounded-xl py-8 shadow-inner shadow-gray-700 flex items-center justify-between">
+                    <div className="flex items-center ">
+                      <div className="w-12 h-12 rounded-xl mr-2.5 bg-gray-700"></div>
+                      <div className=" flex flex-col  gap-1">
+                        <h2 className=" text-sm md:text-base font-bold">
+                          No funded accounts
+                        </h2>
                       </div>
                     </div>
-                  )
-                }
-                {
-                  !fetchingAccounts && filteredAccounts.map((account: Account) => (
+                  </div>
+                )}
+                {!fetchingAccounts &&
+                  filteredAccounts.map((account: Account) => (
                     <div className=" p-4 bg-[#272837] rounded-xl py-8 shadow-inner shadow-gray-700 flex items-center justify-between">
                       <div className="flex items-center ">
                         <div className=" flex flex-col  gap-1">
@@ -601,19 +709,24 @@ const CertificaeSection = () => {
                           </h2>
                         </div>
                       </div>
-                      <button className="inline-flex items-center gap-2" onClick={() => handleSendCertificate("FUNDED", account.id)} >
+                      <button
+                        className="inline-flex items-center gap-2"
+                        onClick={() =>
+                          handleSendCertificate("FUNDED", account.id)
+                        }
+                      >
                         <Image
                           src="/icons/download.png"
                           alt="Arrow Icon"
                           width={15}
                           height={15}
                         />
-                        <p className="text-xs text-[#52FC18] font-bold">DOWNLOAD</p>
+                        <p className="text-xs text-[#52FC18] font-bold">
+                          DOWNLOAD
+                        </p>
                       </button>
                     </div>
-                  )
-                  )
-                }
+                  ))}
               </div>
             </DialogHeader>
           </DialogContent>

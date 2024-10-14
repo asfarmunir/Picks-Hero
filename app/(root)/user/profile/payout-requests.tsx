@@ -186,7 +186,7 @@ export default function FundedPayoutRequestsTable({
             </TableRow>
           )}
 
-          {!isPending && !currentHistory && (
+          {!isPending && currentHistory.length===0 && (
             <TableRow>
               <TableCell colSpan={5} className="text-center">
                 No payout history found.
