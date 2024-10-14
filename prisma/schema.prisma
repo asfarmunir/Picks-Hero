@@ -57,6 +57,7 @@ model User {
 
   address     String?
   dateOfBirth DateTime?
+  avatar      String?
 
   agreement1 Boolean @default(false)
   agreement2 Boolean @default(false)
