@@ -60,7 +60,7 @@ const init = () => {
   );
 
   // Schedule the CRON job to run every second
-  cron.schedule('* * * * *', async () => {
+  cron.schedule('0 * * * *', async () => {
     const accounts = await prisma.account.findMany();
   
     accounts.forEach(async (account) => {

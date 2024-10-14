@@ -82,7 +82,7 @@ const page = () => {
                 width={20}
                 height={20}
               />
-              PAYOUTS EXAPLINED
+              PAYOUTS EXPLAINED
             </button>
             <Link
               href={"/user/profile?tab=payouts"}

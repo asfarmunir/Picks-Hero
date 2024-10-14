@@ -209,7 +209,7 @@ const Page = () => {
         <h2 className=" text-xl md:text-3xl font-bold uppercase">
           REFUNDABLE FEE
         </h2>
-        <p className="text-xs inline-flex w-full bg-[#52FC18]/15 rounded-xl gap-3 border border-[#52FC18]/20 py-2 px-3 items-center 2xl:text-sm text-[#F74418] font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+        {/* <p className="text-xs inline-flex w-full bg-[#52FC18]/15 rounded-xl gap-3 border border-[#52FC18]/20 py-2 px-3 items-center 2xl:text-sm text-[#F74418] font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
           <Image
             src="/icons/refund.svg"
             alt="line"
@@ -220,11 +220,13 @@ const Page = () => {
           <span className=" text-[#52FC18]">
             20% OFF Summer Sale. Ending Friday
           </span>
-        </p>
+        </p> */}
         <div className=" w-full bg-[#181926]  flex flex-col md:flex-row md:items-center gap-6 px-8 py-7 rounded-xl shadow-inner shadow-gray-800">
           <div className="flex flex-col items-center ">
             <h2 className=" 2xl:text-4xl text-3xl  tracking-wide font-black ">
-              <span className=" line-through text-[#848BAC]  ">$2000</span>{" "}
+              <span className=" line-through text-[#848BAC]  ">
+                ${ (parseInt(activeAccountSize.price.replace("$", ""))*0.12 + parseInt(activeAccountSize.price.replace("$", ""))).toFixed(0)}
+              </span>{" "}
               {"  "}
               { activeAccountSize.price }
             </h2>

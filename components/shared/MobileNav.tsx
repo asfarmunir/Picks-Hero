@@ -13,8 +13,11 @@ import { HiMenu } from "react-icons/hi";
 import { navlinks } from "@/lib/constants";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { User } from "@prisma/client";
 const MobileNav = () => {
   const pathname = usePathname();
+  const user = useSession()?.data?.user as User;
   return (
     <div className=" w-full bg-primary  flex md:hidden items-center justify-between px-3.5 py-4">
       <Image src="/images/logo.svg" alt="Logo" width={160} height={160} />
@@ -45,7 +48,7 @@ const MobileNav = () => {
                     Welcome Back!
                   </p>
                   <h3 className="text-lg 2xl:text-xl font-bold text-white">
-                    Adrew Smith
+                    {`${user?.firstName} ${user?.lastName}`}
                   </h3>
                 </div>
               </div>

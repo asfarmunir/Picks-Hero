@@ -10,7 +10,7 @@ export default function PayoutsExplained({
 }) {
   return (
     <Dialog open={open} onOpenChange={()=>setOpen(false)} >
-        <DialogTitle>Payouts Explained</DialogTitle>
+        <DialogTitle hidden>Payouts Explained</DialogTitle>
         <DialogContent className='bg-primary-100 border-none text-white w-5/6 sm:w-full max-w-lg' >
             <h1 className='uppercase font-semibold text-lg'>Payouts request timer</h1>
             <p className='text-gray-400'>

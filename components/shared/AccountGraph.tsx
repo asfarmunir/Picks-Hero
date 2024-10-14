@@ -63,12 +63,11 @@ const Example = ({ filter }: { filter: "1M" | "3M" | "24H" | "7D" }) => {
           dataKey="date"
           tick={{
             fill: "#737897",
-            fontSize: 12, // Adjust the font size
+            fontSize: 8, // Adjust the font size
             dy: 10, // Adjust vertical position
             dx: 15, // Adjust horizontal position
           }}
           tickLine={{ stroke: "#737897" }}
-          interval={6}
           allowDuplicatedCategory
         />
         <YAxis
