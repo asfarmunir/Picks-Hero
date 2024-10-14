@@ -194,12 +194,14 @@ const page = () => {
 
   useEffect(() => {
     if (data) {
-      const sportsArray: string[] = data.map(
-        (sport: any) => sport.group as string
-      );
+      const filteredData: string[] = data.filter(
+        (sport: any) => !sport.key.includes("_winner")
+      )
+      const sportsArray = filteredData.map((sport: any) => sport.group);
       const uniqueSports = sportsArray.filter(function (item, pos) {
         return sportsArray.indexOf(item) == pos;
       });
+      console.log(uniqueSports);
       setSports(uniqueSports);
 
       const leaguesArray = data.filter(
@@ -601,20 +603,24 @@ const LeaguesTabs = ({
 }) => {
   return (
     <div className="flex mt-4 items-center pb-3 max-w-full overflow-auto justify-evenly md:justify-start gap-2 mb-3">
-      {leagues?.map((league: any, index: number) => (
-        <button
-          key={index}
-          className={`border  
-              px-4 text-xs 2xl:text-lg py-2 flex w-full md:w-fit justify-center font-bold text-nowrap  items-center flex-grow md:flex-grow-0 rounded-full ${
-                leagueTab === league.key
-                  ? "border-[#52FC18] bg-[#1A5B0B]"
-                  : " border-gray-700 text-[#848BAC] border-2"
-              } uppercase`}
-          onClick={() => changeLeagueTab(league.key)}
-        >
-          {league.title}
-        </button>
-      ))}
+      {leagues?.map((league: any, index: number) => 
+      ((league.title as string).toLowerCase()).includes("winner")
+       ? null 
+       :(
+          <button
+            key={index}
+            className={`border  
+                px-4 text-xs 2xl:text-lg py-2 flex w-full md:w-fit justify-center font-bold text-nowrap  items-center flex-grow md:flex-grow-0 rounded-full ${
+                  leagueTab === league.key
+                    ? "border-[#52FC18] bg-[#1A5B0B]"
+                    : " border-gray-700 text-[#848BAC] border-2"
+                } uppercase`}
+            onClick={() => changeLeagueTab(league.key)}
+          >
+            {league.title}
+          </button>
+        )
+      )}
     </div>
   );
 };

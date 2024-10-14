@@ -16,7 +16,6 @@ export async function POST(request: NextRequest) {
         secret : twoFa,
         encoding : 'base32',
         token : token,
-        window: 2,
     })
     if(!verified){
         return NextResponse.json({

@@ -143,7 +143,7 @@ const GamesTable = ({ sportKey, oddsFormat, addBet, bets, setBets, setFeaturedMa
 
   if (!games) {
     return (
-      <div className="w-full h-full justify-center items-center font-bold">
+      <div className="w-full h-full justify-center items-center font-bold text-center">
         <p>Failed to fetch games.</p>
       </div>
     );

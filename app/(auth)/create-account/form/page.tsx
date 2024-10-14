@@ -40,9 +40,7 @@ const formSchema = z.object({
   country: z.string().min(2, {
     message: "Please enter a your country name",
   }),
-  phone: z.string().min(10, {
-    message: "Please enter a valid phone number",
-  }),
+  phone: z.string(),
   state: z.string().min(2, {
     message: "Please enter a valid state name",
   }),
@@ -408,6 +406,7 @@ const page = () => {
                         <FormControl>
                           <Input
                             required
+                            type="number"
                             placeholder=" enter your phone number"
                             {...field}
                             className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "

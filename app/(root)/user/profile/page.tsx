@@ -27,7 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { TiArrowLeft, TiArrowRight } from "react-icons/ti";
 import { accountStore } from "@/app/store/account";
 import { getOriginalAccountValue } from "@/lib/utils";
@@ -36,7 +36,7 @@ import { signOut, useSession } from "next-auth/react";
 import { CertificateType, User } from "@prisma/client";
 import FundedPayoutRequestsTable from "./payout-requests";
 import { useSearchParams } from "next/navigation";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, LoaderCircleIcon } from "lucide-react";
 import { useSendCertificate } from "@/app/hooks/useSendCertificate";
 import toast from "react-hot-toast";
 
@@ -126,11 +126,10 @@ const page = () => {
               <button
                 key={index}
                 className={`border  
-             px-5 text-xs 2xl:text-lg py-2 flex-grow md:flex-grow-0 rounded-full ${
-               tab === curr.name
-                 ? "border-[#52FC18] bg-[#1A5B0B]"
-                 : " border-gray-700 text-[#848BAC] border-2"
-             } font-semibold uppercase`}
+             px-5 text-xs 2xl:text-lg py-2 flex-grow md:flex-grow-0 rounded-full ${tab === curr.name
+                    ? "border-[#52FC18] bg-[#1A5B0B]"
+                    : " border-gray-700 text-[#848BAC] border-2"
+                  } font-semibold uppercase`}
                 onClick={() => changeTab(curr.name)}
               >
                 {curr.name}
@@ -233,12 +232,11 @@ const ProfileSection = () => {
           <div
             className="bg-[#00B544] shadow-inner rounded-md shadow-gray-500 h-full"
             style={{
-              width: `${
-                (data?.user?.picksWon /
-                  profileLevels[data?.user?.profileLevel as ProfileLevel]
-                    ?.target) *
+              width: `${(data?.user?.picksWon /
+                profileLevels[data?.user?.profileLevel as ProfileLevel]
+                  ?.target) *
                 100
-              }%`,
+                }%`,
             }}
           ></div>
         </div>
@@ -483,7 +481,7 @@ const PayoutsSection = () => {
               $
               {account.status === "FUNDED"
                 ? account.totalFundedAmount -
-                    getOriginalAccountValue(account) || 0
+                getOriginalAccountValue(account) || 0
                 : 0}
               <span className="text-sm text-gray-400">
                 You can only request payount once in 14 days.
@@ -499,6 +497,7 @@ const PayoutsSection = () => {
 
 const CertificaeSection = () => {
   const account = accountStore((state) => state.account);
+  const { data: accounts, isPending: fetchingAccounts } = useGetAccounts();
   const { mutate: sendCertificate, isPending } = useSendCertificate({
     onSuccess: () => {
       toast.success("Certificate sent successfully");
@@ -509,10 +508,18 @@ const CertificaeSection = () => {
     },
   });
 
-  const handleSendCertificate = (certificateType: CertificateType) => {
+  const filteredAccounts = useMemo(() => {
+    return (
+      accounts.filter(
+        (account: Account) => account.status === "FUNDED"
+      )
+    )
+  }, [accounts])
+
+  const handleSendCertificate = (certificateType: CertificateType, accountId?: string) => {
     sendCertificate({
       certificateType,
-      accountId: account.id,
+      accountId: accountId || account.id,
     });
   };
 
@@ -525,7 +532,6 @@ const CertificaeSection = () => {
       <div
         className=" bg-[#272837] shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center  overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 "
         role="button"
-        onClick={() => handleSendCertificate("FUNDED")}
       >
         <div className=" flex items-center gap-2">
           <Image
@@ -540,81 +546,74 @@ const CertificaeSection = () => {
           </p>
         </div>
         <p className=" uppercase tracking-wide text-[#848BAC] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-          You have no certificates to display
+          Click to get your certificate
         </p>
         <Dialog>
-          <DialogTrigger className=" flex items-center px-4 py-1.5  shadow-inner shadow-gray-600 rounded-xl gap-1 text-white font-bold 2xl:text-lg ">
-            <Image
-              src="/icons/certificate.svg"
-              alt="Arrow Icon"
-              width={20}
-              height={20}
-            />
-            VIEW 3 CERTIFICATES
-          </DialogTrigger>
+          {
+            !fetchingAccounts && filteredAccounts.length > 0 ? (
+              <DialogTrigger className=" flex items-center px-4 py-1.5  shadow-inner shadow-gray-600 rounded-xl gap-1 text-white font-bold 2xl:text-lg ">
+                <Image
+                  src="/icons/certificate.svg"
+                  alt="Arrow Icon"
+                  width={20}
+                  height={20}
+                />
+                VIEW {filteredAccounts.length} CERTIFICATES
+              </DialogTrigger>
+            ) : !fetchingAccounts && filteredAccounts.length === 0 ? (
+              <div className="flex items-center px-4 py-1.5  shadow-inner shadow-gray-600 rounded-xl gap-1 text-white font-bold 2xl:text-lg">
+                No funded accounts
+              </div>
+            ) : (
+              <div className="flex items-center px-4 py-1.5  shadow-inner shadow-gray-600 rounded-xl gap-1 text-white font-bold 2xl:text-lg">
+                <LoaderCircleIcon className="animate-spin mr-2" />
+                Loading...
+              </div>
+            )
+          }
           <DialogContent className=" bg-primary-100 text-white p-8 border-none">
             <DialogHeader>
               <DialogTitle className=" text-xl font-bold mb-4">
                 FUNDED CERTIFICATES
               </DialogTitle>
               <div className="flex flex-col gap-2 w-full">
-                <div className=" p-4 bg-[#272837] rounded-xl py-8 shadow-inner shadow-gray-700 flex items-center justify-between">
-                  <div className="flex items-center ">
-                    <div className="w-12 h-12 rounded-xl mr-2.5 bg-gray-700"></div>
-                    <div className=" flex flex-col  gap-1">
-                      <h2 className=" text-sm md:text-base font-bold">
-                        CERTIFICATE TITLE
-                      </h2>
+                {
+                  filteredAccounts.length === 0 && (
+                    <div className=" p-4 bg-[#272837] rounded-xl py-8 shadow-inner shadow-gray-700 flex items-center justify-between">
+                      <div className="flex items-center ">
+                        <div className="w-12 h-12 rounded-xl mr-2.5 bg-gray-700"></div>
+                        <div className=" flex flex-col  gap-1">
+                          <h2 className=" text-sm md:text-base font-bold">
+                            No funded accounts
+                          </h2>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="inline-flex items-center gap-2">
-                    <Image
-                      src="/icons/download.png"
-                      alt="Arrow Icon"
-                      width={15}
-                      height={15}
-                    />
-                    <p className="text-xs text-[#52FC18] font-bold">DOWNLOAD</p>
-                  </div>
-                </div>
-                <div className=" p-4 bg-[#272837] rounded-xl py-8 shadow-inner shadow-gray-700 flex items-center justify-between">
-                  <div className="flex items-center ">
-                    <div className="w-12 h-12 rounded-xl mr-2.5 bg-gray-700"></div>
-                    <div className=" flex flex-col  gap-1">
-                      <h2 className=" text-sm md:text-base font-bold">
-                        CERTIFICATE TITLE
-                      </h2>
+                  )
+                }
+                {
+                  !fetchingAccounts && filteredAccounts.map((account: Account) => (
+                    <div className=" p-4 bg-[#272837] rounded-xl py-8 shadow-inner shadow-gray-700 flex items-center justify-between">
+                      <div className="flex items-center ">
+                        <div className=" flex flex-col  gap-1">
+                          <h2 className=" text-sm md:text-base font-bold">
+                            {account.accountNumber}
+                          </h2>
+                        </div>
+                      </div>
+                      <button className="inline-flex items-center gap-2" onClick={() => handleSendCertificate("FUNDED", account.id)} >
+                        <Image
+                          src="/icons/download.png"
+                          alt="Arrow Icon"
+                          width={15}
+                          height={15}
+                        />
+                        <p className="text-xs text-[#52FC18] font-bold">DOWNLOAD</p>
+                      </button>
                     </div>
-                  </div>
-                  <div className="inline-flex items-center gap-2">
-                    <Image
-                      src="/icons/download.png"
-                      alt="Arrow Icon"
-                      width={15}
-                      height={15}
-                    />
-                    <p className="text-xs text-[#52FC18] font-bold">DOWNLOAD</p>
-                  </div>
-                </div>
-                <div className=" p-4 bg-[#272837] rounded-xl py-8 shadow-inner shadow-gray-700 flex items-center justify-between">
-                  <div className="flex items-center ">
-                    <div className="w-12 h-12 rounded-xl mr-2.5 bg-gray-700"></div>
-                    <div className=" flex flex-col  gap-1">
-                      <h2 className=" text-sm md:text-base font-bold">
-                        CERTIFICATE TITLE
-                      </h2>
-                    </div>
-                  </div>
-                  <div className="inline-flex items-center gap-2">
-                    <Image
-                      src="/icons/download.png"
-                      alt="Arrow Icon"
-                      width={15}
-                      height={15}
-                    />
-                    <p className="text-xs text-[#52FC18] font-bold">DOWNLOAD</p>
-                  </div>
-                </div>
+                  )
+                  )
+                }
               </div>
             </DialogHeader>
           </DialogContent>
@@ -638,7 +637,7 @@ const CertificaeSection = () => {
           </p>
         </div>
         <p className=" uppercase tracking-wide text-[#848BAC] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-          You have no certificates to display
+          Click to get your certificate
         </p>
       </div>
       <div
@@ -659,7 +658,7 @@ const CertificaeSection = () => {
           </p>
         </div>
         <p className=" uppercase tracking-wide text-[#848BAC] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-          You have no certificates to display
+          Click to get your certificate
         </p>
       </div>
       <div
@@ -680,7 +679,7 @@ const CertificaeSection = () => {
           </p>
         </div>
         <p className=" uppercase tracking-wide text-[#848BAC] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
-          You have no certificates to display
+          Click to get your certificate
         </p>
       </div>
     </div>

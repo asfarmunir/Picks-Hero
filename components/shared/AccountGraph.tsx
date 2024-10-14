@@ -13,48 +13,6 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// const data = [
-//   { name: "June 1", uv: 1200 },
-//   { name: "June 2", uv: 2100 },
-//   { name: "June 3", uv: 1500 },
-//   { name: "June 4", uv: 3900 },
-//   { name: "June 5", uv: 2000 },
-//   { name: "June 6", uv: 2800 },
-//   { name: "June 7", uv: 4200 },
-//   { name: "June 8", uv: 2600 },
-//   { name: "June 9", uv: 3200 },
-//   { name: "June 10", uv: 5000 },
-//   { name: "June 11", uv: 4700 },
-//   { name: "June 12", uv: 2900 },
-//   { name: "June 13", uv: 2400 },
-//   { name: "June 14", uv: 4300 },
-//   { name: "June 15", uv: 3300 },
-//   { name: "June 16", uv: 2900 },
-//   { name: "June 17", uv: 5000 },
-//   { name: "June 18", uv: 4200 },
-//   { name: "June 19", uv: 3800 },
-//   { name: "June 20", uv: 3500 },
-//   { name: "June 21", uv: 2700 },
-//   { name: "June 17", uv: 4000 },
-//   { name: "June 18", uv: 5000 },
-//   { name: "June 19", uv: 3800 },
-//   { name: "June 20", uv: 3500 },
-//   { name: "June 21", uv: 3700 },
-//   { name: "June 17", uv: 3000 },
-//   { name: "June 18", uv: 5000 },
-//   { name: "June 19", uv: 3800 },
-//   { name: "June 20", uv: 3500 },
-//   { name: "June 21", uv: 3700 },
-//   { name: "June 22", uv: 2100 },
-//   { name: "June 23", uv: 4200 },
-//   { name: "June 24", uv: 4500 },
-//   { name: "June 25", uv: 3900 },
-//   { name: "June 26", uv: 4200 },
-//   { name: "June 27", uv: 4700 },
-//   { name: "June 28", uv: 4900 },
-//   { name: "June 29", uv: 5000 },
-// ];
-
 interface GraphDataType {
   date: string;
   balance: number;
@@ -68,17 +26,16 @@ const Example = ({ filter }: { filter: "1M" | "3M" | "24H" | "7D" }) => {
     if (!data) return [];
     switch (filter) {
       case "1M":
-        return data.slice(-30);
+        return data.slice(-720);
       case "3M":
-        return data.slice(-90);
+        return data.slice(-2160);
       case "7D":
-        return data.slice(-7);
+        return data.slice(-168);
       case "24H":
         return data.slice(-24);
       default:
         return data;
-    }
-    
+    }    
   }, [data, filter])
   
   if (isPending) {

@@ -59,8 +59,8 @@ const init = () => {
     }
   );
 
-  // Schedule the CRON job to run at 12 AM UTC every day
-  cron.schedule('0 0 * * *', async () => {
+  // Schedule the CRON job to run every second
+  cron.schedule('* * * * *', async () => {
     const accounts = await prisma.account.findMany();
   
     accounts.forEach(async (account) => {

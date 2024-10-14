@@ -18,14 +18,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import axios from "axios";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { ServerSession } from "mongodb";
 
 const formSchema = z.object({
   firstName: z
@@ -49,10 +41,19 @@ const formSchema = z.object({
 
   phone: z
     .string()
-    .min(10, {
-      message: "Please enter a valid phone number",
-    })
     .optional(),
+  address: z
+    .string()
+    .optional(),
+  // dateOfBirth: z
+  //   .string()
+  //   .min(2, {
+  //     message: "Please enter a valid date of birth",
+  //   })
+  //   .optional(),
+});
+
+const passFormSchema = z.object({
   password: z
     .string()
     .min(8, {
@@ -65,20 +66,7 @@ const formSchema = z.object({
       message: "Please enter password again",
     })
     .optional(),
-
-  address: z
-    .string()
-    .min(4, {
-      message: "Please enter a valid address",
-    })
-    .optional(),
-  dateOfBirth: z
-    .string()
-    .min(2, {
-      message: "Please enter a valid date of birth",
-    })
-    .optional(),
-});
+})
 
 const GeneralSettings = () => {
   const { status, data: session }: any = useSession();
@@ -86,22 +74,28 @@ const GeneralSettings = () => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: session?.user?.email || "",
-      firstName: session?.user?.firstName || "",
-      lastName: session?.user?.lastName || "",
-      phone: session?.user?.phoneNumber || "",
-      address: session?.user?.address || "",
-      dateOfBirth: session?.user?.dateOfBirth || "",
-      password: "",
-      confirmPassword: "",
+      email: session?.user?.email || undefined,
+      firstName: session?.user?.firstName || undefined,
+      lastName: session?.user?.lastName || undefined,
+      phone: session?.user?.phoneNumber || undefined,
+      address: session?.user?.address || undefined,
+      dateOfBirth: session?.user?.dateOfBirth || undefined,
     },
   });
 
+  const passForm = useForm({
+    resolver: zodResolver(passFormSchema),
+    defaultValues: {
+      password: "",
+      confirmPassword: "",
+    }
+  })
+
   async function onSubmit(values: any) {
     try {
-      const formattedDate = new Date(values.dateOfBirth)
-        .toISOString()
-        .split("T")[0];
+      // const formattedDate = new Date(values.dateOfBirth)
+      //   .toISOString()
+      //   .split("T")[0];
 
       const userData = {
         id: session?.user?.id,
@@ -127,9 +121,29 @@ const GeneralSettings = () => {
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("An error occurred while updating your profile.");
+      toast.error("An error occurred while updating your profile.");
     }
   }
+
+  async function changePassword(values: any) {
+    try {
+      const response = await axios.patch(
+        `/api/general-setting`,
+        values
+      );
+
+      if (response.status === 200) {
+        toast.success("Password updated successfully!");
+      } else {
+        console.error("Failed to update user", response);
+        toast.error("Failed to update password. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast.error("An error occurred while updating your password.");
+    }
+  }
+
   return (
     <div className="flex flex-col  gap-4 my-6  w-full  ">
       <Form {...form}>
@@ -268,53 +282,60 @@ const GeneralSettings = () => {
             >
               <span className=" capitalize">Save Changes</span>
             </Button>
-            <hr className="border-gray-700 my-6" />
-            <div className="flex flex-col md:flex-row items-center justify-between w-full gap-2 md:gap-4">
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem className="mb-4 w-full">
-                    <FormLabel className="block 2xl:text-[1.05rem] text-gray-300  mb-2.5">
-                      Password
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter your password"
-                        {...field}
-                        type="password"
-                        className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem className="mb-4 w-full">
-                    <FormLabel className="block 2xl:text-[1.05rem] text-gray-300  mb-2.5">
-                      Confirm Password
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Re-enter your password"
-                        type="password"
-                        {...field}
-                        className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button
-                type="submit"
-                className="bg-[#333547] inner-shadow border w-full md:w-fit border-[#28B601]  rounded-xl hover:bg-slate-600 mt-4 text-white font-semibold p-6  2xl:text-lg   focus:outline-none focus:shadow-outline"
-              >
-                {/* {isLoading ? (
+          </form>
+        </div>
+      </Form>
+      <hr className="border-gray-700 my-6" />
+      <Form {...passForm} >
+
+        <form className="flex flex-col md:flex-row items-center justify-between w-full gap-2 md:gap-4"
+          onSubmit={passForm.handleSubmit(changePassword)}
+        >
+          <FormField
+            control={passForm.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem className="mb-4 w-full">
+                <FormLabel className="block 2xl:text-[1.05rem] text-gray-300  mb-2.5">
+                  Password
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter your password"
+                    {...field}
+                    type="password"
+                    className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={passForm.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem className="mb-4 w-full">
+                <FormLabel className="block 2xl:text-[1.05rem] text-gray-300  mb-2.5">
+                  Confirm Password
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Re-enter your password"
+                    type="password"
+                    {...field}
+                    className="  focus:ring-green-600/50 focus:ring-1 outline-offset-1  shadow  focus:border mr-0 md:mr-6  rounded-lg bg-[#333547]/60 w-full p-4  2xl:py-6 2xl:px-6 text-[#848BAC] leading-tight "
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button
+            type="submit"
+            className="bg-[#333547] inner-shadow border w-full md:w-fit border-[#28B601]  rounded-xl hover:bg-slate-600 mt-4 text-white font-semibold p-6  2xl:text-lg   focus:outline-none focus:shadow-outline"
+          >
+            {/* {isLoading ? (
                     <ColorRing
                       visible={true}
                       height="35"
@@ -328,15 +349,13 @@ const GeneralSettings = () => {
                         "#ffffff",
                         "#ffffff",
                         "#ffffff",
-                      ]}
-                    />
-                  ) : ( */}
-                <span className=" capitalize">RESET</span>
-                {/* )} */}
-              </Button>
-            </div>
-          </form>
-        </div>
+                        ]}
+                        />
+                        ) : ( */}
+            <span className=" capitalize">RESET</span>
+            {/* )} */}
+          </Button>
+        </form>
       </Form>
     </div>
   );
