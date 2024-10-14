@@ -20,7 +20,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 import { useForm } from "react-hook-form";
 import { ColorRing } from "react-loader-spinner";
 import * as z from "zod";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -58,12 +58,12 @@ const page = () => {
         const apiQuery: any = await fetch(`/api/auth/verify-captcha/${token}`);
         const { success } = await apiQuery.json();
         if (success) {
-          alert("Form submitted successfully");
+          toast.success("Form submitted successfully");
         } else {
-          alert("Form submission failed");
+          toast.error("Form submission failed");
         }
       } else {
-        alert("Error getting token");
+        toast.error("Error getting token");
       }
     } catch (error) {
       toast.error("Failed to verify captcha");
