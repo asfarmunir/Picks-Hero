@@ -5,6 +5,8 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { navlinks } from "@/lib/constants";
 import { useSession } from "next-auth/react";
+import { userStore } from "@/app/store/user";
+import { useGetUser } from "@/app/hooks/useGetUser";
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -14,14 +16,13 @@ const Sidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
 
-  const user: any = useSession()?.data?.user;
+  const user = userStore((state) => state.user);
 
   return (
     <>
       <div
         className={`relative bg-primary border-r border-gray-800 h-full  transition-all duration-300 
-          ${
-            isCollapsed ? "w-[5%] lg:w-[6%]" : "w-[22%] ease-in-out 2xl:w-[24%]"
+          ${isCollapsed ? "w-[5%] lg:w-[6%]" : "w-[22%] ease-in-out 2xl:w-[24%]"
           } 
           min-h-screen hidden lg:flex flex-col gap-7 2xl:gap-10 p-4`}
       >
@@ -47,7 +48,9 @@ const Sidebar = () => {
                 Welcome Back!
               </p>
               <h3 className="text-lg 2xl:text-2xl font-bold text-white">
-                {`${user?.firstName} ${user?.lastName}`}
+
+                {`${user.firstName} ${user.lastName}`}
+
               </h3>
             </div>
           </div>
@@ -59,10 +62,9 @@ const Sidebar = () => {
               key={index}
               href={link.link}
               className={`inline-flex  font-bold uppercase text-sm  2xl:text-lg 
-                ${
-                  pathname === link.link
-                    ? "text-white inner-left-shadow p-3 2xl:p-4 bg-[#181926] rounded-2xl"
-                    : "text-[#848BAC] p-3 2xl:p-4  rounded-lg hover:bg-[#27283197]"
+                ${pathname === link.link
+                  ? "text-white inner-left-shadow p-3 2xl:p-4 bg-[#181926] rounded-2xl"
+                  : "text-[#848BAC] p-3 2xl:p-4  rounded-lg hover:bg-[#27283197]"
                 }
                 items-center gap-2 ${isCollapsed ? "justify-center" : ""}`}
             >
@@ -85,11 +87,10 @@ const Sidebar = () => {
             href={"/help"}
             className={`inline-flex   font-bold uppercase text-sm  2xl:text-lg 
               ${isCollapsed ? " ml-0.5 w-fit" : "w-full"}
-                ${
-                  pathname === "/help"
-                    ? "text-white inner-left-shadow p-3 2xl:p-4 bg-[#181926] rounded-2xl"
-                    : "text-[#848BAC] p-3 2xl:p-4  rounded-2xl hover:bg-[#27283197]"
-                }
+                ${pathname === "/help"
+                ? "text-white inner-left-shadow p-3 2xl:p-4 bg-[#181926] rounded-2xl"
+                : "text-[#848BAC] p-3 2xl:p-4  rounded-2xl hover:bg-[#27283197]"
+              }
                 items-center gap-2 ${isCollapsed ? "justify-center" : ""}`}
           >
             <Image
@@ -110,9 +111,8 @@ const Sidebar = () => {
               src={"/icons/collapse.svg"}
               alt={isCollapsed ? "Expand" : "Collapse"}
               width={16}
-              className={` ${
-                isCollapsed && " rotate-180"
-              } transition-all duration-500 2xl:w-[20px]`}
+              className={` ${isCollapsed && " rotate-180"
+                } transition-all duration-500 2xl:w-[20px]`}
               height={16}
               priority
             />

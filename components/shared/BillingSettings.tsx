@@ -65,7 +65,7 @@ const BillingSettings = () => {
     const startIndex = (currentPage - 1) * PER_PAGE;
     const endIndex = startIndex + PER_PAGE;
     return billingHistory?.invoices?.slice(startIndex, endIndex);
-  }, [billingHistory]);
+  }, [billingHistory, currentPage, PER_PAGE]);
 
   return (
     <div className=" w-full space-y-5 bg-primary-100 py-6  md:p-3  rounded-2xl 2xl:p-5 mb-8">

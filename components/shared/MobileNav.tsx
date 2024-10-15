@@ -1,23 +1,19 @@
 "use client";
-import React from "react";
+import { userStore } from "@/app/store/user";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
-  SheetTitle,
-  SheetTrigger,
+  SheetTrigger
 } from "@/components/ui/sheet";
-import Image from "next/image";
-import { HiMenu } from "react-icons/hi";
 import { navlinks } from "@/lib/constants";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { User } from "@prisma/client";
+import { HiMenu } from "react-icons/hi";
 const MobileNav = () => {
   const pathname = usePathname();
-  const user = useSession()?.data?.user as User;
+  const user = userStore((state) => state.user);
   return (
     <div className=" w-full bg-primary  flex md:hidden items-center justify-between px-3.5 py-4">
       <Image src="/images/logo.svg" alt="Logo" width={160} height={160} />

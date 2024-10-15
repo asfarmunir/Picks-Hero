@@ -121,7 +121,7 @@ const Navbar = () => {
 
             {!isPending &&
               data.notifications?.map((notification: Notification) => (
-                <div className="flex hover:bg-[#333547]/20 items-center justify-start my-4 py-3 px-3.5">
+                <div key={notification.id} className="flex hover:bg-[#333547]/20 items-center justify-start my-4 py-3 px-3.5">
                   <Image
                     src="/icons/marked.png"
                     alt="Client"

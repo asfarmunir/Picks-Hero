@@ -40,6 +40,7 @@ import { LoaderCircle, LoaderCircleIcon } from "lucide-react";
 import { useSendCertificate } from "@/app/hooks/useSendCertificate";
 import toast from "react-hot-toast";
 import { usePostAvatar } from "@/app/hooks/usePostAvatar";
+import { useGetFundedPayout } from "@/app/hooks/useGetFundedPayout";
 
 interface Account {
   id: string;
@@ -127,11 +128,10 @@ const page = () => {
               <button
                 key={index}
                 className={`border  
-             px-5 text-xs 2xl:text-lg py-2 flex-grow md:flex-grow-0 rounded-full ${
-               tab === curr.name
-                 ? "border-[#52FC18] bg-[#1A5B0B]"
-                 : " border-gray-700 text-[#848BAC] border-2"
-             } font-semibold uppercase`}
+             px-5 text-xs 2xl:text-lg py-2 flex-grow md:flex-grow-0 rounded-full ${tab === curr.name
+                    ? "border-[#52FC18] bg-[#1A5B0B]"
+                    : " border-gray-700 text-[#848BAC] border-2"
+                  } font-semibold uppercase`}
                 onClick={() => changeTab(curr.name)}
               >
                 {curr.name}
@@ -284,12 +284,11 @@ const ProfileSection = () => {
           <div
             className="bg-[#00B544] shadow-inner rounded-md shadow-gray-500 h-full"
             style={{
-              width: `${
-                (data?.user?.picksWon /
-                  profileLevels[data?.user?.profileLevel as ProfileLevel]
-                    ?.target) *
+              width: `${(data?.user?.picksWon /
+                profileLevels[data?.user?.profileLevel as ProfileLevel]
+                  ?.target) *
                 100
-              }%`,
+                }%`,
             }}
           ></div>
         </div>
@@ -474,14 +473,14 @@ const AccountsSection = ({ accounts }: { accounts: Account[] }) => {
               SORT
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-48  bg-[#181926] text-white border-none  mt-1  p-3 rounded-lg text-xs 2xl:text-base">
-              <DropdownMenuItem className="flex items-center justify-between " onClick={()=>changeSortFilter("ALL")} >
+              <DropdownMenuItem className="flex items-center justify-between " onClick={() => changeSortFilter("ALL")} >
                 <p>ALL</p>
               </DropdownMenuItem>
 
-              <DropdownMenuItem className="flex items-center justify-between " onClick={()=>changeSortFilter("FUNDED")}>
+              <DropdownMenuItem className="flex items-center justify-between " onClick={() => changeSortFilter("FUNDED")}>
                 <p>FUNDED</p>
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center justify-between " onClick={()=>changeSortFilter("BREACHED")}>
+              <DropdownMenuItem className="flex items-center justify-between " onClick={() => changeSortFilter("BREACHED")}>
                 <p>BREACHED</p>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -590,7 +589,7 @@ const PayoutsSection = () => {
               $
               {account.status === "FUNDED"
                 ? account.totalFundedAmount -
-                    getOriginalAccountValue(account) || 0
+                getOriginalAccountValue(account) || 0
                 : 0}
               <span className="text-sm text-gray-400">
                 You can only request payount once in 14 days.
@@ -606,6 +605,7 @@ const PayoutsSection = () => {
 
 const CertificaeSection = () => {
   const account = accountStore((state) => state.account);
+  const { data: payoutHistory, isPending: fetchingPayoutHistory } = useGetFundedPayout(account.id);
   const { data: accounts, isPending: fetchingAccounts } = useGetAccounts();
   const { mutate: sendCertificate, isPending } = useSendCertificate({
     onSuccess: () => {
@@ -633,17 +633,15 @@ const CertificaeSection = () => {
 
   return (
     <div
-      className={`w-full flex flex-col space-y-5  py-6  md:p-3  rounded-2xl 2xl:p-5  mb-8 transition-opacity
-      ${
-        isPending
+      className={`w-full flex flex-col space-y-5 py-6  md:p-3  rounded-2xl 2xl:p-5  mb-8 transition-opacity
+      ${isPending
           ? " opacity-20 pointer-events-none "
           : " opacity-100 pointer-events-auto"
-      }
+        }
     `}
     >
-      <div
-        className=" bg-[#272837] shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center  overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 "
-        role="button"
+      <button
+        className=" bg-[#272837] shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center  overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3"
       >
         <div className=" flex items-center gap-2">
           <Image
@@ -731,11 +729,11 @@ const CertificaeSection = () => {
             </DialogHeader>
           </DialogContent>
         </Dialog>
-      </div>
-      <div
-        className=" bg-[#272837] shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 "
-        role="button"
-        onClick={() => handleSendCertificate("PAYOUT")}
+      </button>
+      <button
+        className=" bg-[#272837] shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 disabled:opacity-20 disabled:cursor-not-allowed"
+        disabled={!(account.status === "FUNDED" && payoutHistory.length > 0)}
+        onClick={() => account.status === "FUNDED" && payoutHistory.length > 0 && handleSendCertificate("PAYOUT")}
       >
         <div className=" flex items-center gap-2">
           <Image
@@ -752,11 +750,12 @@ const CertificaeSection = () => {
         <p className=" uppercase tracking-wide text-[#848BAC] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
           Click to get your certificate
         </p>
-      </div>
-      <div
-        className=" bg-[#272837] shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 "
-        role="button"
-        onClick={() => handleSendCertificate("LIFETIME_PAYOUT")}
+      </button>
+
+      <button
+        className=" bg-[#272837] shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 disabled:opacity-20 disabled:cursor-not-allowed"
+        disabled={!(account.status === "FUNDED" && payoutHistory.length > 0)}
+        onClick={() => account.status === "FUNDED" && payoutHistory.length > 0 && handleSendCertificate("LIFETIME_PAYOUT")}
       >
         <div className=" flex items-center gap-2">
           <Image
@@ -773,7 +772,7 @@ const CertificaeSection = () => {
         <p className=" uppercase tracking-wide text-[#848BAC] mb-3 mt-4 md:mt-0 2xl:text-lg font-semibold">
           Click to get your certificate
         </p>
-      </div>
+      </button>
       <div
         className=" bg-[#272837]  shadow-inner shadow-gray-700 p-3 pb-8 md:p-7 text-center overflow-hidden relative min-h-32 2xl:min-h-44 items-center rounded-2xl w-full  flex flex-col gap-3 "
         role="button"
