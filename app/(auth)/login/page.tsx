@@ -55,7 +55,12 @@ const page = () => {
       recaptchaRef.current.reset();
       const token = await recaptchaRef.current?.executeAsync();
       if (token) {
-        const apiQuery: any = await fetch(`/api/auth/verify-captcha/${token}`);
+        const apiQuery: any = await fetch(`/api/auth/verify-captcha/${token}`,{
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
         const { success } = await apiQuery.json();
         if (success) {
           toast.success("Form submitted successfully");
