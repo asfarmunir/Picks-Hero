@@ -12,5 +12,6 @@ export const postAvatar = async (image: File) => {
         console.log(data);
     } else {
         console.error('Failed to upload the file');
+        throw new Error('Failed to upload the file');
     }
 }

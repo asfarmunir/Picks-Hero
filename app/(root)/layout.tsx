@@ -14,25 +14,35 @@ import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useGetAccounts } from "../hooks/useGetAccounts";
 import { accountStore } from "../store/account";
+import { useGetUser } from "../hooks/useGetUser";
+import { userStore } from "../store/user";
 
 const layout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const { status, data: session } = useSession();
 
+  // User Details
+  const { data: user, isPending: loadingUser } = useGetUser();
+  const updateUser = userStore((state) => state.setUser);
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/api/auth/signin");
     }
   }, [status, router]);
 
+  useEffect(()=>{
+    if (!loadingUser && user) {
+      updateUser(user.user);
+      console.log(user)
+    }
+  }, [loadingUser, user, updateUser])
+
   // Account store
   const updateAccount = accountStore((state) => state.setAccount);
 
   // User Account
   const { data: accounts, isPending } = useGetAccounts();
-
   const [hasAccount, setHasAccount] = useState(true);
-
   const pathname = usePathname();
   useEffect(() => {
     if (accounts && !isPending) {
@@ -43,9 +53,8 @@ const layout = ({ children }: { children: React.ReactNode }) => {
       setHasAccount(false);
     }
   }, [accounts, isPending, pathname]);
-
   
-
+  // Dashboard Locking
   useEffect(() => {
     if (!hasAccount) {
       router.push("/");

@@ -9,6 +9,7 @@ import prisma from "@/prisma/client";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
+const MAX_BET_AMPLITUDE = 0.1;
 export async function POST(req: NextRequest) {
   // connect to database
   await connectToDatabase();
@@ -104,6 +105,14 @@ export async function POST(req: NextRequest) {
   // reject if account balance is less than bet.pick
   if (account.balance < bet.pick) {
     return NextResponse.json({ error: "Insufficient funds" }, { status: 400 });
+  }
+
+  // reject if account balance is less than 10% of original balance
+  if ((account.balance - bet.pick ) < accountValue * MAX_BET_AMPLITUDE) {
+    return NextResponse.json(
+      { error: "Exceeded max of 10%" },
+      { status: 400 }
+    );
   }
 
   // select if bet already exists

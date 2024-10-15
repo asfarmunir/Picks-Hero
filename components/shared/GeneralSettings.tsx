@@ -18,6 +18,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import axios from "axios";
+import { accountStore } from "@/app/store/account";
+import { userStore } from "@/app/store/user";
 
 const formSchema = z.object({
   firstName: z
@@ -69,6 +71,7 @@ const passFormSchema = z.object({
 })
 
 const GeneralSettings = () => {
+  const updateUser = userStore((state) => state.setUser);
   const { status, data: session }: any = useSession();
 
   const form = useForm({
@@ -115,6 +118,7 @@ const GeneralSettings = () => {
 
       if (response.status === 200) {
         toast.success("Profile updated successfully!");
+        updateUser(response.data.user)
       } else {
         console.error("Failed to update user", response);
         toast.error("Failed to update profile. Please try again.");
@@ -129,7 +133,10 @@ const GeneralSettings = () => {
     try {
       const response = await axios.patch(
         `/api/general-setting`,
-        values
+        {
+          id: session?.user?.id,
+          ...values
+        }
       );
 
       if (response.status === 200) {
