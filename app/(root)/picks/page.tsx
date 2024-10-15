@@ -489,7 +489,7 @@ const page = () => {
                     selectedBets.length > 1 ? "text-white" : "text-primary-200"
                   }`}
                 >
-                  combination
+                  parlay
                 </button>
               </div>
             </div>
