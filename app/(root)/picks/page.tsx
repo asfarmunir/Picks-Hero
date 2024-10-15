@@ -85,6 +85,11 @@ const page = () => {
           : bet.odds;
       overallOdds *= decimalOdds;
     });
+    
+    // single bet
+    if (selectedBets.length === 1) {
+      return ( selectedBets[0].pick + (selectedBets[0].pick * (overallOdds - 1))).toFixed(2);
+    }
 
     // For parlays
     let totalBetAmount = 0;
