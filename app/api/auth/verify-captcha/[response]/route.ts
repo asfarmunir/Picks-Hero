@@ -17,7 +17,11 @@ export async function POST(req: NextRequest) {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: `secret=${RECAPTCHA_SECRET}&response=${response}`,
+      // `secret=${RECAPTCHA_SECRET}&response=${response}`
+      body: JSON.stringify({
+        secret: RECAPTCHA_SECRET,
+        response,
+      }),
     });
 
     const apiResponse = await verificationResponse.json();

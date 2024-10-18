@@ -64,7 +64,10 @@ const BillingSettings = () => {
   const paginatedHistory = useMemo(() => {
     const startIndex = (currentPage - 1) * PER_PAGE;
     const endIndex = startIndex + PER_PAGE;
-    return billingHistory?.invoices?.slice(startIndex, endIndex);
+    const completelyBilledHistory = billingHistory?.invoices?.filter(
+      (invoice: any) => invoice.status === "paid"
+    );
+    return completelyBilledHistory?.invoices?.slice(startIndex, endIndex);
   }, [billingHistory, currentPage, PER_PAGE]);
 
   return (
@@ -140,7 +143,7 @@ const BillingSettings = () => {
                 </TableCell>
               </TableRow>
             )}
-            {!loadingInvoices && paginatedHistory?.length === 0 && (
+            {!loadingInvoices && !paginatedHistory && (
               <TableRow className=" border-none">
                 <TableCell
                   colSpan={4}

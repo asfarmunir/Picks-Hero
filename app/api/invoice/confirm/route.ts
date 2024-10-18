@@ -37,6 +37,16 @@ export async function POST(req: NextRequest) {
       try {
         // Create the user account
         await createUserAccount(reference);
+
+        await prisma.accountInvoices.updateMany({
+          where: {
+            invoiceId: body.invoiceId, 
+          },
+          data: {
+            status: "paid",
+          }
+        })
+
       } catch (error) {
         console.error("Error creating user account:", error);
         return NextResponse.json({ message: "Server error" }, { status: 500 });
@@ -112,7 +122,7 @@ async function createUserAccount(reference: any) {
         accountId: createdAccount.id, // Link to the newly created account
       },
     });
-  
+    
     return createdAccount; // Return the created account
   });
 
