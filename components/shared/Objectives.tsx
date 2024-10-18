@@ -130,8 +130,8 @@ const Objectives = () => {
                 {account.balance - getOriginalAccountValue(account) < 0
                   ? 0
                   : (
-                      account.balance - getOriginalAccountValue(account)
-                    ).toFixed(2)}{" "}
+                    account.balance - getOriginalAccountValue(account)
+                  ).toFixed(2)}{" "}
                 / $
                 {getOriginalAccountValue(account) *
                   ALL_STEP_CHALLENGES.profitTarget}{" "}
@@ -145,20 +145,22 @@ const Objectives = () => {
             <p className=" text-green-600 font-thin text-sm">
               {(account.balance - getOriginalAccountValue(account) < 0
                 ? 0
-                : (account.balance - getOriginalAccountValue(account)) /
-                  getOriginalAccountValue(account)) * 100}{" "}
+                : ((account.balance - getOriginalAccountValue(account)) /
+                getOriginalAccountValue(account)) * 100).toFixed(2)}{" "}
               %
             </p>
             <div className=" w-36 h-4 bg-[#393C53] rounded-sm border-gray-700">
               <div
                 className="h-full bg-[#00B544] rounded-sm shadow-inner shadow-gray-700"
                 style={{
-                  width: `${
-                    (account.balance - getOriginalAccountValue(account) < 0
+                  width: `${(account.balance - getOriginalAccountValue(account) < 0
                       ? 0
-                      : (account.balance - getOriginalAccountValue(account)) /
-                        getOriginalAccountValue(account)) * 100
-                  }%`,
+                      : ((account.balance - getOriginalAccountValue(account)) /
+                        getOriginalAccountValue(account)) * 100) > 100 ? 100 : (
+                      (account.balance - getOriginalAccountValue(account)) /
+                      getOriginalAccountValue(account) * 100
+                    )
+                    }%`,
                 }}
               ></div>
             </div>
@@ -195,14 +197,13 @@ const Objectives = () => {
               <div
                 className="h-full bg-[#F74418] rounded-sm shadow-inner shadow-gray-700 "
                 style={{
-                  width: `${
-                    (account.dailyLoss / getOriginalAccountValue(account)) *
+                  width: `${(account.dailyLoss / getOriginalAccountValue(account)) *
                       100 >
-                    100
+                      100
                       ? 100
                       : (account.dailyLoss / getOriginalAccountValue(account)) *
-                        100
-                  }%`,
+                      100
+                    }%`,
                 }}
               ></div>
             </div>
@@ -235,9 +236,8 @@ const Objectives = () => {
               <div
                 className="h-full bg-[#F74418] rounded-sm shadow-inner shadow-gray-700 "
                 style={{
-                  width: `${
-                    ((account.totalLoss / getOriginalAccountValue(account)) * 100) > 100 ? 100 : (account.totalLoss / getOriginalAccountValue(account)) * 100
-                  }%`,
+                  width: `${((account.totalLoss / getOriginalAccountValue(account)) * 100) > 100 ? 100 : (account.totalLoss / getOriginalAccountValue(account)) * 100
+                    }%`,
                 }}
               ></div>
             </div>
@@ -262,15 +262,14 @@ const Objectives = () => {
           </div>
           <div className=" hidden md:flex flex-col items-end gap-2">
             <p className=" text-green-600 font-thin text-sm">
-              {((account.picks / ALL_STEP_CHALLENGES.minPicks) * 100) > 100 ? 100 : (account.picks / ALL_STEP_CHALLENGES.minPicks) * 100 }%
+              {((account.picks / ALL_STEP_CHALLENGES.minPicks) * 100) > 100 ? 100 : (account.picks / ALL_STEP_CHALLENGES.minPicks) * 100}%
             </p>
             <div className=" w-36 h-4 bg-[#393C53] rounded-sm border-gray-700">
               <div
                 className="h-full bg-[#00B544] rounded-sm shadow-inner shadow-gray-700 "
                 style={{
-                  width: `${
-                    ((account.picks / ALL_STEP_CHALLENGES.minPicks) * 100) > 100 ? 100 : (account.picks / ALL_STEP_CHALLENGES.minPicks) * 100
-                  }%`,
+                  width: `${((account.picks / ALL_STEP_CHALLENGES.minPicks) * 100) > 100 ? 100 : (account.picks / ALL_STEP_CHALLENGES.minPicks) * 100
+                    }%`,
                 }}
               ></div>
             </div>

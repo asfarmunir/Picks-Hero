@@ -1,4 +1,4 @@
-import { sendAccountBreachedEmail, sendFundedAccountEmail, sendPhaseUpdateEmail } from "@/helper/sendgridapi";
+import { sendAccountBreachedEmail, sendFundedAccountEmail, sendPhaseUpdateEmail, sendPickResultEmail } from "@/helper/sendgridapi";
 import { connectToDatabase } from "@/lib/database";
 import prisma from "@/prisma/client";
 import { NextRequest, NextResponse } from "next/server";
@@ -38,7 +38,12 @@ export async function POST(req: NextRequest) {
             await sendFundedAccountEmail(user.email, `${user.firstName}`, account.accountNumber);
         } else if(status === "PHASE") {
             await sendPhaseUpdateEmail(user.email, `${user.firstName}`, account.accountNumber, parseInt(phaseNumber));
-        } else {
+        } else if(status === "BET_WIN") {
+            await sendPickResultEmail(user.email, `${user.firstName}`, account.accountNumber, "WIN");
+        } else if (status === "BET_LOSS") {
+            await sendPickResultEmail(user.email, `${user.firstName}`, account.accountNumber, "LOSS");
+        }
+        else {
             return NextResponse.json({ error: "Invalid status" }, { status: 400 });
         }
         return NextResponse.json({ message: "Email sent" }, { status: 200 });

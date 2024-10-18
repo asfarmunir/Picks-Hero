@@ -75,10 +75,10 @@ export default function Agreements() {
       <div className=" w-full flex text-white flex-col gap-4">
         <div className=" w-full flex justify-between items-start flex-wrap py-4 pb-8 gap-y-4 border-b border-gray-700">
           <div className="flex flex-col gap-1">
-            <h3 className=" text-lg uppercase font-bold">Agreement 1</h3>
+            <h3 className=" text-lg uppercase font-bold">Funded Agreement</h3>
 
             <p className="text-sm text-[#848BAC] tracking-wide ">
-              Agreement 1 Description
+              By signing this, you are agreeing to picks hero funded account policies.
             </p>
           </div>
           <div className="flex flex-wrap gap-2 flex-grow sm:flex-grow-0">
@@ -92,7 +92,7 @@ export default function Agreements() {
               </span>
             </Button>
             <a
-              href="#"
+              href="/agreements/PH Agreement Funded.pdf"
               className="bg-[#333547] w-full md:w-fit rounded-xl hover:bg-slate-600 text-white font-semibold px-6 2xl:text-lg focus:outline-none focus:shadow-outline flex gap-2 justify-center items-center py-4"
               download
             >
@@ -102,12 +102,12 @@ export default function Agreements() {
           </div>
         </div>
 
-        <div className="w-full flex justify-between items-start flex-wrap py-4 pb-8 gap-y-4 border-b border-gray-700">
+        <div className="w-full flex justify-between items-start flex-wrap py-4 pb-8 gap-y-4 ">
           <div className="flex flex-col gap-1">
-            <h3 className=" text-lg uppercase font-bold">Agreement 2</h3>
+            <h3 className=" text-lg uppercase font-bold">Non-Disclosure Agreement</h3>
 
             <p className="text-sm text-[#848BAC] tracking-wide ">
-              Agreement 2 Description
+              By signing this, you are agreeing to picks hero non-disclosure agreement.
             </p>
           </div>
           <div className="flex flex-wrap gap-2 flex-grow sm:flex-grow-0">
@@ -121,7 +121,7 @@ export default function Agreements() {
               </span>
             </Button>
             <a
-              href="#"
+              href="/agreements/NDA Funded PH.pdf"
               className="bg-[#333547] w-full md:w-fit rounded-xl hover:bg-slate-600 text-white font-semibold px-6 2xl:text-lg focus:outline-none focus:shadow-outline flex gap-2 justify-center items-center py-4"
               download
             >
@@ -130,7 +130,7 @@ export default function Agreements() {
             </a>
           </div>
         </div>
-        <div className=" w-full flex justify-between items-start flex-wrap py-4 pb-8 gap-y-4 ">
+        {/* <div className=" w-full flex justify-between items-start flex-wrap py-4 pb-8 gap-y-4 ">
           <div className="flex flex-col gap-1">
             <h3 className=" text-lg uppercase font-bold">Agreement 3</h3>
 
@@ -157,7 +157,7 @@ export default function Agreements() {
               <span className="uppercase text-xs">Download</span>
             </a>
           </div>
-        </div>
+        </div> */}
       </div>
     </>
   );

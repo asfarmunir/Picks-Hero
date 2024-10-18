@@ -3,6 +3,8 @@ import { getBreachedEmailTemplate, getFundedEmailTemplate } from "@/lib/email-te
 import { getAffiliateSaleEmailTemplate } from "@/lib/email-templates/affiliate";
 import { getKycEmailTemplate } from "@/lib/email-templates/kyc";
 import { getPhaseCompleteEmailTemplate } from "@/lib/email-templates/phase-complete";
+import { getPickLossEmailTemplate } from "@/lib/email-templates/pick-loss";
+import { getPickWonEmailTemplate } from "@/lib/email-templates/pick-won";
 import { getResetPasswordEmailTemplate } from "@/lib/email-templates/reset";
 import { getSignupEmailTemplate } from "@/lib/email-templates/signup";
 import {
@@ -182,5 +184,29 @@ export async function sendKycVerifiedEmail (userEmail: string, userName: string)
     console.log("KYC Verified Email Sent.");
   } catch (error) {
     console.error("KYC Verified Email Send Error: ", error);
+  }
+}
+
+export async function sendPickResultEmail (userEmail: string, userName: string, accountNumber: string, result: "WIN" | "LOSS" ) {
+  
+  const template = result === "WIN"
+    ? getPickWonEmailTemplate(userName, accountNumber).template
+    : getPickLossEmailTemplate(userName, accountNumber).template
+  const title = result === "WIN"
+    ? getPickWonEmailTemplate(userName, accountNumber).title
+    : getPickLossEmailTemplate(userName, accountNumber).title
+  
+  const message = {
+    to: userEmail,
+    from: FROM_EMAIL,
+    subject: title,
+    html: template,
+  }
+
+  try {
+    const response = await sendgrid.send(message);
+    console.log("Pick Result Email Sent.");
+  } catch (error) {
+    console.error("Pick Result Email Send Error: ", error);
   }
 }

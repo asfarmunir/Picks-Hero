@@ -324,12 +324,12 @@ const BetHistory = () => {
                 <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm flex items-center justify-center truncate">
                   <p
                     className={`px-2 py-1 border mt-2 rounded-full ${
-                      bet.betStatus === "OPENED"
+                      bet.betStatus === "WIN"
                         ? "bg-green-500/20 text-green-500 border-green-500"
                         : "bg-red-500/20 text-red-500 border-red-500"
                     }`}
                   >
-                    {bet.betStatus}
+                    {bet.betResult}
                   </p>
                 </TableCell>
                 <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
@@ -381,7 +381,7 @@ const BetSlipDialogBody = ({ bet }: { bet: any }) => (
       <div className="flex flex-col space-y-3 items-center bg-[#272837] shadow-inner shadow-slate-700 rounded-xl px-3.5 py-5">
         <div className=" w-full flex items-center justify-between gap-6">
           <p className=" text-lg font-bold uppercase">
-            1 PICK TO WIN
+            {bet.eventId.length > 1 ? "PARLAY TO WIN" : "1 PICK TO WIN"}
             <span className="text-primary-50 ml-1.5">
               ${bet.winnings?.toFixed(2)}
             </span>
@@ -436,7 +436,7 @@ const BetSlipDialogBody = ({ bet }: { bet: any }) => (
           <p className="  font-bold ">${bet.pick}</p>
         </div>
         <div className="flex items-center justify-between w-full border-b pb-3.5 border-slate-700">
-          <p className="  font-bold text-primary-200">WINNIG</p>
+          <p className="  font-bold text-primary-200">WINNING</p>
           <p className="  font-bold ">${bet.winnings?.toFixed(2)}</p>
         </div>
         <div className="flex w-full px-4 py-2 items-center justify-between">

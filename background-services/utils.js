@@ -100,6 +100,23 @@ async function sendPhaseUpdateEmail(accountId, newPhase) {
   }
 }
 
+
+async function sendPickResultEmail(accountId, result) {
+  const emailResponse = await fetch(`${BASE_URL}/api/send-status-email`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      accountId: accountId,
+      status: result === "WIN" ? "BET_WIN" : "BET_LOSS" ,
+    }),
+  })
+  if (!emailResponse.ok) {
+    throw new Error(`Email request failed with status ${emailResponse.status}`);
+  }
+}
+
 async function sendFundedAccountEmail(accountId) {
   const emailResponse = await fetch(`${BASE_URL}/api/send-status-email`, {
     method: "POST",
@@ -143,5 +160,6 @@ module.exports = {
   sendBreachedEmail,
   sendPhaseUpdateEmail,
   sendFundedAccountEmail,
-  sendAppNotification
+  sendAppNotification,
+  sendPickResultEmail
 };

@@ -199,22 +199,20 @@ const BetModal = () => {
             <div className="flex items-center gap-2">
               <button
                 className={`border  
-             px-6 text-xs 2xl:text-lg py-2 flex w-full md:w-fit justify-center  items-center flex-grow md:flex-grow-0 rounded-full ${
-               tab === "OPEN"
-                 ? "border-[#52FC18] bg-[#1A5B0B]"
-                 : " border-gray-700 text-[#848BAC] border-2"
-             } font-semibold uppercase`}
+             px-6 text-xs 2xl:text-lg py-2 flex w-full md:w-fit justify-center  items-center flex-grow md:flex-grow-0 rounded-full ${tab === "OPEN"
+                    ? "border-[#52FC18] bg-[#1A5B0B]"
+                    : " border-gray-700 text-[#848BAC] border-2"
+                  } font-semibold uppercase`}
                 onClick={() => changeTab("OPEN")}
               >
                 Open
               </button>
               <button
                 className={`border  
-             px-6 text-xs 2xl:text-lg py-2 flex w-full md:w-fit justify-center  items-center flex-grow md:flex-grow-0 rounded-full ${
-               tab === "CLOSE"
-                 ? "border-[#52FC18] bg-[#1A5B0B]"
-                 : " border-gray-700 text-[#848BAC] border-2"
-             } font-semibold uppercase`}
+             px-6 text-xs 2xl:text-lg py-2 flex w-full md:w-fit justify-center  items-center flex-grow md:flex-grow-0 rounded-full ${tab === "CLOSE"
+                    ? "border-[#52FC18] bg-[#1A5B0B]"
+                    : " border-gray-700 text-[#848BAC] border-2"
+                  } font-semibold uppercase`}
                 onClick={() => changeTab("CLOSE")}
               >
                 Close
@@ -346,13 +344,12 @@ const BetModal = () => {
                     </TableCell>
                     <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm flex items-center justify-center truncate">
                       <p
-                        className={`px-2 py-1 border mt-2 rounded-full ${
-                          bet.betStatus === "OPENED"
-                            ? "bg-green-500/20 text-green-500 border-green-500"
-                            : "bg-red-500/20 text-red-500 border-red-500"
-                        }`}
+                        className={`px-2 py-1 border mt-2 rounded-full ${bet.betStatus === "WIN"
+                          ? "bg-green-500/20 text-green-500 border-green-500"
+                          : "bg-red-500/20 text-red-500 border-red-500"
+                          }`}
                       >
-                        {bet.betStatus}
+                        {bet.betResult}
                       </p>
                     </TableCell>
                     <TableCell className=" font-semibold max-w-[100px] capitalize text-xs 2xl:text-sm text-center truncate">
@@ -408,7 +405,7 @@ const BetSlipDialogBody = ({ bet }: { bet: any }) => (
       <div className="flex flex-col space-y-3 items-center bg-[#272837] shadow-inner shadow-slate-700 rounded-xl px-3.5 py-5">
         <div className=" w-full flex items-center justify-between gap-6">
           <p className=" text-lg font-bold uppercase">
-            1 PICK TO WIN
+            {bet.eventId.length > 1 ? "PARLAY TO WIN" : "1 PICK TO WIN"}
             <span className="text-primary-50 ml-1.5">
               ${bet.winnings.toFixed(2)}
             </span>

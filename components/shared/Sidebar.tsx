@@ -84,6 +84,24 @@ const Sidebar = () => {
         </div>
         <div className="absolute bottom-5 w-[85%] flex-col flex">
           <Link
+            href={"/create-account"}
+            className={`inline-flex   font-bold uppercase text-sm  2xl:text-lg 
+              ${isCollapsed ? " ml-0.5 w-fit" : "w-full"}
+                ${pathname === "/create-account"
+                ? "text-white inner-left-shadow p-3 2xl:p-4 bg-[#181926] rounded-2xl"
+                : "text-[#848BAC] p-3 2xl:p-4  rounded-2xl hover:bg-[#27283197]"
+              }
+                items-center gap-2 ${isCollapsed ? "justify-center" : ""}`}
+          >
+            <Image
+              src="/icons/add.png"
+              alt="Arrow Icon"
+              width={20}
+              height={20}
+            />
+            {!isCollapsed && <p>ADD ACCOUNT</p>}
+          </Link>
+          <Link
             href={"/help"}
             className={`inline-flex   font-bold uppercase text-sm  2xl:text-lg 
               ${isCollapsed ? " ml-0.5 w-fit" : "w-full"}

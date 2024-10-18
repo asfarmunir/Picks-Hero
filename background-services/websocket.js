@@ -8,6 +8,7 @@ const {
   sendPhaseUpdateEmail,
   sendFundedAccountEmail,
   sendAppNotification,
+  sendPickResultEmail,
 } = require("./utils");
 
 const prisma = new PrismaClient();
@@ -168,13 +169,21 @@ async function checkForUpdates(wss) {
                 picksWon: {
                   increment: 1,
                 },
+              },
+            });
+            const updateLevelUser = await prisma.user.update({
+              where: {
+                id: bet.userId,
+              },
+              data: {
                 profileLevel: {
-                  set: getNewUserLevel(account.picksWon + 1),
+                  set: getNewUserLevel(updatedUser.picksWon),
                 },
               },
             });
             
             await sendAppNotification(bet.userId, "WIN", `Congratulations! You won ${bet.winnings} picks.`);
+            await sendPickResultEmail(bet.userId, "WIN");
 
             if (account.status === "CHALLENGE") {
               const objectivesComplete = areObjectivesComplete(updatedAccount);
@@ -229,6 +238,7 @@ async function checkForUpdates(wss) {
                 },
               },
             });
+            await sendPickResultEmail(bet.userId, "LOSS");
             if (
               account.dailyLoss + bet.pick >=
               getOriginalBalance(account) * 0.15
